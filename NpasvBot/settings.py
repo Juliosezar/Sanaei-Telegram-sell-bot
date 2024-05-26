@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,9 +29,10 @@ SECRET_KEY = 'django-insecure-g-pe!ww-)mi2y_s)uu%eyz#@=ilfp_x*4tq-gf6_e)dzfzjw6#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["5e62-45-8-21-223.ngrok-free.app", "127.0.0.1"]
 
-AUTH_USER_MODEL = "accounts.Admins"
+
+AUTH_USER_MODEL = "accounts.Users"
 
 # Application definition
 
@@ -80,8 +84,15 @@ WSGI_APPLICATION = 'NpasvBot.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'napsvbot',
+        'USER': 'root',
+        'PASSWORD': 'Sina@0610348736',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 

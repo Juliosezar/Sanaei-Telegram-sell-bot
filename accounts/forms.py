@@ -1,5 +1,5 @@
 from django import forms
-from .models import User
+from .models import Users
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
 
@@ -10,7 +10,7 @@ class UserCreationFormAdminPanel(forms.ModelForm):
     password2 = forms.CharField(label="confirm password", widget=forms.PasswordInput)
 
     class Meta:
-        model = User
+        model = Users
         fields = ("username", "password", "password2")
 
     def clean_password2(self):
@@ -28,7 +28,7 @@ class UserCreationFormAdminPanel(forms.ModelForm):
 
 class UserEditFormAdminPanel(forms.ModelForm):
     class Meta:
-        model = User
+        model = Users
         fields = ("username", "password")
 
 

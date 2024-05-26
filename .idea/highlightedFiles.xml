@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectTreeColorHighlighter">
-    <files />
+    <files>
+      <node color="5" path="$PROJECT_DIR$/accounts" />
+      <node color="1" path="$PROJECT_DIR$/connection" />
+      <node color="8" path="$PROJECT_DIR$/NpasvBot" />
+    </files>
     <colors>
       <color id="1" value="#4f060d" name="Color 1" enabled="true" />
       <color id="2" value="#44220e" name="Color 2" enabled="true" />

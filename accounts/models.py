@@ -1,9 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from .managers import UserManager
-
+from django.contrib.auth.models import PermissionsMixin
 # Create your models here.
-class Admins(AbstractBaseUser):  # username & password fields are imported from AbstractBaseUser
+
+
+class Users(AbstractBaseUser):  # username & password fields are imported from AbstractBaseUser
     username = models.CharField(unique=True, max_length=20)
 
     objects = UserManager()
