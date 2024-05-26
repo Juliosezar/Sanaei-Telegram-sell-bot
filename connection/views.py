@@ -12,7 +12,7 @@ COMMANDS = {
     #########################
     "/start": CommandRunner.main_menu,
     'خرید سرویس 🛍': CommandRunner.buy_choose_server,
-    "": ""
+    "کیف پول 💰": CommandRunner.show_wallet_status,
 }
 
 '''

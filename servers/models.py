@@ -6,3 +6,4 @@ class Server(models.Model):
     server_url = models.URLField(max_length=200)
     inbound_id = models.IntegerField()
     inbound_port = models.IntegerField()
+    active = models.BooleanField(default=True)
