@@ -4,6 +4,7 @@
     <files>
       <node color="5" path="$PROJECT_DIR$/accounts" />
       <node color="1" path="$PROJECT_DIR$/connection" />
+      <node color="3" path="$PROJECT_DIR$/custumers" />
       <node color="8" path="$PROJECT_DIR$/NpasvBot" />
     </files>
     <colors>

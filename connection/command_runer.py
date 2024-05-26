@@ -1,7 +1,15 @@
 from os import environ
+
 TOKEN = environ.get('TelegramToken')
 TELEGRAM_SERVER_URL = f"https://api.telegram.org/bot{TOKEN}/"
 import requests
+
+"""
+    class CommandRunner:
+    
+    all respons commands in this class
+
+"""
 
 
 class CommandRunner:
@@ -12,8 +20,9 @@ class CommandRunner:
         print(response)
         return response
 
+
     @staticmethod
-    def get_user_info(chat_id):
+    def get_user_info(chat_id, args):
         data = {'chat_id': chat_id}
         CommandRunner.send_api("getChat", data)
 
@@ -37,7 +46,6 @@ class CommandRunner:
         }
         CommandRunner.send_api("sendMessage", data)
 
-
     @staticmethod
     def buy_choose_server(chat_id, args):
         data = {
@@ -51,5 +59,3 @@ class CommandRunner:
             }
         }
         CommandRunner.send_api("sendMessage", data)
-
-

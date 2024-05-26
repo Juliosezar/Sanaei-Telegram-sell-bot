@@ -6,13 +6,20 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from .command_runer import CommandRunner
 
-
-
-
 COMMANDS = {
+    "/test" : CommandRunner.get_user_info,
+
+    #########################
     "/start": CommandRunner.main_menu,
     'خرید سرویس 🛍': CommandRunner.buy_choose_server,
+    "": ""
 }
+
+'''
+    webhook() function recieves bot commands from Telgram Servers
+    with POST method and handle what command will run for respons
+    to user.
+'''
 
 @csrf_exempt
 def webhook(request):
@@ -30,21 +37,21 @@ def webhook(request):
                     else:
                         args = False
                     COMMANDS[command](chat_id,args)
+# TODO : handle not correct commands
             elif "photo" in update["message"]:
                 print(update["message"]["photo"])
                 text = False
             else:
                 text = False
+# TODO : handle not correct Photoes
         elif 'callback_query' in update:
             query_id = update['callback_query']['id']
             query_data = update['callback_query']['data']
             chat_id = update['callback_query']['message']['chat']['id']
             print(query_data)
-            
-
-
-        else:
-            print("not found")
+    else:
+        print("not found")
+# TODO : handle other thing like videos
 
         return JsonResponse({'status': 'ok'})
     return JsonResponse({'status': 'not a POST request'})
