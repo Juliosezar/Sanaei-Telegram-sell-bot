@@ -5,7 +5,9 @@
       <node color="5" path="$PROJECT_DIR$/accounts" />
       <node color="1" path="$PROJECT_DIR$/connection" />
       <node color="3" path="$PROJECT_DIR$/custumers" />
+      <node color="5" path="$PROJECT_DIR$/finance" />
       <node color="8" path="$PROJECT_DIR$/NpasvBot" />
+      <node color="4" path="$PROJECT_DIR$/servers" />
     </files>
     <colors>
       <color id="1" value="#4f060d" name="Color 1" enabled="true" />

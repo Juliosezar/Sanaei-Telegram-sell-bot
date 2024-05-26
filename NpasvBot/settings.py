@@ -14,6 +14,9 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+import finance.apps
+import servers.apps
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -44,7 +47,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts.apps.AccountsConfig',
-    'connection.apps.ConnectionConfig'
+    'connection.apps.ConnectionConfig',
+    "servers.apps.ServersConfig",
+    'finance.apps.FinanceConfig',
+    'custumers.apps.CustumersConfig',
 ]
 
 MIDDLEWARE = [
