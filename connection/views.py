@@ -11,7 +11,7 @@ COMMANDS = {
 
     #########################
     '/start': CommandRunner.main_menu,
-    'خرید سرویس 🛍': CommandRunner.buy_choose_server,
+    'خرید سرویس 🛍': CommandRunner.select_server,
     'کیف پول 💰': CommandRunner.show_wallet_status,
     'ثبت لینک 🔗': None,
     'تست رایگان 🔥': None,
@@ -24,7 +24,8 @@ COMMANDS = {
     'دانلود اپلیکیشن 💻📱': None,
     'add_to_wallet': CommandRunner.set_pay_amount,
     'set_pay_amount': CommandRunner.send_pay_card_info,
-    '❌ لغو پرداخت 💳': CommandRunner.abort
+    '❌ لغو پرداخت 💳': CommandRunner.abort,
+    'server_buy': CommandRunner.select_config_expire_time
 
 
 }
@@ -72,17 +73,19 @@ def webhook(request):
                 COMMANDS["/start"](chat_id)
 
         elif 'callback_query' in update:
-            query_id = update['callback_query']['id']
+            msg_id = update["callback_query"]["message"]["message_id"]
+            print(update)
             query_data = update['callback_query']['data']
             chat_id = update['callback_query']['message']['chat']['id']
             if query_data.split("<~>")[0] in COMMANDS.keys():
                 command = query_data.split("<~>")[0]
                 if "<~>" in query_data:
                     args = query_data.split("<~>")[1]
-                    COMMANDS[command](chat_id, args)
+                    COMMANDS[command](chat_id, args, msg_id)
                 else:
-                    COMMANDS[command](chat_id)
-
-
+                    COMMANDS[command](chat_id, msg_id)
+            else:
+                CommandRunner.send_notification(chat_id, "ورودی نامعتبر")
+                COMMANDS["/start"](chat_id)
         return JsonResponse({'status': 'ok'})
     return JsonResponse({'status': 'not a POST request'})

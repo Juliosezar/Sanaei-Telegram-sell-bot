@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-g-pe!ww-)mi2y_s)uu%eyz#@=ilfp_x*4tq-gf6_e)dzfzjw6#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["4513-2a01-4f9-c011-5150-00-1.ngrok-free.app", "127.0.0.1"]
+ALLOWED_HOSTS = ["a449-2a02-4540-67-4f14-b4da-cc08-78aa-7f9.ngrok-free.app", "127.0.0.1"]
 
 
 AUTH_USER_MODEL = "accounts.Users"
@@ -97,6 +97,7 @@ DATABASES = {
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
+            "charset": "utf8mb4",
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
         }
     }

@@ -5,6 +5,7 @@ import requests
 from custumers.views import Customer
 import json
 from custumers.models import Customer as CustumerModel
+from servers.models import Server as ServerModel
 
 TOKEN = environ.get('TelegramToken')
 TELEGRAM_SERVER_URL = f"https://api.telegram.org/bot{TOKEN}/"
@@ -26,7 +27,7 @@ class CommandRunner:
         return response
 
     @classmethod
-    def send_notification(cls,chat_id, msg):
+    def send_notification(cls, chat_id, msg):
         data = {'chat_id': chat_id,
                 'text': msg}
         cls.send_api("sendMessage", data)
@@ -35,8 +36,9 @@ class CommandRunner:
     def abort(cls, chat_id, *args):
         cls.send_notification(chat_id, "❌ عملیات لغو شد.❗️")
         cls.main_menu(chat_id)
+
     @classmethod
-    def get_user_info(cls,chat_id, *args):
+    def get_user_info(cls, chat_id, *args):
         data = {'chat_id': chat_id}
         info = CommandRunner.send_api("getChat", data)
         if "username" in info["result"]:
@@ -82,20 +84,6 @@ class CommandRunner:
         cls.send_api("sendMessage", data)
 
     @classmethod
-    def buy_choose_server(cls, chat_id, *args):
-        data = {
-            'chat_id': chat_id,
-            'text': 'Choose an option:',
-            'reply_markup': {
-                'inline_keyboard': [
-                    [{'text': 'Button 1', 'callback_data': 'server<~>12'}],
-                    [{'text': 'Button 2', "callback_data": "server<~>14"}]
-                ]
-            }
-        }
-        cls.send_api("sendMessage", data)
-
-    @classmethod
     def show_wallet_status(cls, chat_id, *args):
         amount = (Wallet.get_wallet_anount(chat_id))
         amount = f"{amount:,}"
@@ -111,16 +99,15 @@ class CommandRunner:
         }
         cls.send_api("sendMessage", data)
 
-
     @classmethod
     def set_pay_amount(cls, chat_id, *args):
         Customer.change_custimer_temp_status(chat_id, "set_pay_amount")
         data = {
             'chat_id': chat_id,
-            "text" : "مبلغ مورد نظر را خود را به تومان وارد کنید :",
+            "text": "مبلغ مورد نظر را خود را به تومان وارد کنید :",
             'reply_markup': {
                 'keyboard': [
-                    [{'text':'❌ لغو پرداخت 💳'}],
+                    [{'text': '❌ لغو پرداخت 💳'}],
                 ],
                 'resize_keyboard': True,
                 'one_time_keyboard': True,
@@ -140,7 +127,7 @@ class CommandRunner:
                     card_name = data["pay_card_name"]
                 data = {
                     'chat_id': chat_id,
-                    'text':f" مبلغ {amount}تومان را به شماره کارت زیر انتقال دهید، سپس عکس آنرا بعد از همین پیام ارسال نمایید : "+ f'\n\n`{card_num}`\n {card_name}',
+                    'text': f" مبلغ {amount}تومان را به شماره کارت زیر انتقال دهید، سپس عکس آنرا بعد از همین پیام ارسال نمایید : " + f'\n\n`{card_num}`\n {card_name}',
                     'parse_mode': 'Markdown',
                 }
                 Customer.change_custimer_temp_status(chat_id, "get_paid_picture")
@@ -158,3 +145,37 @@ class CommandRunner:
             'text': f' با سلام خدمت شما کاربر گرامی \n\n' + "🟢 پشتیبانی ۲۴ ساعته با آی دی زیر    👇\n" + "🆔 @NapsV_supp"
         }
         cls.send_api("sendMessage", data)
+
+    @classmethod
+    def select_server(cls, chat_id, *args):
+        server_obj = ServerModel.objects.filter(active=True)
+        keyboard_list = []
+        for i in server_obj:
+            keyboard_list.append(
+                [{'text':i.server_name, 'callback_data':f"server_buy<~>{i.server_username}"}]
+            )
+        data = {
+            'chat_id': chat_id,
+            'text': '🌐 سرور مورد نظر خود را انتخاب کنید 👇🏻',
+            'reply_markup': {
+                'inline_keyboard': keyboard_list
+            },
+        }
+        cls.send_api("sendMessage", data)
+
+    @classmethod
+    def select_config_expire_time(cls, chat_id, *args):
+        print(args)
+        msg_id = int(args[1])
+        print(msg_id)
+        data = {
+            'chat_id': chat_id,
+            'message_id' : msg_id,
+            'text': '🌐 مدت زمان سرویس خود را انتخاب کنید 👇🏻',
+            'reply_markup': {
+                'inline_keyboard':[
+                    [{'text': "1month", 'callback_data': f"expire_time<~>6546"}]
+            ]
+            },
+        }
+        cls.send_api("editMessageText", data)

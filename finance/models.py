@@ -10,3 +10,7 @@ class Payment(models.Model):
     config_in_queue = models.BooleanField(default=False)
 
 
+class Prices(models.Model):
+    usage_limit = models.PositiveIntegerField()
+    expire_limit = models.PositiveIntegerField()
+    price = models.PositiveIntegerField()
