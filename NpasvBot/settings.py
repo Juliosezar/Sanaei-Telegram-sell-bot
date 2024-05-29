@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-g-pe!ww-)mi2y_s)uu%eyz#@=ilfp_x*4tq-gf6_e)dzfzjw6#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["a449-2a02-4540-67-4f14-b4da-cc08-78aa-7f9.ngrok-free.app", "127.0.0.1"]
+ALLOWED_HOSTS = ["049e-2a01-4f9-c011-5150-00-1.ngrok-free.app", "127.0.0.1"]
 
 
 AUTH_USER_MODEL = "accounts.Users"
@@ -138,7 +138,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-
+MEDIA_ROOT = BASE_DIR/ "media/"
+MEDIA_URL = 'media/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 

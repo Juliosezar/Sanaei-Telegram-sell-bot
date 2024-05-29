@@ -6,9 +6,14 @@ from custumers.views import Customer
 import json
 from custumers.models import Customer as CustumerModel
 from servers.models import Server as ServerModel
+from finance.views import Prices
+from finance.models import Prices as PricesModel
+from finance.models import Payment as PaymentModel
+from django.conf import settings
 
 TOKEN = environ.get('TelegramToken')
 TELEGRAM_SERVER_URL = f"https://api.telegram.org/bot{TOKEN}/"
+
 
 """
     class CommandRunner:
@@ -17,14 +22,32 @@ TELEGRAM_SERVER_URL = f"https://api.telegram.org/bot{TOKEN}/"
 
 """
 
+def args_spliter(args):
+    return args.split("<%>")
+
 
 class CommandRunner:
+    @classmethod
+    def test(cls, chat_id):
+        Prices.get_expire_times()
+
     @classmethod
     def send_api(cls, api_method, data):
         url = TELEGRAM_SERVER_URL + api_method
         response = requests.post(url, json=data).json()
         print(response)
         return response
+
+    @classmethod
+    def download_photo(cls, file_id, chat_id , config_in_queue):
+        file_info = requests.get(f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file_id}").json()["result"]
+        file_url = f"https://api.telegram.org/file/bot{TOKEN}/{file_info['file_path']}"
+        img_data = requests.get(file_url).content
+        PaymentModel.objects.create(
+            user=chat_id,
+
+        ).save()
+
 
     @classmethod
     def send_notification(cls, chat_id, msg):
@@ -152,7 +175,7 @@ class CommandRunner:
         keyboard_list = []
         for i in server_obj:
             keyboard_list.append(
-                [{'text':i.server_name, 'callback_data':f"server_buy<~>{i.server_username}"}]
+                [{'text':i.server_name, 'callback_data':f"server_buy<~>{i.server_id}"}]
             )
         data = {
             'chat_id': chat_id,
@@ -164,18 +187,186 @@ class CommandRunner:
         cls.send_api("sendMessage", data)
 
     @classmethod
-    def select_config_expire_time(cls, chat_id, *args):
-        print(args)
-        msg_id = int(args[1])
-        print(msg_id)
+    def back_to_select_server(cls, chat_id, *args):
+        msg_id = int(args[0])
+        server_obj = ServerModel.objects.filter(active=True)
+        keyboard_list = []
+        for i in server_obj:
+            keyboard_list.append(
+                [{'text': i.server_name, 'callback_data': f"server_buy<~>{i.server_id}"}]
+            )
         data = {
             'chat_id': chat_id,
-            'message_id' : msg_id,
-            'text': '🌐 مدت زمان سرویس خود را انتخاب کنید 👇🏻',
+            'message_id': msg_id,
+            'text': '🌐 سرور مورد نظر خود را انتخاب کنید 👇🏻',
             'reply_markup': {
-                'inline_keyboard':[
-                    [{'text': "1month", 'callback_data': f"expire_time<~>6546"}]
-            ]
+                'inline_keyboard': keyboard_list
             },
         }
         cls.send_api("editMessageText", data)
+
+    @classmethod
+    def select_config_expire_time(cls, chat_id, *args):
+        server_id = args[1]
+        msg_id = int(args[0])
+        month_list = []
+        for m in Prices.get_expire_times():
+            if m == 0:
+                m_text = " ♾ " + "زمان نامحدود"
+            else:
+                m_text = " 🔘 " + f"{m} ماهه"
+            month_list.append([{'text': f"{m_text}", 'callback_data': f"expire_time<~>{server_id}<%>{m}"}])
+        month_list.append([{'text':'🔙 بازگشت', 'callback_data':f"back_to_servers<~>"}])
+        server_name = ServerModel.objects.get(server_id=server_id).server_name
+        data = {
+            'chat_id': chat_id,
+            'message_id' : msg_id,
+            'text': f' 🌍 سرور: {server_name} \n\n' + '⏱ مدت زمان سرویس خود را انتخاب کنید 👇🏻',
+            'reply_markup': {
+                'inline_keyboard':month_list
+            },
+        }
+        cls.send_api("editMessageText", data)
+
+    @classmethod
+    def select_config_usage(cls, chat_id, *args):
+        msg_id = int(args[0])
+        arg_splited = args_spliter(args[1])
+        server_id = arg_splited[0]
+        expire_month = int(arg_splited[1])
+        price_obj = Prices.get_usage_and_prices_of_selected_month(expire_month)
+        usage_list = []
+        for u in price_obj:
+            if u.usage_limit == 0:
+                u_text =  " ♾ " + "نامحدود" + " - " + f"{u.user_limit} کاربره" + " - " + f"{u.price} تومان "
+            else:
+                u_text = " 🔘 " + f"{u.usage_limit} گیگ" + " - "  + f"{u.price} تومان "
+            usage_list.append([{'text': u_text, 'callback_data': f"usage_limit<~>{server_id}<%>{expire_month}<%>{u.usage_limit}<%>{u.user_limit}"}])
+        usage_list.append([{'text':'🔙 بازگشت', 'callback_data':f"back_to_select_expire_time<~>{server_id}"}])
+        server_name = ServerModel.objects.get(server_id=server_id).server_name
+
+        if expire_month == 0:
+            choosen = " زمان نامحدود ♾ "
+        else:
+            choosen = f" {expire_month} ماهه"
+        data = {
+            'chat_id': chat_id,
+            'message_id': msg_id,
+            'text':f' 🌍 سرور:  {server_name} \n\n' + f' ⏱ انقضا: {choosen}\n\n'+ '🔃 حجم کانفیگ خود را انتخاب کنید 👇🏻',
+            'reply_markup': {
+                'inline_keyboard': usage_list
+            },
+        }
+        cls.send_api("editMessageText", data)
+
+
+    @classmethod
+    def confirm_config_buying(cls, chat_id, *args):
+        msg_id = int(args[0])
+        arg_splited = args_spliter(args[1])
+        server_id = arg_splited[0]
+        expire_month = int(arg_splited[1])
+        usage_limit = int(arg_splited[2])
+        user_limit = int(arg_splited[3])
+        custumer_obj = CustumerModel.objects.get(userid=chat_id)
+        wallet_amount = custumer_obj.wallet
+        price = PricesModel.objects.get(expire_limit=expire_month, user_limit=user_limit, usage_limit=usage_limit).price
+        pay_amount = price - wallet_amount
+        price_text = f"{price:,}"
+        wallet_amount_text = f"{wallet_amount:,}"
+        pay_amount_text = f"{pay_amount:,}"
+
+        if expire_month == 0:
+            expire_month_text = " زمان نامحدود ♾"
+        else:
+            expire_month_text = f" {expire_month} ماهه"
+        if usage_limit == 0:
+            usage_limit_text = ' نامحدود ♾'
+        else:
+            usage_limit_text = f'{usage_limit} GB'
+
+        if user_limit == 0:
+            user_limit_text = ' بدون محدودیت ♾'
+        else:
+            user_limit_text = user_limit
+        server_name = ServerModel.objects.get(server_id=server_id).server_name
+
+        if wallet_amount >= price:
+
+            data = {
+                'chat_id': chat_id,
+                'message_id': msg_id,
+                'text': f' 🌍 سرور:  {server_name} \n' + f' ⏱ انقضا: {expire_month_text}\n'
+                        f' 🔃 حجم : {usage_limit_text} \n' + f' 👤 محدودیت کاربر: {user_limit_text}\n\n' + f' 💵 هزینه سرویس: {price_text} تومان \n\n'
+                        f'کاربر گرامی، موجودی کیف پول شما {wallet_amount_text} تومان است، برای فعال سازی این سرویس مبلغ {price_text}'
+                        + f' تومان از کیف پول شما کسر خواهد شد.\n تایید خرید 👇🏻',
+                'reply_markup': {
+                    'inline_keyboard': [[{'text': '✅ تایید خرید 💳', 'callback_data': f'config_buy_confirmed<~>{server_id}<%>{expire_month}<%>{usage_limit}<%>{user_limit}'}],
+                                        [{"text": '🔙 بازگشت','callback_data': f"expire_time<~>{server_id}<%>{expire_month}"}],
+                                        [{'text': 'انصراف ❌', 'callback_data': 'abort_buying'}]]
+                },
+            }
+        else:
+            if wallet_amount == 0:
+                text_pay = f'کاربر گرامی، برای فعال سازی این سرویس مبلغ {pay_amount_text}'
+            else:
+                text_pay = f'کاربر گرامی، موجودی کیف پول شما {wallet_amount_text} تومان است، برای فعال سازی این سرویس مبلغ {pay_amount_text}'
+            data = {
+                'chat_id': chat_id,
+                'message_id': msg_id,
+                'text': f' 🌍 سرور:  {server_name} \n' + f' ⏱ انقضا: {expire_month_text}\n'
+                        f' 🔃 حجم : {usage_limit_text} \n' + f' 👤 محدودیت کاربر: {user_limit_text}\n\n' + f' 💵 هزینه سرویس: {price_text} تومان \n\n'
+                        + text_pay + f' تومان را پرداخت کنید 👇🏻',
+                'reply_markup': {
+                    'inline_keyboard': [[{'text':'✅ پرداخت / کارت به کارت 💳', 'callback_data':f'pay_for_config<~>{server_id}<%>{expire_month}<%>{usage_limit}<%>{user_limit}'}],
+                                        [{"text":'🔙 بازگشت', 'callback_data':f"expire_time<~>{server_id}<%>{expire_month}"}],
+                                        [{'text': 'انصراف ❌' , 'callback_data': 'abort_buying'}]]
+                },
+            }
+            data2 = {
+
+            }
+        cls.send_api("editMessageText", data)
+
+
+    @classmethod
+    def pay_for_config(cls, chat_id, *args):
+        msg_id = args[0]
+        arg_splited = args_spliter(args[1])
+        server_id = arg_splited[0]
+        expire_month = int(arg_splited[1])
+        usage_limit = int(arg_splited[2])
+        user_limit = int(arg_splited[3])
+        price = PricesModel.objects.get(usage_limit=usage_limit,expire_limit=expire_month, user_limit=user_limit).price
+        print(args)
+        with open(settings.BASE_DIR / 'connection/settings.json', 'r') as f:
+            data = json.load(f)
+            card_num = data["pay_card_number"]
+            card_name = data["pay_card_name"]
+        data = {
+            'message_id': msg_id,
+            'chat_id': chat_id,
+            'text': f" مبلغ {price}تومان را به شماره کارت زیر انتقال دهید، سپس عکس آنرا بعد از همین پیام ارسال نمایید : " + f'\n\n`{card_num}`\n {card_name}',
+            'parse_mode': 'Markdown',
+            'reply_markup': {
+                'inline_keyboard': [
+                    [{'text': 'انصراف ❌', 'callback_data': 'abort_buying'}]]
+            },
+
+        }
+        data2 = {
+            'chat_id': chat_id,
+            "text": "مبلغ مورد نظر را خود را به تومان وارد کنید :",
+            'reply_markup': {
+                'keyboard': [
+                    [{'text': '❌ لغو پرداخت 💳'}],
+                ],
+                'resize_keyboard': True,
+                'one_time_keyboard': True,
+            }
+        }
+        Customer.change_custimer_temp_status(chat_id, "get_paid_picture_for_config")
+        cls.send_api("sendMessage", data2)
+        cls.send_api("editMessageText", data)
+
+
