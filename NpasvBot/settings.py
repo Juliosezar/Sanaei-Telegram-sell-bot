@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-g-pe!ww-)mi2y_s)uu%eyz#@=ilfp_x*4tq-gf6_e)dzfzjw6#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["049e-2a01-4f9-c011-5150-00-1.ngrok-free.app", "127.0.0.1"]
+ALLOWED_HOSTS = ["6194-2001-41d0-b00-a00-00-e999-b22e.ngrok-free.app", "127.0.0.1"]
 
 
 AUTH_USER_MODEL = "accounts.Users"
@@ -138,8 +138,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-MEDIA_ROOT = BASE_DIR/ "media/"
-MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MEDIA_URL = '/media/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 

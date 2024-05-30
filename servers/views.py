@@ -5,7 +5,10 @@ from .models import Server as ServerModel
 import requests
 from django.conf import settings
 import json
-
+from servers.models import CreateConfigQueue
+import random
+import string
+from custumers.models import Customer as CustomerModel
 class ServerApi:
     @classmethod
     def create_session(cls, server_id):
@@ -69,3 +72,31 @@ class ServerApi:
         respons = session.post(url, headers=header, json=data1)
         print(respons)
         return respons
+
+
+
+class Configs:
+    @classmethod
+    def add_configs_to_queue_before_confirm(cls, server_id,user_id, config_uuid, usage_limit, expire_time, user_limit, price):
+        user_obj = CustomerModel.objects.get(userid=user_id)
+        if CreateConfigQueue.objects.filter(userid=user_obj, pay_confirm=False).exists():
+            CreateConfigQueue.objects.get(userid=user_obj, pay_confirm=False).delete()
+
+        CreateConfigQueue.objects.create(
+            userid=user_obj,
+            server=ServerModel.objects.get(server_id=server_id),
+            config_uuid=config_uuid,
+            config_name=Configs.generate_unique_name(),
+            usage_limit=usage_limit,
+            expire_time=expire_time,
+            user_limit=user_limit,
+            price=price
+        ).save()
+
+
+
+    @staticmethod
+    def generate_unique_name():
+        characters = string.digits + string.ascii_uppercase
+        unique_number = ''.join(random.choice(characters) for _ in range(6))
+        return unique_number

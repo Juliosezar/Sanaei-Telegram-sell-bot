@@ -1,3 +1,5 @@
+import uuid
+from custumers.models import Customer
 from django.db import models
 
 class Server(models.Model):
@@ -10,3 +12,17 @@ class Server(models.Model):
     inbound_id = models.IntegerField()
     inbound_port = models.IntegerField()
     active = models.BooleanField(default=True)
+
+
+
+class CreateConfigQueue(models.Model):
+    server = models.ForeignKey(Server, on_delete=models.CASCADE)
+    userid = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    config_uuid = models.UUIDField(unique=True)
+    config_name = models.CharField(max_length=50, unique=True)
+    usage_limit = models.IntegerField()
+    expire_time = models.IntegerField()
+    user_limit = models.IntegerField()
+    price = models.IntegerField()
+    sent_to_user = models.BooleanField(default=False)
+    pay_confirm = models.BooleanField(default=False)

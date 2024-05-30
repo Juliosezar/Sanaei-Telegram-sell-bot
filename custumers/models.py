@@ -1,5 +1,4 @@
 import uuid
-from servers.models import Server
 from django.db import models
 
 
@@ -12,17 +11,6 @@ class Customer(models.Model):
     test_config = models.BooleanField(default=False)
     temp_status = models.CharField(max_length=30, default="normal")
     pay_temp_amount = models.PositiveIntegerField(default=0)
-
-
-
-class Config(models.Model):
-    userid = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    server = models.ForeignKey(Server, on_delete=models.CASCADE)
-    config_uuid = models.UUIDField(default=uuid.uuid4, unique=True)
-    config_name = models.CharField(max_length=70)
-    change_location_number = models.IntegerField(default=0)
-    active = models.BooleanField(default=True)
-
 
 class CustumerHistory(models.Model):
     userid = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)

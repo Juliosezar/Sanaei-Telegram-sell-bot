@@ -8,8 +8,14 @@ from custumers.models import Customer as CustumerModel
 from servers.models import Server as ServerModel
 from finance.views import Prices
 from finance.models import Prices as PricesModel
-from finance.models import Payment as PaymentModel
+from finance.models import ConfirmPaymentQueue as ConfirmPaymentQueueModel
+from finance.views import Paying
 from django.conf import settings
+from servers.views import Configs
+from uuid import uuid4
+from django.core.files.base import ContentFile
+from django.core.files.base import ContentFile
+
 
 TOKEN = environ.get('TelegramToken')
 TELEGRAM_SERVER_URL = f"https://api.telegram.org/bot{TOKEN}/"
@@ -39,15 +45,15 @@ class CommandRunner:
         return response
 
     @classmethod
-    def download_photo(cls, file_id, chat_id , config_in_queue):
+    def download_photo(cls, file_id, chat_id ):
         file_info = requests.get(f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file_id}").json()["result"]
         file_url = f"https://api.telegram.org/file/bot{TOKEN}/{file_info['file_path']}"
         img_data = requests.get(file_url).content
-        PaymentModel.objects.create(
-            user=chat_id,
-
-        ).save()
-
+        user_obj = CustumerModel.objects.get(userid=chat_id)
+        cpq_obj = ConfirmPaymentQueueModel.objects.get(userid=user_obj, status=0)
+        cpq_obj.image.save(file_id+".jpg",ContentFile(img_data),save=False)
+        cpq_obj.status = 1
+        cpq_obj.save()
 
     @classmethod
     def send_notification(cls, chat_id, msg):
@@ -92,7 +98,7 @@ class CommandRunner:
             'text': '🏠 منوی اصلی 🏠',
             'reply_markup': {
                 'keyboard': [
-                    [{'text': 'خرید سرویس 🛍'}],
+                    [{'text': 'خرید سرویس 🛍','callback_data':"kjhbjbk"}],
                     [{'text': 'ثبت لینک 🔗'}, {'text': 'تست رایگان 🔥'}],
                     [{'text': 'سرویس های من 🧑‍💻'}, {'text': 'کیف پول 💰'}],
                     [{'text': 'تعرفه ها 💳'}, {'text': 'ارتباط با ما 👤'}],
@@ -100,8 +106,8 @@ class CommandRunner:
                     [{'text': 'راهنمای اتصال 💡'}, {'text': 'دانلود اپلیکیشن 💻📱'}],
                 ],
                 'resize_keyboard': True,
-                'one_time_keyboard': False,
-
+                'one_time_keyboard': True,
+                'is_persistent':False,
             }
         }
         cls.send_api("sendMessage", data)
@@ -154,6 +160,7 @@ class CommandRunner:
                     'parse_mode': 'Markdown',
                 }
                 Customer.change_custimer_temp_status(chat_id, "get_paid_picture")
+                Paying.pay_to_wallet_before_img(chat_id, amount)
                 cls.send_api("sendMessage", data)
             else:
                 print("not number")
@@ -334,10 +341,10 @@ class CommandRunner:
         msg_id = args[0]
         arg_splited = args_spliter(args[1])
         server_id = arg_splited[0]
-        expire_month = int(arg_splited[1])
+        expire_limit = int(arg_splited[1])
         usage_limit = int(arg_splited[2])
         user_limit = int(arg_splited[3])
-        price = PricesModel.objects.get(usage_limit=usage_limit,expire_limit=expire_month, user_limit=user_limit).price
+        price = PricesModel.objects.get(usage_limit=usage_limit,expire_limit=expire_limit, user_limit=user_limit).price
         print(args)
         with open(settings.BASE_DIR / 'connection/settings.json', 'r') as f:
             data = json.load(f)
@@ -348,25 +355,25 @@ class CommandRunner:
             'chat_id': chat_id,
             'text': f" مبلغ {price}تومان را به شماره کارت زیر انتقال دهید، سپس عکس آنرا بعد از همین پیام ارسال نمایید : " + f'\n\n`{card_num}`\n {card_name}',
             'parse_mode': 'Markdown',
-            'reply_markup': {
-                'inline_keyboard': [
-                    [{'text': 'انصراف ❌', 'callback_data': 'abort_buying'}]]
-            },
-
         }
         data2 = {
             'chat_id': chat_id,
-            "text": "مبلغ مورد نظر را خود را به تومان وارد کنید :",
+            "text": "تصویر پرداختی خود را ارسال کنید :",
+            'resize_keyboard': True,
+            'one_time_keyboard': True,
             'reply_markup': {
                 'keyboard': [
-                    [{'text': '❌ لغو پرداخت 💳'}],
-                ],
-                'resize_keyboard': True,
-                'one_time_keyboard': True,
-            }
+                    [{'text': '❌ لغو پرداخت 💳'}]]
+            },
         }
         Customer.change_custimer_temp_status(chat_id, "get_paid_picture_for_config")
+        uu_id = uuid4()
+        Paying.pay_config_before_img(chat_id, price, uu_id)
+        Configs.add_configs_to_queue_before_confirm(server_id, chat_id, uu_id, usage_limit, expire_limit, user_limit, price)
+
         cls.send_api("sendMessage", data2)
         cls.send_api("editMessageText", data)
+
+
 
 
