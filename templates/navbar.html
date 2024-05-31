@@ -1,0 +1,35 @@
+{% load static %}
+
+    <script>
+        $(document).ready(function() {
+            $(".no_access").click(function () {
+                $("#loading").hide();
+                $("#popup-window").show();
+                $("#main").hide()
+            });
+
+            $("#close-button").click(function () {
+                $("#popup-window").hide();
+                $("#main").show();
+            });
+        });
+    </script>
+<header dir="ltr" class="header">
+    <h1 class="logo"><a id="logo" href="{% url 'accounts:home' %}">NapsV Telegram BOT</a></h1>
+    <ul class="main-nav">
+        <div class="dropdown">
+            <h3 dir="rtl" class="dropbtn" id="user boxx" >
+                <div class="boz">
+                    <span id="username">{{ user.username }}</span>
+                    <img id="usericon" src="{% static "img/user.png" %}" alt="user">
+                </div>
+            </h3>
+            <div class="dropdown-content">
+                <a href="{% url 'accounts:home' %}">خروج از حساب</a>
+            </div>
+        </div>
+
+        
+        <li class="hidephone"><a id="home" href='{% url 'accounts:home' %}'>صفحه اصلی</a></li>
+    </ul>
+</header>

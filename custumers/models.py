@@ -13,7 +13,7 @@ class Customer(models.Model):
     pay_temp_amount = models.PositiveIntegerField(default=0)
 
 class CustumerHistory(models.Model):
-    userid = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
+    custumer = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
     by_user = models.CharField(max_length=50)
     record_date = models.DateTimeField()
 

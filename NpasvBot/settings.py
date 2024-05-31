@@ -32,8 +32,9 @@ SECRET_KEY = 'django-insecure-g-pe!ww-)mi2y_s)uu%eyz#@=ilfp_x*4tq-gf6_e)dzfzjw6#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["6194-2001-41d0-b00-a00-00-e999-b22e.ngrok-free.app", "127.0.0.1"]
+ALLOWED_HOSTS = ["e032-2a01-4f9-c011-5150-00-1.ngrok-free.app", "127.0.0.1"]
 
+LOGIN_URL = "/accounts/login/"
 
 AUTH_USER_MODEL = "accounts.Users"
 
@@ -51,6 +52,8 @@ INSTALLED_APPS = [
     "servers.apps.ServersConfig",
     'finance.apps.FinanceConfig',
     'custumers.apps.CustumersConfig',
+    'compressor',
+    'django_crontab'
 ]
 
 MIDDLEWARE = [
@@ -68,7 +71,12 @@ ROOT_URLCONF = 'NpasvBot.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
+        'DIRS': [BASE_DIR / 'templates',
+                 BASE_DIR / 'custumers/templates',
+                 BASE_DIR / 'accounts/templates',
+                 BASE_DIR / 'finance/templates',
+                 BASE_DIR / 'servers/templates',
+        ]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -138,6 +146,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_FINDERS = ("compressor.finders.CompressorFinder",)
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'django_libsass.SassCompiler'),
+)
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MEDIA_URL = '/media/'

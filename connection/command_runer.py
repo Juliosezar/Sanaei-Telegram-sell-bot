@@ -5,7 +5,7 @@ import requests
 from custumers.views import Customer
 import json
 from custumers.models import Customer as CustumerModel
-from servers.models import Server as ServerModel
+from servers.models import Server as ServerModel, CreateConfigQueue
 from finance.views import Prices
 from finance.models import Prices as PricesModel
 from finance.models import ConfirmPaymentQueue as ConfirmPaymentQueueModel
@@ -45,15 +45,19 @@ class CommandRunner:
         return response
 
     @classmethod
-    def download_photo(cls, file_id, chat_id ):
+    def download_photo(cls, file_id, chat_id, config_in_queue ):
         file_info = requests.get(f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file_id}").json()["result"]
         file_url = f"https://api.telegram.org/file/bot{TOKEN}/{file_info['file_path']}"
         img_data = requests.get(file_url).content
         user_obj = CustumerModel.objects.get(userid=chat_id)
-        cpq_obj = ConfirmPaymentQueueModel.objects.get(userid=user_obj, status=0)
+        cpq_obj = ConfirmPaymentQueueModel.objects.get(custumer=user_obj, status=0)
         cpq_obj.image.save(file_id+".jpg",ContentFile(img_data),save=False)
         cpq_obj.status = 1
         cpq_obj.save()
+        if config_in_queue:
+            cq =  CreateConfigQueue.objects.get(custumer=user_obj, pay_status=0, sent_to_user=False)
+            cq.pay_status = 1
+            cq.save()
 
     @classmethod
     def send_notification(cls, chat_id, msg):

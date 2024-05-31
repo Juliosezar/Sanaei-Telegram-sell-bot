@@ -3,6 +3,10 @@ from .models import Prices as PriceModel
 # from .models import Payment
 from custumers.models import Customer
 from finance.models import ConfirmPaymentQueue as PaymentQueueModel
+from servers.models import CreateConfigQueue
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 class Wallet:
     @classmethod
     def get_wallet_anount(cls, user_id):
@@ -34,10 +38,10 @@ class Paying:
     @classmethod
     def pay_config_before_img(cls, user_id, price, uuid):
         user_obj = Customer.objects.get(userid=user_id)
-        if PaymentQueueModel.objects.filter(userid=user_obj, status=0).exists():
-            PaymentQueueModel.objects.get(userid=user_obj, status=0).delete()
+        if PaymentQueueModel.objects.filter(custumer=user_obj, status=0).exists():
+            PaymentQueueModel.objects.get(custumer=user_obj, status=0).delete()
         PaymentQueueModel.objects.create(
-            userid=user_obj,
+            custumer=user_obj,
             price=price,
             status=0,
             config_in_queue=True,
@@ -47,11 +51,19 @@ class Paying:
     @classmethod
     def pay_to_wallet_before_img(cls, user_id, price):
         user_obj = Customer.objects.get(userid=user_id)
-        if PaymentQueueModel.objects.filter(userid=user_obj, status=0).exists():
-            PaymentQueueModel.objects.get(userid=user_obj, status=0).delete()
+        if PaymentQueueModel.objects.filter(custumer=user_obj, status=0).exists():
+            PaymentQueueModel.objects.get(custumer=user_obj, status=0).delete()
         PaymentQueueModel.objects.create(
-            userid=user_obj,
+            custumer=user_obj,
             price=price,
             status=0,
             config_in_queue=False,
         ).save()
+
+
+
+class ConfirmPayment(LoginRequiredMixin, View):
+    def get(self, request):
+        pay_queue_obj = PaymentQueueModel.objects.filter(status=1)
+
+        return render(request, 'confirm_payment.html', {'obj': pay_queue_obj})

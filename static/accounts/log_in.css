@@ -1,0 +1,181 @@
+body {
+
+    font-family: Arial, sans-serif;
+}
+.message-container {
+    background-color: #ffcccc;
+    padding: 10px;
+}
+.xy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.errors {
+    font-size: x-large;
+    padding:0.5rem 0;
+    background-color: rgba(255, 132, 142, 0.69);
+    border: #e10010 solid;
+    border-radius: 15px;
+    text-align: center;
+    margin: 1rem 3rem;
+}
+.container {
+    justify-self: center;
+    width: clamp(25rem, 50vw, 35rem);
+    padding: 20px;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+h2 {
+    text-align: center;
+    color: #333;
+    font-size: 20px; /* سایز بزرگتر برای عنوان */
+}
+form {
+    margin-top: 20px;
+}
+label {
+    display: block;
+    margin-bottom: 10px;
+    color: #666;
+    font-size: 140%; /* سایز بزرگتر برای لیبل‌ها */
+    text-align: right; /* قرار دادن لیبل‌ها به سمت راست */
+}
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    font-size: 130%;
+    padding-block: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+input[type="submit"] {
+    display: block;
+    font-size: 130%;
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+#navbar {
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 3rem;
+
+    background-color: rgba(255, 255, 255, 0.34);
+        justify-items: center;
+    align-items: center;
+}
+
+
+#icon {
+
+    width: 100%;
+    margin: 1rem;
+}
+
+.site_name {
+    font-size: 10vw;
+        text-decoration: underline;
+    font-weight: bolder;
+    font-family: C059, sans-serif;
+
+}
+
+.site_name1 {
+    margin-top: 3rem;
+}
+.site_name2 {
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 700px){
+        #icon {
+        width: 50%;
+    }
+}
+
+@media (min-width: 1000px){
+        #icon {
+        width: 40%;
+    }
+    .site_name {
+    font-size: 7vw;
+
+}
+}
+
+@media (max-width: 460px) {
+.site_name {
+    font-size: 15vw;
+
+}
+
+    #navbar {
+    border-radius: 20px;
+    margin: 0.5rem 0.5rem;
+    padding: 0 0.5rem;
+    }
+
+
+
+
+
+    body {
+        margin: 0;
+
+    }
+
+    #icon {
+        width: 100%;
+    }
+    .container {
+        margin: 1rem auto;
+        padding: 20px;
+        width: 85vw;
+        align-items: center;
+        background-color: #fff;
+        border-radius: 5px;
+    }
+    input[type="text"],
+    input[type="password"] {
+        font-size: large;
+        padding-block: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+    input[type="submit"] {
+        display: block;
+        font-size: 100%;
+
+        padding: 10px;
+        margin-top: 2rem;
+        background-color: #4CAF50;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .errors {
+    font-size: large;
+    padding:0.5rem 0;
+    background-color: rgba(255, 132, 142, 0.69);
+    border: #e10010 solid;
+    border-radius: 15px;
+    text-align: center;
+    margin: 1rem 1rem;
+}
+}

@@ -1,0 +1,56 @@
+{% load compress %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'finance/confirm_payment.css' %}">
+    <script>
+        $(document).ready(function() {
+            $("#loading").hide()
+            $(".item").click(function () {
+                $("#main").hide();
+                $("#loading").show();
+            });
+        });
+    </script>
+
+</head>
+<body>
+
+    {% include "navbar.html" %}
+    {% if messages %}
+        <div class="message-container">
+            {% for msg in messages %}
+                <h2 class="msg">{{ msg }}</h2>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div id="main">
+        <div id="box1">
+            {% for i in obj %}
+                <div class="paybox">
+                    <div class="pay_info">
+                        <a class="info" href="">userid: {{ i.custumer.userid }}</a>
+                        <h3 class="info">price : {{ i.price }} T</h3>
+                        <div class="confirmbtn">
+                            <a href="" class="confirm">تایید اولیه</a>
+                        </div>
+                        <div class="confirmbtn">
+                            <a href="" class="sec_confirm">تایید نهایی</a>
+                        </div>
+                        <div class="confirmbtn">
+                            <a href="" class="deny">عدم تایید</a>
+                        </div>
+                    </div>
+                    <img class="pay_img" src="{{ i.image.url }}" alt="pay_img">
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% include "loading.html" %}
+</body>
+</html>

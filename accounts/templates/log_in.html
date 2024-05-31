@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>صفحه ورود</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'accounts/log_in.css' %}">
+    <link rel="icon" href="{% static "img/heart-plus.png" %}" type="image/x-icon">
+    <link href='https://fonts.googleapis.com/css?family=Vazirmatn' rel='stylesheet'>
+</head>
+<body dir="rtl">
+    {% if messages %}
+        <div class="message-container">
+            {% for msg in messages %}
+                <h2>{{ msg }}</h2>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% for field_errors in form.errors.values %}
+         {% for error in field_errors %}
+             <p class="errors">{{ error }}</p>
+         {% endfor %}
+    {% endfor %}
+    <div id="navbar">
+        <h2 class="site_name site_name1">NAPSV</h2>
+            <h2 class="site_name site_name2">VPN</h2>
+    </div>
+
+    <div class="xy" id="main">
+    <div class="container">
+        <h2>ورود کاربر / Login</h2>
+        <form action="" method="post">
+            {% csrf_token %}
+            <label for="{{ form.username.id_for_label }}" dir="rtl">
+                    {{ form.username.label }}
+                    <h3 dir="ltr">{{ form.username }}</h3>
+            </label>
+            <label for="{{ form.password.id_for_label }}" dir="rtl">
+                    {{ form.password.label }}
+                    <h3 dir="ltr">{{ form.password }}</h3>
+            </label>
+            <input id="create" type="submit" value="ورود / Login">
+        </form>
+    </div>
+    </div>
+</body>
+
+{% include "loading.html" %}
+</html>

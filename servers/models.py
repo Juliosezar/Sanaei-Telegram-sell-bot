@@ -17,7 +17,7 @@ class Server(models.Model):
 
 class CreateConfigQueue(models.Model):
     server = models.ForeignKey(Server, on_delete=models.CASCADE)
-    userid = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    custumer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     config_uuid = models.UUIDField(unique=True)
     config_name = models.CharField(max_length=50, unique=True)
     usage_limit = models.IntegerField()
@@ -25,4 +25,5 @@ class CreateConfigQueue(models.Model):
     user_limit = models.IntegerField()
     price = models.IntegerField()
     sent_to_user = models.BooleanField(default=False)
-    pay_confirm = models.BooleanField(default=False)
+    pay_status = models.PositiveSmallIntegerField(default=0)
+    # 0 => waiting for pay img / 1 => waiting for confirm / 2 => confirmed / 3 => secoend confirm / 10 => denied

@@ -1,0 +1,65 @@
+
+#button{
+    border: none;
+}
+
+body {
+    font-family: "vazirmatn", sans-serif;
+    		background-color: rgba(52, 73, 94, 0.18);
+
+}
+#main {
+    display: flex;
+    margin: 2rem 0;
+    flex-direction: column;
+}
+.message-container {
+    background-color: #ccffcd;
+    padding: 10px;
+
+}
+
+.msg {
+    text-align: center;
+        font-size: large;
+}
+
+#box1 {
+    width: 100%;
+    display: flex;
+    align-content: center;
+    justify-items: center;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    flex-basis: auto;
+}
+.links {
+    border: #0a0000 1px solid;
+    padding: 1rem 2rem;
+    font-size: large;
+    margin: 0.5rem 1rem;
+    min-width: 10rem;
+    text-align: center;
+    background-color: #000d3f;
+    color: white;
+}
+.links:hover {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+@media (max-width: 650px) {
+    .inbox {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .hidephone{
+        display: none;
+    }
+    #user {
+        margin: 0;
+    }
+}

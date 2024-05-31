@@ -79,11 +79,11 @@ class Configs:
     @classmethod
     def add_configs_to_queue_before_confirm(cls, server_id,user_id, config_uuid, usage_limit, expire_time, user_limit, price):
         user_obj = CustomerModel.objects.get(userid=user_id)
-        if CreateConfigQueue.objects.filter(userid=user_obj, pay_confirm=False).exists():
-            CreateConfigQueue.objects.get(userid=user_obj, pay_confirm=False).delete()
+        if CreateConfigQueue.objects.filter(custumer=user_obj, pay_status=0).exists():
+            CreateConfigQueue.objects.get(custumer=user_obj, pay_status=0).delete()
 
         CreateConfigQueue.objects.create(
-            userid=user_obj,
+            custumer=user_obj,
             server=ServerModel.objects.get(server_id=server_id),
             config_uuid=config_uuid,
             config_name=Configs.generate_unique_name(),
