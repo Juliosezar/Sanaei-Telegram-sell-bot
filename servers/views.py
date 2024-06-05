@@ -52,13 +52,12 @@ class ServerApi:
                 unix_timestamp = datetime.datetime.timestamp(presentDate) * 1000
                 time_expire = i["expiryTime"]
                 if time_expire > 0:
-                    time_expire = int((time_expire - unix_timestamp) / 86400000)
+                    time_expire = (time_expire - unix_timestamp) / 86400000
                     if time_expire < 0:
                         expired = True
-                        time_expire = abs(time_expire)
+
                 elif time_expire == 0:
-                    time_expire = "&infin;"
-                    if i['usage'] == 0:
+                    if i['down'] + i["up"] == 0:
                         started = False
                 else:
                     time_expire = abs(int(time_expire / 86400000))
@@ -77,7 +76,6 @@ class ServerApi:
             for i in json.loads(respons["settings"])["clients"]:
                 joined_data[i["email"]]['uuid'] = i["id"]
                 joined_data[i["email"]]['ip_limit'] = i["limitIp"]
-        print(joined_data)
         return joined_data
 
     @classmethod
@@ -226,5 +224,5 @@ class Configs:
 class ListConfigs( View):
     def get(self, request,server_id, *args, **kwargs):
         server_model = ServerModel.objects.get(server_id=server_id)
-        ServerApi.get_list_configs(server_id)
-
+        data = ServerApi.get_list_configs(server_id)
+        return render(request, "list_configs.html" , {"data": data})
