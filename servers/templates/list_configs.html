@@ -1,0 +1,185 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="fa" class="no-js">
+	<head>
+		<title>List Configs</title>
+        {% include "base_head.html" %}
+        <link rel="stylesheet" type="text/css" href="{% static 'custumers/component.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'servers/list_configs.css' %}" />
+    </head>
+	<body dir="ltr">
+    <script>
+    function confirmDelete(uuid, name) {
+        const result = confirm(" آیا از حذف کانفیگ " + name + " مطمئنید؟ " );
+        if (result) {
+            window.location.href = "/configs/delete_config/{{ choosen_user }}/server/{{ serverid }}/inbound/{{ inboundid }}/"+ uuid;
+        } else {
+            location.reload()
+        }
+}
+    </script>
+        {% include "navbar.html" %}
+        <div id="main">
+        <h3 id="mg">
+            {% if messages %}
+                {% for msg in messages %}
+                    <h2 class="messages_{{ msg.tags }}">{{ msg }}</h2>
+                {% endfor %}
+            {% endif %}
+        </h3>
+        {% if test %}
+        	<h3 style="margin-top: 2rem">Test Configs List</h3>
+        {% else %}
+            <form action="" method="get">
+             <div id="searchbox">
+                <h3 id="textin" dir="rtl">{{ searchform.search }}</h3>
+                <input id="subbut" value="Search" type="submit">
+                 {% if search_page == True %}
+                    <a id="comeback" href="{% url 'configs:list' serverid inboundid choosen_user %}">بازگشت</a>
+                 {% endif %}
+             </div>
+         </form>
+        {% endif %}
+
+                <h5 id="point" dir="rtl"><span id="redball"> &#128308; </span>روی اسم کانفیگ کلیک کنید تا وارد صفحه کپی کانفیگ شوید.</h5>
+
+		    <div class="xcontainer">
+		    		<table class="overflow-y">
+		    			<thead>
+		    				<tr>
+		    					<th>نام کانفیگ</th>
+                                <th>حجم مصرفی</th>
+                                <th>انقضا (روز)</th>
+                                <th>محدودیت کاربر</th>
+                                <th>نوع</th>
+                                <th>تمدید</th>
+                                <th>حذف</th>
+		    				</tr>
+		    			</thead>
+		    			<tbody>
+                        {% for key ,value in configs.items %}
+		    				<tr>
+                                {% if value.usage|percent:value.total_usage > 99 or value.exp_time_sta is True %}
+		    					<th class="fix_col name_red"><a style="color: red" href="{% url "configs:confpage" serverid inboundid value.uuid key %}">{{ key }}</a></th>
+                                {% else %}
+		    					<th class="fix_col"><a href="{% url "configs:confpage" serverid inboundid value.uuid key %}">{{ key }}</a></th>
+                                {% endif %}
+                                <td>
+                                    {% if value.total_usage == 0  %}
+                                        <div class="centering">
+                                            <h4 class="usage_text">{{ value.usage|floatformat:2 }}GB / <span style="font-size: x-large">∞</span></h4>
+                                            <div class="progress progressـusage_box">
+                                                {% if value.started %}
+                                                    <div class="progressـusage progress-bar bg-unlimit" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">∞</div>
+                                                {% else %}
+                                                    <div class="progressـusage progress-bar bg-success" role="progressbar" style="width:100%"  aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">Not Started</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        {% if value.usage|percent:value.total_usage > 99 %}
+                                        <div class="centering">
+                                            <h4 class="usage_text">{{ value.usage|floatformat:2 }}GB / {{ value.total_usage }}GB</h4>
+                                            <div class="progress progressـusage_box">
+                                                <div class="progressـusage progress-bar bg-danger" role="progressbar" style="width: {{ value.usage|percent:value.total_usage }}%" aria-valuenow="{{ value.usage|percent:value.total_usage }}" aria-valuemin="0" aria-valuemax="100">{{ value.usage|percent:value.total_usage }}%</div>
+                                            </div>
+                                        </div>
+                                        {% elif value.usage|percent:value.total_usage > 95 %}
+                                        <div class="centering">
+                                            <h4 class="usage_text">{{ value.usage|floatformat:2 }}GB / {{ value.total_usage }}GB</h4>
+                                            <div class="progress progressـusage_box">
+                                                <div class="progressـusage progress-bar bg-warning" role="progressbar" style="width: {{ value.usage|percent:value.total_usage }}%" aria-valuenow="{{ value.usage|percent:value.total_usage }}" aria-valuemin="0" aria-valuemax="100">{{ value.usage|percent:value.total_usage }}%</div>
+                                            </div>
+                                        </div>
+                                        {% elif value.usage|percent:value.total_usage > 0 %}
+                                            <div class="centering">
+                                            <h4 class="usage_text">{{ value.usage|floatformat:2 }}GB / {{ value.total_usage }}GB</h4>
+                                            <div class="progress progressـusage_box">
+                                                <div class="progressـusage progress-bar bg-info" role="progressbar" style="width: {{ value.usage|percent:value.total_usage }}%" aria-valuenow="{{ value.usage|percent:value.total_usage }}" aria-valuemin="0" aria-valuemax="100">{{ value.usage|percent:value.total_usage }}%</div>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <div class="centering">
+                                            <h4 class="usage_text">{{ value.usage|floatformat:2 }}GB / {{ value.total_usage }}GB</h4>
+                                            <div class="progress progressـusage_box">
+                                                {% if value.started  %}
+                                                    <div class="progressـusage progress-bar bg-info" role="progressbar" style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                                {% else %}
+                                                    <div class="progressـusage progress-bar bg-success" role="progressbar" style="width:100%" aria-valuenow="{{ value.3 }}" aria-valuemin="0" aria-valuemax="100">Not Started</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+
+
+                                <td>
+                                    {% if value.infinit_time %}
+                                    <div class="centering">
+                                        <h4 class="expire_text blue_infinite">∞ day</h4>
+                                    </div>
+                                    {% elif value.exp_time_sta is False and value.expire > 3 %}
+                                    <div class="centering">
+                                        <h4 class="expire_text blue ">{{ value.expire }} day</h4>
+                                    </div>
+                                    {% elif value.exp_time_sta is False and value.expire > 0 %}
+                                    <div class="centering">
+                                        <h4 class="expire_text orange">{{ value.expire }} day</h4>
+                                    </div>
+                                    {% elif value.expire < 0 and value.exp_time_sta is False %}
+                                        <div class="centering">
+                                        <h4 class="expire_text green">{% widthratio value.expire 1 -1 %} day</h4>
+                                    </div>
+                                    {% else %}
+                                    <div class="centering">
+                                        <h4 class="expire_text red">{{ value.expire }} day ago</h4>
+                                    </div>
+                                    {% endif %}
+                                </td>
+
+                                {% if value.ip_limit == 0 %}
+                                    <td class="ipbox" dir="rtl"><p class="iplimit">∞</p></td>
+                                {% else %}
+                                    <td class="ipbox" dir="rtl"><p class="iplimit">{{ value.ip_limit }}</p></td>
+                                {% endif %}
+
+                                {#  #}
+                                {% if value.total_usage == 0 %}
+                                    <td class="type">نامحدود</td>
+                                {% else %}
+                                    <td class="type"> حجمی</td>
+                                {% endif %}
+
+
+
+
+                                <td>
+                                    <a class="tamdid" href="{% url "configs:tamdid" serverid inboundid value.uuid key %}">تمدید</a>
+                                </td>
+
+                                <td>
+                                    <p onclick=confirmDelete('{{ value.uuid }}',"{{ key }}") class="delete">حذف</p>
+                                </td>
+
+
+                            </tr>
+
+
+                        {% endfor %}
+		    			</tbody>
+		    		</table>
+            </div>
+
+
+        </div>
+
+
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
+		<script src={% static "js/list.js" %}></script>
+	</body>
+
+{% include "loading.html" %}
+</html>

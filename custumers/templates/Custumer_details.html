@@ -46,6 +46,49 @@
             {% endif %}
             <a class="info_item refresh" href="">Refresh</a>
         </div>
+        {% if not sum_configs %}
+            <h3 id="title">🔻 کانفیگی ثبت نشده است 🔻</h3>
+        {% else %}
+            <h3 id="title">لیست کانفیگ ها</h3>
+            <div class="configs_list">
+                {% for conf in configs_model %}
+
+                    <div class="configbox">
+                        <a href="" class="conf_name">{{ conf.config_name }}</a>
+                        <h6 class="server">{{ conf.server.server_name }}</h6>
+                        <h6 class="usage conf_infos" id="usage-{{ conf.config_name }}"></h6>
+                        <h6 class="time conf_infos" id="time-{{ conf.config_name }}"></h6>
+                        <h6 class="status conf_infos" id="status-{{ conf.config_name }}"></h6>
+                        <div class="loader loader-{{ conf.config_name }}"></div>
+                        <div class="error-{{ conf.config_name }}">❗️ Connection Error ❗️</div>
+
+                    </div>
+                    <script>
+                        $(document).ready(function() {
+                             $(".conf_infos").hide()
+                             $('.error-{{ conf.config_name }}').hide()
+                             $.ajax({
+                                 url:"/customers/custumer_configs_api/{{ conf.config_uuid }}/",
+                                 success: function(data){
+                                $('#usage-{{ conf.config_name }}').html(data["usage"] + " GB  /  " + data["total_usage"] + ' GB' )
+                                 $('#time-{{ conf.config_name }}').html(data["time_expire"] + ' day' )
+                                 $('#status-{{ conf.config_name }}').html(data["status"] )
+                                $(".conf_infos").show()
+                                $(".loader-{{ conf.config_name }}").hide()
+                                 }
+                             , timeout: 15000,
+                                 error: function () {
+                                     $(".loader-{{ conf.config_name }}").hide()
+                                    $('.error-{{ conf.config_name }}').show()
+                                 }
+
+                             });
+                        });
+                    </script>
+
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 {% include "loading.html" %}
 </body>

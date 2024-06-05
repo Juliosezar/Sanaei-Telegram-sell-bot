@@ -1,6 +1,11 @@
+import datetime
 import uuid
 from binary import BinaryUnits, convert_units
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
+from django.views import View
+from binary import BinaryUnits, convert_units
+
 from .models import Server as ServerModel, ConfigsInfo
 import requests
 from django.conf import settings
@@ -40,11 +45,33 @@ class ServerApi:
         joined_data = {}
         for respons in list_configs.json()["obj"]:
             for i in respons["clientStats"]:
+
+                expired = False
+                started = True
+                presentDate = datetime.datetime.now()
+                unix_timestamp = datetime.datetime.timestamp(presentDate) * 1000
+                time_expire = i["expiryTime"]
+                if time_expire > 0:
+                    time_expire = int((time_expire - unix_timestamp) / 86400000)
+                    if time_expire < 0:
+                        expired = True
+                        time_expire = abs(time_expire)
+                elif time_expire == 0:
+                    time_expire = "&infin;"
+                    if i['usage'] == 0:
+                        started = False
+                else:
+                    time_expire = abs(int(time_expire / 86400000))
+                    started = False
+
+                usage = round(convert_units(i["up"] + i["down"], BinaryUnits.BYTE, BinaryUnits.GB)[0], 2)
+                total_usage = int(convert_units(i['total'], BinaryUnits.BYTE, BinaryUnits.GB)[0])
                 joined_data[i["email"]] = {
                     'enable': i["enable"],
-                    'usage': i["up"] + i["down"],
-                    'expire_time': i['expiryTime'],
-                    'usage_limit': i['total'],
+                    'usage': usage,
+                    'started': started,
+                    'expire_time': time_expire,
+                    'usage_limit': total_usage,
                     'inbound_id': i["inboundId"]
                 }
             for i in json.loads(respons["settings"])["clients"]:
@@ -92,10 +119,10 @@ class ServerApi:
         if not session:
             return False
         respons = session.get(url)
-        print(respons.content)
         if respons.status_code == 200:
             if respons.json()['success']:
                 obj = respons.json()["obj"]
+                print(obj)
                 return {
                     'enable' : obj["enable"],
                     'expiryTime' : obj["expiryTime"],
@@ -196,5 +223,8 @@ class Configs:
         return False
 
 
-
+class ListConfigs( View):
+    def get(self, request,server_id, *args, **kwargs):
+        server_model = ServerModel.objects.get(server_id=server_id)
+        ServerApi.get_list_configs(server_id)
 
