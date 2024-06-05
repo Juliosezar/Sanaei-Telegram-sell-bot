@@ -1,0 +1,120 @@
+/* Component styles */
+@font-face {
+	font-family: 'vazirmatn';
+	font-weight: normal;
+	font-style: normal;
+}
+
+.xcontainer {
+	width: 100%;
+}
+
+.component {
+	line-height: 1.5em;
+	margin: 0 auto;
+	padding: 2em 0 3em;
+	width: 90%;
+	max-width: 1000px;
+	overflow: scroll;
+}
+.component .filler {
+	font-family: "vazirmatn";
+	color: #d3d3d3;
+}
+
+table {
+    border-collapse: inherit;
+    width: 100%;
+    background: #fff;
+}
+td, th {
+    padding: 0.75em 1.5em;
+    text-align: center;
+}
+
+th {
+
+    background-color: #000d3f;
+    font-weight: bold;
+    color: #e0e0e0;
+    white-space: nowrap;
+}
+tbody th {
+	background-color: rgb(255, 255, 255);
+	color: #0058af;
+	border: #000000 1px solid;
+}
+tbody tr:nth-child(2n-1) {
+    background-color: #f5f5f5;
+    transition: all 0s ease-in-out;
+}
+tbody tr:hover {
+    background-color: rgba(129, 169, 208, 0.3);
+}
+
+/* For appearance */
+.sticky-wrap {
+	overflow-x: auto;
+	overflow-y: auto;
+	position: relative;
+	margin: 0 0;
+	width: 100%;
+
+}
+.sticky-wrap .sticky-thead,
+.sticky-wrap .sticky-col,
+.sticky-wrap .sticky-intersect {
+	opacity: 0;
+	position: absolute;
+	top: 0;
+	left: 0;
+	transition: all 0s ease-in-out;
+	z-index: 50;
+	width: max-content; /* Prevent table from stretching to full size */
+}
+
+.sticky-wrap .sticky-thead {
+		box-shadow: 0 0.25em 0.1em -0.1em rgba(0,0,0,.125);
+		z-index: 100;
+		width: 100%; /* Force stretch */
+
+	}
+	.sticky-wrap .sticky-intersect {
+		opacity: 1;
+		z-index: 150;
+
+	}
+	.sticky-wrap .sticky-intersect th {
+			background-color: #000000;
+			color: #eee;
+
+		}
+.sticky-wrap td,
+.sticky-wrap th {
+	box-sizing: border-box;
+}
+
+/* Not needed for sticky header/column functionality */
+
+.sticky-wrap.overflow-y {
+	overflow-y: auto;
+	max-height: 80vh;
+
+}
+
+
+@media (max-width: 640px) {
+	th {
+    background-color: #000d3f;
+    font-weight: bold;
+    color: #e0e0e0;
+    white-space: nowrap;
+}
+	th {
+		font-size: small;
+	}
+	td {
+		font-size: small;
+	}
+
+}

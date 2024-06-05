@@ -1,0 +1,45 @@
+#main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+#title {
+    font-size: x-large;
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.infobox {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+    background-color: #000d3f;
+    color: white;
+    padding: 1rem;
+    flex-wrap: wrap;
+    border-radius: 10px;
+    margin: 0 1rem;
+}
+.info_item {
+    color: white;
+    margin: 0.5rem 3rem;
+    font-size: medium;
+}
+
+.refresh {
+    background-color: white;
+    color: #000d3f;
+    padding: 0.25rem 1rem;
+    border-radius: 10px;
+}
+
+
+@media  (max-width: 850px) {
+    .info_item {
+        margin: 0.5rem 1.5rem;
+        font-size: medium;
+    }
+
+}

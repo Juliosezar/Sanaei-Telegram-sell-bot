@@ -26,4 +26,10 @@ class CreateConfigQueue(models.Model):
     price = models.IntegerField()
     sent_to_user = models.BooleanField(default=False)
     pay_status = models.PositiveSmallIntegerField(default=0)
-    # 0 => waiting for pay img / 1 => waiting for confirm / 2 => confirmed / 3 => secoend confirm / 10 => denied
+    # 0 => waiting for pay img / 1 => waiting for confirm / 2 => first confirmed / 3 => secoend confirm / 10 => denied
+
+class ConfigsInfo(models.Model):
+    config_name = models.CharField(max_length=25, unique=True)
+    config_uuid = models.UUIDField(unique=True)
+    server = models.ForeignKey(Server, on_delete=models.DO_NOTHING)
+    chat_id = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)

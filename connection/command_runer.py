@@ -16,10 +16,8 @@ from uuid import uuid4
 from django.core.files.base import ContentFile
 from django.core.files.base import ContentFile
 
-
 TOKEN = environ.get('TelegramToken')
 TELEGRAM_SERVER_URL = f"https://api.telegram.org/bot{TOKEN}/"
-
 
 """
     class CommandRunner:
@@ -27,6 +25,7 @@ TELEGRAM_SERVER_URL = f"https://api.telegram.org/bot{TOKEN}/"
     all respons commands in this class
 
 """
+
 
 def args_spliter(args):
     return args.split("<%>")
@@ -45,24 +44,26 @@ class CommandRunner:
         return response
 
     @classmethod
-    def download_photo(cls, file_id, chat_id, config_in_queue ):
+    def download_photo(cls, file_id, chat_id, config_in_queue):
         file_info = requests.get(f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file_id}").json()["result"]
         file_url = f"https://api.telegram.org/file/bot{TOKEN}/{file_info['file_path']}"
         img_data = requests.get(file_url).content
         user_obj = CustumerModel.objects.get(userid=chat_id)
         cpq_obj = ConfirmPaymentQueueModel.objects.get(custumer=user_obj, status=0)
-        cpq_obj.image.save(file_id+".jpg",ContentFile(img_data),save=False)
+        cpq_obj.image.save(file_id + ".jpg", ContentFile(img_data), save=False)
         cpq_obj.status = 1
         cpq_obj.save()
         if config_in_queue:
-            cq =  CreateConfigQueue.objects.get(custumer=user_obj, pay_status=0, sent_to_user=False)
+            cq = CreateConfigQueue.objects.get(custumer=user_obj, pay_status=0, sent_to_user=False)
             cq.pay_status = 1
             cq.save()
 
     @classmethod
     def send_notification(cls, chat_id, msg):
         data = {'chat_id': chat_id,
-                'text': msg}
+                'text': msg,
+                'parse_mode': 'Markdown',
+                }
         cls.send_api("sendMessage", data)
 
     @classmethod
@@ -102,7 +103,7 @@ class CommandRunner:
             'text': '🏠 منوی اصلی 🏠',
             'reply_markup': {
                 'keyboard': [
-                    [{'text': 'خرید سرویس 🛍','callback_data':"kjhbjbk"}],
+                    [{'text': 'خرید سرویس 🛍', 'callback_data': "kjhbjbk"}],
                     [{'text': 'ثبت لینک 🔗'}, {'text': 'تست رایگان 🔥'}],
                     [{'text': 'سرویس های من 🧑‍💻'}, {'text': 'کیف پول 💰'}],
                     [{'text': 'تعرفه ها 💳'}, {'text': 'ارتباط با ما 👤'}],
@@ -111,7 +112,7 @@ class CommandRunner:
                 ],
                 'resize_keyboard': True,
                 'one_time_keyboard': True,
-                'is_persistent':False,
+                'is_persistent': False,
             }
         }
         cls.send_api("sendMessage", data)
@@ -163,6 +164,7 @@ class CommandRunner:
                     'text': f" مبلغ {amount}تومان را به شماره کارت زیر انتقال دهید، سپس عکس آنرا بعد از همین پیام ارسال نمایید : " + f'\n\n`{card_num}`\n {card_name}',
                     'parse_mode': 'Markdown',
                 }
+
                 Customer.change_custimer_temp_status(chat_id, "get_paid_picture")
                 Paying.pay_to_wallet_before_img(chat_id, amount)
                 cls.send_api("sendMessage", data)
@@ -186,7 +188,7 @@ class CommandRunner:
         keyboard_list = []
         for i in server_obj:
             keyboard_list.append(
-                [{'text':i.server_name, 'callback_data':f"server_buy<~>{i.server_id}"}]
+                [{'text': i.server_name, 'callback_data': f"server_buy<~>{i.server_id}"}]
             )
         data = {
             'chat_id': chat_id,
@@ -227,14 +229,14 @@ class CommandRunner:
             else:
                 m_text = " 🔘 " + f"{m} ماهه"
             month_list.append([{'text': f"{m_text}", 'callback_data': f"expire_time<~>{server_id}<%>{m}"}])
-        month_list.append([{'text':'🔙 بازگشت', 'callback_data':f"back_to_servers<~>"}])
+        month_list.append([{'text': '🔙 بازگشت', 'callback_data': f"back_to_servers<~>"}])
         server_name = ServerModel.objects.get(server_id=server_id).server_name
         data = {
             'chat_id': chat_id,
-            'message_id' : msg_id,
+            'message_id': msg_id,
             'text': f' 🌍 سرور: {server_name} \n\n' + '⏱ مدت زمان سرویس خود را انتخاب کنید 👇🏻',
             'reply_markup': {
-                'inline_keyboard':month_list
+                'inline_keyboard': month_list
             },
         }
         cls.send_api("editMessageText", data)
@@ -249,11 +251,12 @@ class CommandRunner:
         usage_list = []
         for u in price_obj:
             if u.usage_limit == 0:
-                u_text =  " ♾ " + "نامحدود" + " - " + f"{u.user_limit} کاربره" + " - " + f"{u.price} تومان "
+                u_text = " ♾ " + "نامحدود" + " - " + f"{u.user_limit} کاربره" + " - " + f"{u.price} تومان "
             else:
-                u_text = " 🔘 " + f"{u.usage_limit} گیگ" + " - "  + f"{u.price} تومان "
-            usage_list.append([{'text': u_text, 'callback_data': f"usage_limit<~>{server_id}<%>{expire_month}<%>{u.usage_limit}<%>{u.user_limit}"}])
-        usage_list.append([{'text':'🔙 بازگشت', 'callback_data':f"back_to_select_expire_time<~>{server_id}"}])
+                u_text = " 🔘 " + f"{u.usage_limit} گیگ" + " - " + f"{u.price} تومان "
+            usage_list.append([{'text': u_text,
+                                'callback_data': f"usage_limit<~>{server_id}<%>{expire_month}<%>{u.usage_limit}<%>{u.user_limit}"}])
+        usage_list.append([{'text': '🔙 بازگشت', 'callback_data': f"back_to_select_expire_time<~>{server_id}"}])
         server_name = ServerModel.objects.get(server_id=server_id).server_name
 
         if expire_month == 0:
@@ -263,13 +266,12 @@ class CommandRunner:
         data = {
             'chat_id': chat_id,
             'message_id': msg_id,
-            'text':f' 🌍 سرور:  {server_name} \n\n' + f' ⏱ انقضا: {choosen}\n\n'+ '🔃 حجم کانفیگ خود را انتخاب کنید 👇🏻',
+            'text': f' 🌍 سرور:  {server_name} \n\n' + f' ⏱ انقضا: {choosen}\n\n' + '🔃 حجم کانفیگ خود را انتخاب کنید 👇🏻',
             'reply_markup': {
                 'inline_keyboard': usage_list
             },
         }
         cls.send_api("editMessageText", data)
-
 
     @classmethod
     def confirm_config_buying(cls, chat_id, *args):
@@ -308,12 +310,14 @@ class CommandRunner:
                 'chat_id': chat_id,
                 'message_id': msg_id,
                 'text': f' 🌍 سرور:  {server_name} \n' + f' ⏱ انقضا: {expire_month_text}\n'
-                        f' 🔃 حجم : {usage_limit_text} \n' + f' 👤 محدودیت کاربر: {user_limit_text}\n\n' + f' 💵 هزینه سرویس: {price_text} تومان \n\n'
-                        f'کاربر گرامی، موجودی کیف پول شما {wallet_amount_text} تومان است، برای فعال سازی این سرویس مبلغ {price_text}'
+                                                        f' 🔃 حجم : {usage_limit_text} \n' + f' 👤 محدودیت کاربر: {user_limit_text}\n\n' + f' 💵 هزینه سرویس: {price_text} تومان \n\n'
+                                                                                                                                         f'کاربر گرامی، موجودی کیف پول شما {wallet_amount_text} تومان است، برای فعال سازی این سرویس مبلغ {price_text}'
                         + f' تومان از کیف پول شما کسر خواهد شد.\n تایید خرید 👇🏻',
                 'reply_markup': {
-                    'inline_keyboard': [[{'text': '✅ تایید خرید 💳', 'callback_data': f'config_buy_confirmed<~>{server_id}<%>{expire_month}<%>{usage_limit}<%>{user_limit}'}],
-                                        [{"text": '🔙 بازگشت','callback_data': f"expire_time<~>{server_id}<%>{expire_month}"}],
+                    'inline_keyboard': [[{'text': '✅ تایید خرید 💳',
+                                          'callback_data': f'buy_config_from_wallet<~>{server_id}<%>{expire_month}<%>{usage_limit}<%>{user_limit}'}],
+                                        [{"text": '🔙 بازگشت',
+                                          'callback_data': f"expire_time<~>{server_id}<%>{expire_month}"}],
                                         [{'text': 'انصراف ❌', 'callback_data': 'abort_buying'}]]
                 },
             }
@@ -326,19 +330,20 @@ class CommandRunner:
                 'chat_id': chat_id,
                 'message_id': msg_id,
                 'text': f' 🌍 سرور:  {server_name} \n' + f' ⏱ انقضا: {expire_month_text}\n'
-                        f' 🔃 حجم : {usage_limit_text} \n' + f' 👤 محدودیت کاربر: {user_limit_text}\n\n' + f' 💵 هزینه سرویس: {price_text} تومان \n\n'
+                                                        f' 🔃 حجم : {usage_limit_text} \n' + f' 👤 محدودیت کاربر: {user_limit_text}\n\n' + f' 💵 هزینه سرویس: {price_text} تومان \n\n'
                         + text_pay + f' تومان را پرداخت کنید 👇🏻',
                 'reply_markup': {
-                    'inline_keyboard': [[{'text':'✅ پرداخت / کارت به کارت 💳', 'callback_data':f'pay_for_config<~>{server_id}<%>{expire_month}<%>{usage_limit}<%>{user_limit}'}],
-                                        [{"text":'🔙 بازگشت', 'callback_data':f"expire_time<~>{server_id}<%>{expire_month}"}],
-                                        [{'text': 'انصراف ❌' , 'callback_data': 'abort_buying'}]]
+                    'inline_keyboard': [[{'text': '✅ پرداخت / کارت به کارت 💳',
+                                          'callback_data': f'pay_for_config<~>{server_id}<%>{expire_month}<%>{usage_limit}<%>{user_limit}'}],
+                                        [{"text": '🔙 بازگشت',
+                                          'callback_data': f"expire_time<~>{server_id}<%>{expire_month}"}],
+                                        [{'text': 'انصراف ❌', 'callback_data': 'abort_buying'}]]
                 },
             }
             data2 = {
 
             }
         cls.send_api("editMessageText", data)
-
 
     @classmethod
     def pay_for_config(cls, chat_id, *args):
@@ -348,8 +353,7 @@ class CommandRunner:
         expire_limit = int(arg_splited[1])
         usage_limit = int(arg_splited[2])
         user_limit = int(arg_splited[3])
-        price = PricesModel.objects.get(usage_limit=usage_limit,expire_limit=expire_limit, user_limit=user_limit).price
-        print(args)
+        price = PricesModel.objects.get(usage_limit=usage_limit, expire_limit=expire_limit, user_limit=user_limit).price
         with open(settings.BASE_DIR / 'connection/settings.json', 'r') as f:
             data = json.load(f)
             card_num = data["pay_card_number"]
@@ -373,11 +377,42 @@ class CommandRunner:
         Customer.change_custimer_temp_status(chat_id, "get_paid_picture_for_config")
         uu_id = uuid4()
         Paying.pay_config_before_img(chat_id, price, uu_id)
-        Configs.add_configs_to_queue_before_confirm(server_id, chat_id, uu_id, usage_limit, expire_limit, user_limit, price)
-
+        Configs.add_configs_to_queue_before_confirm(server_id, chat_id, uu_id, usage_limit, expire_limit * 30,
+                                                    user_limit, price)
+        # expire limit * 30
         cls.send_api("sendMessage", data2)
         cls.send_api("editMessageText", data)
 
+    @classmethod
+    def buy_config_from_wallet(cls, chat_id, *args):
+        msg_id = args[0]
+        arg_splited = args_spliter(args[1])
+        server_id = arg_splited[0]
+        expire_limit = int(arg_splited[1])
+        usage_limit = int(arg_splited[2])
+        user_limit = int(arg_splited[3])
+        price = PricesModel.objects.get(usage_limit=usage_limit, expire_limit=expire_limit, user_limit=user_limit).price
+        create_config = Configs.create_config_from_wallet(chat_id, server_id, expire_limit, usage_limit, user_limit, price)
+        if create_config:
+            data = {
+                'message_id': msg_id,
+                'chat_id': chat_id,
+                'text': f"کانفیک شما ارسال شد و مبلغ {price} تومان از کیف پول شما کسر شد.",
+                'parse_mode': 'Markdown',
+            }
+            cls.send_api("editMessageText", data)
+        else:
+            msg = f'اتصال به سرور {ServerModel.objects.get(server_id=server_id).server_name} برقرار نشد.' '\n میتوانید کشور مورد نظر را تغییر دهید یا دقایقی دیگر دوباره امتحان کنید.'
+            CommandRunner.send_notification(chat_id, msg)
 
-
-
+    @classmethod
+    def abort_buying(cls, chat_id, *args):
+        msg_id = args[0]
+        data = {
+            'message_id': msg_id,
+            'chat_id': chat_id,
+            'text': f'خرید شما لغو شد. ❌',
+            'parse_mode': 'Markdown',
+        }
+        cls.send_api("editMessageText", data)
+        cls.main_menu(chat_id)

@@ -4,7 +4,6 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
 
 
-
 class UserCreationFormAdminPanel(forms.ModelForm):
     password1 = forms.CharField(label="password", widget=forms.PasswordInput)
     password2 = forms.CharField(label="confirm password", widget=forms.PasswordInput)
@@ -43,3 +42,10 @@ class LoginForm(forms.Form):
         if user is None:
             raise ValidationError("یوزرنیم یا پسوورد اشتباه است.")
 
+
+class SearchUserForm(forms.Form):
+    search_user = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'placeholder': 'Search Userid or Username'}))
+
+
+class SearchConfigForm(forms.Form):
+    search_config = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'placeholder': 'Search Config Name or UUID'}))

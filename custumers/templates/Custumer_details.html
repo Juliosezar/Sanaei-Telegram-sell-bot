@@ -1,0 +1,52 @@
+{% load compress %}
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'custumers/custumer_details.css' %}">
+    <script>
+        $(document).ready(function() {
+            $("#loading").hide()
+            $(".item").click(function () {
+                $("#main").hide();
+                $("#loading").show();
+            });
+        });
+    </script>
+</head>
+<body>
+    {% include "navbar.html" %}
+    {% if messages %}
+        <div class="message-container" dir="rtl">
+            {% for msg in messages %}
+                <h2 class="msg msg_{{ msg.tags }}">{{ msg }}</h2>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div id="main">
+        <h3 id="title">User Info: {{ customer_obj.userid }}</h3>
+        <div class="infobox" dir="rtl">
+            {% if customer_obj.username == none %}
+                <h3 class="info_item"> یوزرنیم : ----</h3>
+            {% else %}
+                <h3 class="info_item"> یوزرنیم : {{ customer_obj.username }}@</h3>
+            {% endif %}
+            <h3 class="info_item">نام : {{ customer_obj.first_name }}</h3>
+            <h3 class="info_item">موجودی کیف پول : {{ customer_obj.wallet|price }} T</h3>
+            <h3 class="info_item">تعداد خرید ها : {{ customer_obj.purchase_number }}</h3>
+            <h3 class="info_item">مجموع پرداخت ها : {{ sum_pays|price }} T</h3>
+            {% if customer_obj.active %}
+                <h3 class="info_item">وضعیت : فعال 🟢</h3>
+            {% else %}
+                <h3 class="info_item">وضعیت : غیر فعال 🔴</h3>
+            {% endif %}
+            <a class="info_item refresh" href="">Refresh</a>
+        </div>
+    </div>
+{% include "loading.html" %}
+</body>
+</html>

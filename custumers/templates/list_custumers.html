@@ -1,0 +1,92 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="fa" class="no-js">
+	<head>
+		<title>List Configs</title>
+        {% include "base_head.html" %}
+        <link rel="stylesheet" type="text/css" href="{% static 'custumers/component.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'custumers/list_custumers.css' %}" />
+    </head>
+	<body dir="ltr">
+    <script>
+    function confirmDelete(uuid, name) {
+        const result = confirm(" آیا از حذف کانفیگ " + name + " مطمئنید؟ " );
+        if (result) {
+            window.location.href = "/configs/delete_config/{{ choosen_user }}/server/{{ serverid }}/inbound/{{ inboundid }}/"+ uuid;
+        } else {
+            location.reload()
+        }
+}
+    </script>
+        {% include "navbar.html" %}
+        <div id="main">
+            <h3 id="mg">
+                {% if messages %}
+                    {% for msg in messages %}
+                        <h2 class="messages_{{ msg.tags }}">{{ msg }}</h2>
+                    {% endfor %}
+                {% endif %}
+            </h3>
+            <h3 id="title">لیست مشتری ها</h3>
+		    <div class="xcontainer">
+		    		<table class="overflow-y">
+		    			<thead>
+		    				<tr>
+                                <th>-</th>
+		    					<th>User Id</th>
+                                <th>Useranme</th>
+                                <th>name</th>
+                                <th>Wallet</th>
+                                <th>Purchase</th>
+		    				</tr>
+		    			</thead>
+		    			<tbody>
+                        {% for cus in customer_model %}
+		    				<tr>
+                                <td>
+                                    {% if cus.active %}
+                                        🟢
+                                    {% else %}
+                                        🔴
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'customers:custumer_detail' cus.userid %}">{{ cus.userid }}</a>
+                                </td>
+                                <td>
+                                    {% if cus.username == none %}
+                                        -----
+                                    {% else %}
+                                        @{{ cus.username }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ cus.first_name }}
+                                </td>
+                                <td>
+                                    {{ cus.wallet|price }} T
+                                </td>
+                                <td>
+                                    {{ cus.purchase_number }}
+                                </td>
+
+                            </tr>
+
+
+                        {% endfor %}
+		    			</tbody>
+		    		</table>
+            </div>
+
+
+        </div>
+
+
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
+		<script src={% static "js/list.js" %}></script>
+	</body>
+
+{% include "loading.html" %}
+</html>

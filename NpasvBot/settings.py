@@ -11,9 +11,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
-
+from os import environ
 from dotenv import load_dotenv
-
 import finance.apps
 import servers.apps
 
@@ -27,12 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-g-pe!ww-)mi2y_s)uu%eyz#@=ilfp_x*4tq-gf6_e)dzfzjw6#'
+SECRET_KEY = environ.get('DjangoSecretKey')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["e032-2a01-4f9-c011-5150-00-1.ngrok-free.app", "127.0.0.1"]
+ALLOWED_HOSTS = ['localhost:8000', "*"]
 
 LOGIN_URL = "/accounts/login/"
 
@@ -53,7 +52,7 @@ INSTALLED_APPS = [
     'finance.apps.FinanceConfig',
     'custumers.apps.CustumersConfig',
     'compressor',
-    'django_crontab'
+    'rest_framework'
 ]
 
 MIDDLEWARE = [

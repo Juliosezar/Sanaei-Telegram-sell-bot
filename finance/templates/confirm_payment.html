@@ -1,5 +1,6 @@
 {% load compress %}
 {% load static %}
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,33 +17,37 @@
             });
         });
     </script>
-
 </head>
 <body>
-
     {% include "navbar.html" %}
     {% if messages %}
-        <div class="message-container">
+        <div class="message-container" dir="rtl">
             {% for msg in messages %}
-                <h2 class="msg">{{ msg }}</h2>
+                <h2 class="msg msg_{{ msg.tags }}">{{ msg }}</h2>
             {% endfor %}
         </div>
     {% endif %}
     <div id="main">
         <div id="box1">
             {% for i in obj %}
-                <div class="paybox">
+                <div class="paybox" >
                     <div class="pay_info">
-                        <a class="info" href="">userid: {{ i.custumer.userid }}</a>
-                        <h3 class="info">price : {{ i.price }} T</h3>
-                        <div class="confirmbtn">
-                            <a href="" class="confirm">تایید اولیه</a>
+                        <div class="infobox">
+                            <a class="info" href="">userid: {{ i.custumer.userid }}</a>
+                            <h3 class="info">price : {{ i.price|price }} T</h3>
+
                         </div>
-                        <div class="confirmbtn">
-                            <a href="" class="sec_confirm">تایید نهایی</a>
-                        </div>
-                        <div class="confirmbtn">
-                            <a href="" class="deny">عدم تایید</a>
+                        <div class="conf_btns">
+
+                            <div class="confirmbtn">
+                                <a href="{% url 'finance:first_confirm' i.id %}" class="confirm c_btnd">تایید اولیه</a>
+                            </div>
+                            <div class="confirmbtn">
+                                <a href="{% url 'finance:second_confirm' i.id %}" class="sec_confirm c_btnd">تایید نهایی</a>
+                            </div>
+                            <div class="confirmbtn">
+                                <a href="{% url 'finance:deny_payments' i.id %}" class="deny c_btnd">عدم تایید</a>
+                            </div>
                         </div>
                     </div>
                     <img class="pay_img" src="{{ i.image.url }}" alt="pay_img">

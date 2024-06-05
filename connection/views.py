@@ -33,6 +33,8 @@ COMMANDS = {
     'back_to_select_expire_time': CommandRunner.select_config_expire_time,
     'usage_limit': CommandRunner.confirm_config_buying,
     'pay_for_config': CommandRunner.pay_for_config,
+    'buy_config_from_wallet': CommandRunner.buy_config_from_wallet,
+    'abort_buying':CommandRunner.abort_buying
 }
 
 '''

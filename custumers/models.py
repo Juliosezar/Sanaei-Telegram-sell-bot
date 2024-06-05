@@ -11,6 +11,7 @@ class Customer(models.Model):
     test_config = models.BooleanField(default=False)
     temp_status = models.CharField(max_length=30, default="normal")
     pay_temp_amount = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=True)
 
 class CustumerHistory(models.Model):
     custumer = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)

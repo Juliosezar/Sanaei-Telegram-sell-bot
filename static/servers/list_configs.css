@@ -1,0 +1,317 @@
+body {
+    font-family: "vazirmatn", sans-serif;
+        padding: 0;
+    text-align: center;
+        background-color: rgba(52, 73, 94, 0.18);
+
+}
+#point {
+    text-align:right;
+    width: 100%;
+    margin: 1rem 0.2rem;
+}
+#redball {
+    font-size: small;
+}
+.fix_col{
+    height: 6.5rem;
+}
+
+td {
+    border: black 1px dotted;
+    padding: 1rem 0.3rem;
+}
+
+#searchbox {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem 1rem;
+    box-shadow: 0 0 10px black;
+    padding: 1rem 3rem;
+    border-radius: 30px;
+
+}
+#subbut{
+    background-color: #000d3f;
+    color: white;
+    border-radius: 10px;
+    padding: 0.3rem 1rem;
+    margin: 0 0.5rem 0.5rem 0.5rem;
+}
+#id_search {
+    border-radius: 10px;
+    font-size: medium;
+    text-align: center;
+    height: 2.1rem;
+}
+
+#comeback{
+    background-color: #ff6161;
+    color: #00122a;
+    border-radius: 10px;
+    padding: 0.4rem 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.xcontainer {
+    box-shadow: 0 0 10px black;
+    padding: 0;
+    margin: 0 1rem 3rem;
+}
+
+#main {
+    padding: 0 2rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.usage_text{
+    font-size: large;
+    font-weight: bold;
+}
+.expire_text {
+    font-size: medium;
+    font-weight: bold;
+    margin-bottom: -0.5rem;
+}
+.progressـusage_box{
+    height: 1.2rem;
+    background-color: #d7d7d7;
+    width: 15rem;
+    font-size: large;
+}
+
+
+.progressـusage{
+    padding: 0.8rem 0;
+    text-align: center;
+}
+
+.progressـexpire_box {
+    background-color: #d7d7d7;
+    height: 0.5rem;
+    width: 10rem;
+}
+.centering {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: center;
+}
+
+.tamdid {
+    background-color: #000d3f;
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 0.8rem;
+    border-radius: 20px;
+    margin-bottom: -0.5rem;
+}
+.delete {
+    background-color: #ff4d4d;
+    color: black;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+
+}
+
+.delete:hover {
+    text-decoration: none;
+}
+
+.tamdid:hover {
+    background-color: #91a6ff;
+    color: #000000;
+    text-decoration: none;
+    border-radius: 20px;
+}
+
+.last_on_red{
+    background-color: #ff7d7d;
+    padding: 0.3rem 0;
+    border-radius: 20px;
+}
+
+
+.last_on_blue{
+    background-color: #7cb8ff;
+    padding: 0.3rem 0;
+    border-radius: 20px;
+}
+
+.last_on_green{
+    background-color: #97ff8e;
+    padding: 0.3rem 0;
+    border-radius: 20px;
+}
+
+.type {
+    font-weight: bold;
+}
+
+.name_red {
+    color: red;
+    text-decoration: red;
+}
+
+.green {
+    background-color: #4CAF50;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+}
+
+.orange {
+    background-color: #eedc68;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+}
+
+.red {
+    background-color: #ff4949;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+}
+
+.blue {
+    background-color: #49d5ff;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+}
+
+.blue_infinite {
+    background-color: #2170fc;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+}
+
+
+.iplimit {
+    font-size: larger;
+    margin-bottom: -0.5rem;
+}
+
+.messages_green {
+    background-color: rgba(152, 255, 152, 0.77);
+    border: green 2px solid;
+    margin-top: 2rem;
+    font-size: x-large;
+    padding: 0.5rem 0;
+    width: 95%;
+    text-align: center;
+}
+
+.messages_red {
+    background-color: rgba(255, 128, 128, 0.71);
+    border: red 2px solid;
+    margin-top: 2rem;
+    font-size: x-large;
+    padding: 0.5rem 0;
+    width: 95%;
+    text-align: center;
+}
+
+
+@media (max-width: 640px) {
+    .messages_red , .messages_green {
+        font-size: large;
+    }
+    #mainbox {
+    padding: 0 0.2rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    }
+
+    .usage_text{
+        font-size: small;
+        font-weight: bold;
+    }
+    .expire_text {
+        font-size: small;
+        font-weight: bold;
+    }
+    .progressـusage_box{
+        height: 1rem;
+        background-color: #d7d7d7;
+        width: 7rem;
+        font-size: small;
+    }
+
+    .progressـusage{
+        padding: 0;
+        text-align: center;
+    }
+
+    .progressـexpire_box {
+        background-color: #d7d7d7;
+        height: 0.5rem;
+        width: 5rem;
+    }
+
+
+    #searchbox {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem 1rem;
+    box-shadow: 0 0 10px black;
+    padding: 0.5rem 0.5rem;
+    border-radius: 30px;
+    width: 95%;
+
+    }
+    #subbut{
+        background-color: #000d3f;
+        color: white;
+        border-radius: 10px;
+        padding: 0.3rem 1rem;
+        margin: 0 0.5rem 0.5rem 0.5rem;
+        font-size: small;
+
+    }
+    #id_search {
+        border-radius: 10px;
+        width: 100%;
+        font-size: medium;
+        text-align: center;
+    }
+
+    #comeback{
+        background-color: #ff6161;
+        color: #00122a;
+        border-radius: 10px;
+        padding: 0.4rem 1rem;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+    }
+
+    #point {
+        font-size: small;
+}
+    #redball {
+        font-size: small;
+}
+    .xcontainer {
+    margin: 0.5rem 0;
+}
+
+    #main {
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+    #point {
+        margin-right: 1rem;
+    }
+}

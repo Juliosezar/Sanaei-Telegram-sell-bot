@@ -1,0 +1,52 @@
+{% load compress %}
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'finance/deny_payment.css' %}">
+    <script>
+        $(document).ready(function() {
+            $("#loading").hide()
+            $(".item").click(function () {
+                $("#main").hide();
+                $("#loading").show();
+            });
+        });
+    </script>
+</head>
+<body>
+    {% include "navbar.html" %}
+    {% if messages %}
+        <div class="message-container" dir="rtl">
+            {% for msg in messages %}
+                <h2 class="msg msg_{{ msg.tags }}">{{ msg }}</h2>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div id="main">
+        <h3 id="title">عدم تایید پرداخت</h3>
+        <div class="pay_info_box">
+            <img class="pay_img" src="{{ obj.image.url }}" alt="pay_img">
+            <div class="infobox">
+                <a class="info" href="">userid: {{ obj.custumer.userid }}</a>
+                <h3 class="info">price : {{ obj.price|price }} T</h3>
+            </div>
+        </div>
+
+        <form novalidate method="post" action="" class="box" dir="rtl">
+            {% csrf_token %}
+            <h3 class="form-text">علت: {{ form.reason }}</h3>
+            <h3 class="form-text bool_op">بن یوزر: {{ form.ban_user }}</h3>
+            <h3 class="form-text bool_op">حذف همه کانفیگ ها: {{ form.delete_all_configs }}</h3>
+            <h3 class="form-text bool_op"> غیرفعال کردن همه کانفیگ ها: {{ form.disable_all_configs }}</h3>
+            <input value="ثبت" type="submit">
+        </form>
+    </div>
+
+{% include "loading.html" %}
+</body>
+</html>

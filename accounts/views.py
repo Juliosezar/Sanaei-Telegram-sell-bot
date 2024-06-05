@@ -2,9 +2,9 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate, login, logout
-from .forms import LoginForm
+from .forms import LoginForm, SearchConfigForm, SearchUserForm
 from django.contrib import messages
-
+from servers.models import Server
 
 class LogIn(View):
     formclass = LoginForm
@@ -33,4 +33,8 @@ class LogOut(LoginRequiredMixin, View):
 
 class HomePage(LoginRequiredMixin, View):
     def get(self, request):
-        return render(request, "home.html")
+        search_user = SearchUserForm()
+        search_config = SearchConfigForm()
+        servers = Server.objects.all()
+        return render(request, "home.html", {"search_user": search_user,
+                                             "search_config": search_config, 'servers':servers})

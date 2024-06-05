@@ -1,5 +1,11 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Sum
 from django.shortcuts import render
 from .models import Customer as CustomerModel
+from django.views import View
+from servers.models import ConfigsInfo
+from finance.models import ConfirmPaymentQueue
+from servers.views import ServerApi
 class Customer:
 
     @classmethod
@@ -38,3 +44,26 @@ class Customer:
         custumer_obj = CustomerModel.objects.get(userid=user_id)
         custumer_obj.temp_status = status
         custumer_obj.save()
+
+
+class CustomerList(LoginRequiredMixin, View):
+    def get(self, request):
+        customer_model = CustomerModel.objects.all()
+        return render(request, 'list_custumers.html', {"customer_model": customer_model})
+
+class CustomerDetail(LoginRequiredMixin, View):
+    def get(self, request, customer_id):
+        customer_obj = CustomerModel.objects.get(userid=customer_id)
+        config_model = ConfigsInfo.objects.filter(chat_id=customer_obj)
+        pay_model = ConfirmPaymentQueue.objects.filter(custumer=customer_obj, status=3)
+        sum_pays = sum(item.price for item in pay_model)
+        list_configs = []
+        for i in config_model:
+            config = ServerApi.get_config(i.server.server_id,i.config_name)
+            config["config_name"] = i.config_name
+            config["uuid"] = i.config_uuid
+            list_configs.append(config)
+        print(list_configs)
+        return render(request, "Custumer_details.html", {"customer_obj": customer_obj, "sum_pays":sum_pays})
+
+class GetCustumersConfigsAPI()
