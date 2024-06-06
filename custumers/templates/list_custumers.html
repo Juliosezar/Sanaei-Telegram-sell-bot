@@ -9,31 +9,22 @@
         <link rel="stylesheet" type="text/css" href="{% static 'custumers/list_custumers.css' %}" />
     </head>
 	<body dir="ltr">
-    <script>
-    function confirmDelete(uuid, name) {
-        const result = confirm(" آیا از حذف کانفیگ " + name + " مطمئنید؟ " );
-        if (result) {
-            window.location.href = "/configs/delete_config/{{ choosen_user }}/server/{{ serverid }}/inbound/{{ inboundid }}/"+ uuid;
-        } else {
-            location.reload()
-        }
-}
-    </script>
         {% include "navbar.html" %}
-        <div id="main">
-            <h3 id="mg">
-                {% if messages %}
-                    {% for msg in messages %}
-                        <h2 class="messages_{{ msg.tags }}">{{ msg }}</h2>
-                    {% endfor %}
-                {% endif %}
-            </h3>
+        {% include 'messages.html' %}
+            <div id="main">
+
             <h3 id="title">لیست مشتری ها</h3>
+            <form novalidate action="{% url 'customers:custumers_list' %}" class="serch_box_inside" method="post">
+                    {% csrf_token %}
+                    <img class="search_img" src="{% static 'img/search-user.png' %}" alt="search">
+                    {{ search_user.search_user }}
+                    <input class="input_btn" type="submit" value="🔍">
+                </form>
 		    <div class="xcontainer">
 		    		<table class="overflow-y">
 		    			<thead>
 		    				<tr>
-                                <th>-</th>
+                                <th>Active</th>
 		    					<th>User Id</th>
                                 <th>Useranme</th>
                                 <th>name</th>

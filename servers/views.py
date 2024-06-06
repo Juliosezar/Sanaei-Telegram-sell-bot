@@ -2,10 +2,10 @@ import datetime
 import uuid
 from binary import BinaryUnits, convert_units
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from binary import BinaryUnits, convert_units
-
+from django.db.models import Q
 from .models import Server as ServerModel, ConfigsInfo
 import requests
 from django.conf import settings
@@ -14,6 +14,10 @@ from servers.models import CreateConfigQueue
 import random
 import string
 from custumers.models import Customer as CustomerModel
+from .forms import SearchForm
+from django.contrib import messages
+from accounts.forms import SearchConfigForm
+
 def change_wallet_amount(user_id, amount):
     model_obj = CustomerModel.objects.get(userid=user_id)
     model_obj.wallet = model_obj.wallet + amount
@@ -41,7 +45,11 @@ class ServerApi:
     def get_list_configs(cls, server_id):
         server_obj = ServerModel.objects.get(server_id=server_id)
         session = cls.create_session(server_id)
+        if not session:
+            return False
         list_configs = session.get(server_obj.server_url + "panel/api/inbounds/list/", timeout=15)
+        if list_configs.status_code != 200:
+            return False
         joined_data = {}
         for respons in list_configs.json()["obj"]:
             for i in respons["clientStats"]:
@@ -76,6 +84,7 @@ class ServerApi:
             for i in json.loads(respons["settings"])["clients"]:
                 joined_data[i["email"]]['uuid'] = i["id"]
                 joined_data[i["email"]]['ip_limit'] = i["limitIp"]
+            print(joined_data)
         return joined_data
 
     @classmethod
@@ -108,7 +117,6 @@ class ServerApi:
                 return True
         return False
 
-
     @classmethod
     def get_config(cls, server_id, config_name):
         server_obj = ServerModel.objects.get(server_id=server_id)
@@ -122,9 +130,9 @@ class ServerApi:
                 obj = respons.json()["obj"]
                 print(obj)
                 return {
-                    'enable' : obj["enable"],
-                    'expiryTime' : obj["expiryTime"],
-                    'usage' : obj["up"] + obj["down"],
+                    'enable': obj["enable"],
+                    'expiryTime': obj["expiryTime"],
+                    'usage': obj["up"] + obj["down"],
                     'usage_limit': obj["total"]
                 }
         return False
@@ -157,6 +165,7 @@ class Configs:
         server_obj = ServerModel.objects.get(server_id=server)
         vless = cls.create_vless_text(config_uuid, server_obj, config_name)
         CommandRunner.send_notification(user_id, vless)
+
     @classmethod
     def add_configs_to_queue_before_confirm(cls, server_id, user_id, config_uuid, usage_limit, expire_time, user_limit,
                                             price):
@@ -202,27 +211,54 @@ class Configs:
                                  config_queue_obj.server.server_id, config_queue_obj.custumer.userid)
         else:
             CommandRunner.send_notification(config_queue_obj.custumer.userid,
-            '🟢 کابر گرامی سرورها در حال آپدیت هستند و کانفیگ شما با کمی تاخیر بعد از اتمام آپدیت برای شما ارسال میشود.')
-
+                                            '🟢 کابر گرامی سرورها در حال آپدیت هستند و کانفیگ شما با کمی تاخیر بعد از اتمام آپدیت برای شما ارسال میشود.')
 
     @classmethod
-    def create_config_from_wallet(cls,chat_id, server_id, expire_limit, usage_limit, user_limit, price):
+    def create_config_from_wallet(cls, chat_id, server_id, expire_limit, usage_limit, user_limit, price):
         from connection.command_runer import CommandRunner
         server_obj = ServerModel.objects.get(server_id=server_id)
         conf_uuid = str(uuid.uuid4())
         config_name = Configs.generate_unique_name()
-        create_config = ServerApi.create_config(server_id, config_name, conf_uuid, usage_limit, expire_limit *30, user_limit, True)
+        create_config = ServerApi.create_config(server_id, config_name, conf_uuid, usage_limit, expire_limit * 30,
+                                                user_limit, True)
         if create_config:
             vless = cls.create_vless_text(conf_uuid, server_obj, config_name)
             CommandRunner.send_notification(chat_id, vless)
-            change_wallet_amount(chat_id,-1 * price)
+            change_wallet_amount(chat_id, -1 * price)
             cls.save_config_info(config_name, conf_uuid, server_id, chat_id)
             return True
         return False
 
 
-class ListConfigs( View):
-    def get(self, request,server_id, *args, **kwargs):
-        server_model = ServerModel.objects.get(server_id=server_id)
+class ListConfigs(LoginRequiredMixin, View):
+    def get(self, request, server_id, *args, **kwargs):
         data = ServerApi.get_list_configs(server_id)
-        return render(request, "list_configs.html" , {"data": data})
+        if not data:
+            messages.error(request, f"اتصال به سرور {ServerModel.objects.get(server_id=server_id).server_name} برقرار نشد.")
+        searchform = SearchForm()
+        return render(request, "list_configs.html", {"data": data, 'searchform': searchform})
+
+    def post(self, request, server_id, *args, **kwargs):
+        data = ServerApi.get_list_configs(server_id)
+        searchform = SearchForm(request.POST)
+        if not data:
+            messages.error(request, f"اتصال به سرور {ServerModel.objects.get(server_id=server_id).server_name} برقرار نشد.")
+            return render(request, "list_configs.html", {"data": data, 'searchform': searchform,"searched":True, 'server_id':server_id})
+        if searchform.is_valid():
+            word = searchform.cleaned_data["search"]
+            for conf in list(data):
+                if (not word.lower() in conf.lower()) and (not word.lower() in data[conf]["uuid"].lower()):
+                    del data[conf]
+            return render(request, "list_configs.html", {"data": data, "searchform": searchform, "searched":True, 'server_id':server_id})
+
+
+class ListConfigsSearched(LoginRequiredMixin, View):
+    def post(self, request):
+        form = SearchConfigForm(request.POST)
+        if form.is_valid():
+            word = form.cleaned_data["search_config"]
+            model_obj = ConfigsInfo.objects.filter(Q(config_name__icontains=word) | Q(config_uuid__icontains=word))
+            if not model_obj.exists():
+                messages.error(request, 'کانفیگی با این مشخصات یافت نشد.')
+            return render(request, "list_configs_searched.html", {"configs_model": model_obj, "search_config": form})
+        return redirect('accounts:home')

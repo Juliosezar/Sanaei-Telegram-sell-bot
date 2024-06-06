@@ -1,0 +1,62 @@
+{% load compress %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'finance/add_price.css' %}">
+</head>
+<body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let type = document.querySelector('#id_type_conf');
+        let usage = document.querySelector('#usage');
+        let ip_limit = document.querySelector('#ip_limit');
+        let time = document.querySelector('#time');
+
+        function toggleexpireField() {
+            if (type.value === 'limited') {
+                usage.style.display = "block"
+                ip_limit.style.display = "none"
+                time.style.display = "block"
+            }
+            else if (type.value === 'inf_usage'){
+                usage.style.display = "none"
+                ip_limit.style.display = "block"
+                time.style.display = "block"
+            }
+            else if (type.value === 'inf_time') {
+                usage.style.display = "block"
+                ip_limit.style.display = "none"
+                time.style.display = "none"
+            }
+        }
+
+        type.addEventListener('change', toggleexpireField);
+        toggleexpireField();
+    });
+</script>
+    {% include "navbar.html" %}
+    <div id="main">
+        <form novalidate action="" method="post" dir="rtl">
+            {% for field_errors in form.errors.values %}
+              {% for error in field_errors %}
+                  <p dir="rtl" class="errors">{{ error }}</p>
+              {% endfor %}
+            {% endfor %}
+            <h3 id="title">New Price</h3>
+            {% csrf_token %}
+            <div class="textinput item"><h3 class="item_text">نوع کانفیگ : </h3>{{ form.type_conf }}</div>
+            <div id="usage" class="textinput item"><h3 class="item_text">حجم : </h3>{{ form.usage }} GB</div>
+            <div id="time" class="textinput item"><h3 class="item_text"> مدت زمان : </h3>{{ form.month }}</div>
+            <div id="ip_limit" class="textinput item"><h3 class="item_text"> محدودیت کاربر : </h3>{{ form.ip_limit }}</div>
+            <div class="textinput item"><h3 class="item_text">قیمت : </h3>{{ form.price }}هزار تومان</div>
+            <input id="create" type="submit" value="Create">
+        </form>
+    </div>
+{% include "loading.html" %}
+
+</body>
+</html>

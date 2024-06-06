@@ -6,3 +6,34 @@
     text-align: center;
     margin: 2rem 0;
 }
+
+
+ #id_search_user, #id_search_config {
+     text-align: center;
+    width: 75%;
+     max-width: 30rem;
+     min-width: 15rem;
+     margin: 0 0.25rem;
+     border-radius: 5px;
+
+ }
+.serch_box_inside {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    margin: 1rem 0.25rem;
+    flex-grow: 1;
+}
+.input_btn{
+    border-radius: 5px;
+}
+.search_img {
+    height: 7vw;
+    max-height: 3rem;
+}
+
+@media (max-width: 650px) {
+    #title {
+        font-size: large;
+    }
+}

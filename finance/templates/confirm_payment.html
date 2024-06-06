@@ -20,13 +20,7 @@
 </head>
 <body>
     {% include "navbar.html" %}
-    {% if messages %}
-        <div class="message-container" dir="rtl">
-            {% for msg in messages %}
-                <h2 class="msg msg_{{ msg.tags }}">{{ msg }}</h2>
-            {% endfor %}
-        </div>
-    {% endif %}
+    {% include 'messages.html' %}
     <div id="main">
         <div id="box1">
             {% for i in obj %}

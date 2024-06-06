@@ -13,16 +13,6 @@ body {
     margin: 2rem 0;
     flex-direction: column;
 }
-.message-container {
-    background-color: #ccffcd;
-    padding: 10px;
-
-}
-
-.msg {
-    text-align: center;
-        font-size: large;
-}
 
 #box1 {
     width: 100%;
@@ -130,6 +120,9 @@ a:hover {
     align-items: center;
     justify-items: center;
     justify-content: center;
+}
+.link2 {
+    width: 30vw;
 }
 
 .sp {

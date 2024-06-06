@@ -39,22 +39,18 @@
 <body dir="rtl">
 
     {% include "navbar.html" %}
-    {% if messages %}
-        <div class="message-container">
-            {% for msg in messages %}
-                <h2 class="msg">{{ msg }}</h2>
-            {% endfor %}
-        </div>
-    {% endif %}
+    {% include 'messages.html' %}
     <div id="main">
         <div id="box1">
             <div id="searchbox">
-                <form novalidate action="" class="serch_box_inside" method="post">
+                <form novalidate action="{% url 'servers:list_configs_searches' %}" class="serch_box_inside" method="post">
+                    {% csrf_token %}
                     <img class="search_img" src="{% static 'img/search-config.png' %}" alt="search">
                     {{ search_config.search_config }}
                     <input class="input_btn" type="submit" value="🔍">
                 </form>
-                <form novalidate action="" class="serch_box_inside" method="post">
+                <form novalidate action="{% url 'customers:custumers_list' %}" class="serch_box_inside" method="post">
+                    {% csrf_token %}
                     <img class="search_img" src="{% static 'img/search-user.png' %}" alt="search">
                     {{ search_user.search_user }}
                     <input class="input_btn" type="submit" value="🔍">
@@ -63,12 +59,15 @@
             <a href="{% url 'finance:confirm_payments' %}" class="links link2" id="pay_confirm">✅ تایید پرداخت 💳</a>
             <button class="links link2" id="create_config">➕ ساخت کانفیگ 🔗</button>
             <button class="links link2" id="list_config">📋 لیست کانفیگ ها 🔗</button>
-            <a href="" class="links" id="tarefeh">💰 تعرفه ها 🛒</a>
-            <a href="{% url 'customers:custumers_list' %}" class="links" id="customers">👤 مشتری ها 👤</a>
+            <a href="{% url 'finance:show_prices' %}" class="links" id="tarefeh">💰 تعرفه ها 🛒</a>
+            <a href="{% url 'customers:custumers_list' %}" class="links" id="customers">👥 مشتری ها 🤖</a>
             <a href="" class="links" id="servers">🌐 سرور ها 📶</a>
-            <a href="" class="links" id="message">️📝 پیام همگانی ✉</a>
+            <a href="" class="links" id="message">️📝 پیام همگانی 📨</a>
+            <a href="" class="links" id="message">👤 پیام به کاربر 💬</a>
             <a href="" class="links" id="report">📊 گزارشات 📈</a>
-            <a href="" class="links" id="setting">⚙️ تنظیمات 🛠</a>
+            <a href="" class="links" id="setting">⚙️ تنظیمات 🛠️</a>
+            <a href="" class="links" id="setting">🗃️ Logs 📃</a>
+            <a href="" class="links" id="setting">❗️ Errors ❗️</a>
         </div>
     </div>
 
@@ -77,11 +76,7 @@
         <h3>لیست کانفیگ ها</h3>
         <div class="server_lists" >
             {% for s in servers %}
-                {% if s.active %}
-                    <a class="server_name" href=""><span class="sp">🔵</span> {{ s.server_name }}</a>
-                {% else %}
-                    <div class="server_name" href=""><span class="sp">🔴</span> {{ s.server_name }}</div>
-                {% endif %}
+                <a class="server_name" href='{% url "servers:list_configs" s.server_id %}'>🌐 {{ s.server_name }}</a>
             {% endfor %}
         </div>
     </div>
@@ -91,11 +86,7 @@
         <h3>ساخت کانفیگ</h3>
         <div class="server_lists" >
             {% for s in servers %}
-                {% if s.active %}
-                    <a class="server_name" href=""><span class="sp">🔵</span> {{ s.server_name }}</a>
-                {% else %}
-                    <div class="server_name" href=""><span class="sp">🔴</span> {{ s.server_name }}</div>
-                {% endif %}
+                <a class="server_name" href="">🌐 {{ s.server_name }}</a>
             {% endfor %}
         </div>
 

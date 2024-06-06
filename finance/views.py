@@ -8,7 +8,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from servers.views import ServerApi, Configs
 from django.contrib import messages
-from .forms import DenyForm
+from .forms import DenyForm, AddPriceForm
 
 
 class Wallet:
@@ -168,3 +168,54 @@ class DenyPaymentPage(LoginRequiredMixin, View):
             else:
                 messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
                 return redirect('finance:confirm_payments')
+
+
+class ShowPrices(LoginRequiredMixin, View):
+    def get(self, request):
+        price_model = PriceModel.objects.all().order_by('expire_limit', 'usage_limit')
+        return render(request, 'show_prices.html', {'price_model': price_model})
+
+class DeleteOrEditPrice(LoginRequiredMixin, View):
+    def get(self, request, obj_id, action):
+        model_obj = PriceModel.objects.get(id=obj_id)
+        print(action)
+        if action == "delete":
+            print(1111)
+            model_obj.delete()
+            messages.success(request, "تعرفه با موفقیت حذف شد.")
+            return redirect('finance:show_prices')
+        elif action == "edit":
+            return render(request,)
+
+class AddPrice(LoginRequiredMixin, View):
+    def get(self, request):
+        form = AddPriceForm()
+        return render(request, 'AddPrice.html', {'form': form})
+
+    def post(self, request):
+        form = AddPriceForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            if cd["type_conf"] == "limited":
+                usage = cd["usage"]
+                month = cd["month"]
+                ip_limit = 0
+            elif cd["type_conf"] == "inf_usage":
+                usage = 0
+                month = cd['month']
+                ip_limit = cd["ip_limit"]
+            elif cd["type_conf"] == "inf_time":
+                usage = cd["usage"]
+                month = 0
+                ip_limit = cd["ip_limit"]
+            price = cd["price"]
+
+
+            PriceModel.objects.create(
+                price=price,
+                expire_limit=int(month),
+                user_limit=int(ip_limit),
+                usage_limit=int(usage),
+            ).save()
+            return redirect('finance:show_prices')
+        return render(request, 'AddPrice.html', {'form': form})

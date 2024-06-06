@@ -1,0 +1,76 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="fa" class="no-js">
+	<head>
+		<title>List Configs</title>
+        {% include "base_head.html" %}
+        <link rel="stylesheet" type="text/css" href="{% static 'custumers/component.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'finance/surathesab_page.css' %}"/>
+    </head>
+	<body dir="ltr">
+        {% include "navbar.html" %}
+        {% include 'messages.html' %}
+        <div id="main">
+            <div class="addbox">
+                <a href="{% url 'finance:add_price' %}" class="addprice">➕ جدید</a>
+            </div>
+            <h3 id="counter">لیست تعرفه ها</h3>
+		    <div class="xcontainer">
+		    		<table class="overflow-y">
+		    			<thead>
+		    				<tr>
+                                <th>زمان</th>
+                                <th>حجم</th>
+                                <th>کاربر</th>
+                                <th>قیمت</th>
+                                <th>Action</th>
+                            </tr>
+		    			</thead>
+		    			<tbody>
+                        {% for row in price_model %}
+
+		    				<tr>
+
+                                {% if row.expire_limit == 0 %}
+                                	<td>زمان نامحدود</td>
+                                {% else %}
+                                    <td>{{ row.expire_limit }} month</td>
+                                {% endif %}
+                                {% if row.usage_limit == 0 %}
+                                    <td>حجم نامحدود</td>
+                                {% else %}
+                                    <td>{{ row.usage_limit }} GB</td>
+                                {% endif %}
+                            {% if row.user_limit == 0 %}
+                                <td>&#8734;</td>
+                            {% else %}
+                                <td>{{ row.user_limit }}</td>
+                            {% endif %}
+
+                            <td>{{ row.price|price }} T </td>
+                                <td>
+                                    <div class="action">
+                                        <a href="{% url 'finance:delete_or_edit_price' row.id 'edit' %}" class="edit">ٍEdit</a>
+                                        <a href="{% url 'finance:delete_or_edit_price' row.id 'delete' %}" class="delete">Delete</a>
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+		    			</tbody>
+		    		</table>
+            </div>
+
+
+        </div>
+
+
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
+		<script src={% static "js/list.js" %}></script>
+	</body>
+
+{% include "loading.html" %}
+</html>

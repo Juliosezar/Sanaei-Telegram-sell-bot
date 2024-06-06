@@ -1,0 +1,58 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="fa" class="no-js">
+	<head>
+		<title>List Configs</title>
+        {% include "base_head.html" %}
+        <link rel="stylesheet" type="text/css" href="{% static 'custumers/component.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'custumers/list_custumers.css' %}" />
+    </head>
+	<body dir="ltr">
+        {% include "navbar.html" %}
+        {% include 'messages.html' %}
+            <div id="main">
+
+            <h3 id="title">جستجو در کانفیگ های ثبت شده</h3>
+            <form novalidate action="{% url 'servers:list_configs_searches' %}" class="serch_box_inside" method="post">
+                    {% csrf_token %}
+                    <img class="search_img" src="{% static 'img/search-config.png' %}" alt="search">
+                    {{ search_config.search_config }}
+                    <input class="input_btn" type="submit" value="🔍">
+                </form>
+		    <div class="xcontainer">
+		    		<table class="overflow-y">
+		    			<thead>
+		    				<tr>
+                                <th>BY User</th>
+		    					<th>Config Name</th>
+                                <th>UUID</th>
+                                <th>Server</th>
+		    				</tr>
+		    			</thead>
+		    			<tbody>
+                        {% for conf in configs_model %}
+		    				<tr>
+                                <td><a href="{% url 'customers:custumer_detail' conf.chat_id.userid %}">{{ conf.chat_id.userid }}</a></td>
+                                <td>{{ conf.config_name }}</td>
+                                <td>{{ conf.config_uuid }}</td>
+                                <td>{{ conf.server.server_name }}</td>
+                            </tr>
+
+
+                        {% endfor %}
+		    			</tbody>
+		    		</table>
+            </div>
+
+
+        </div>
+
+
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
+		<script src={% static "js/list.js" %}></script>
+	</body>
+
+{% include "loading.html" %}
+</html>

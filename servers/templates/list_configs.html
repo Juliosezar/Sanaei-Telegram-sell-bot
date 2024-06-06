@@ -20,21 +20,17 @@
 }
     </script>
         {% include "navbar.html" %}
+        {% include 'messages.html' %}
         <div id="main">
-        <h3 id="mg">
-            {% if messages %}
-                {% for msg in messages %}
-                    <h2 class="messages_{{ msg.tags }}">{{ msg }}</h2>
-                {% endfor %}
-            {% endif %}
-        </h3>
 
-            <form action="" method="get">
+
+            <form action="" method="post">
+            {% csrf_token %}
              <div id="searchbox">
                 <h3 id="textin" dir="rtl">{{ searchform.search }}</h3>
                 <input id="subbut" value="Search" type="submit">
-                 {% if search_page == True %}
-                    <a id="comeback" href="{% url 'configs:list' serverid inboundid choosen_user %}">بازگشت</a>
+                 {% if searched == True %}
+                    <a id="comeback" href="{% url 'servers:list_configs' server_id %}">بازگشت</a>
                  {% endif %}
              </div>
          </form>
