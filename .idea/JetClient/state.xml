@@ -13,12 +13,12 @@
                 <list>
                   <queryParamState>
                     <option name="key" value="url" />
-                    <option name="value" value="https://9c19-95-162-203-221.ngrok-free.app/webhook/" />
+                    <option name="value" value="https://1706-5-134-162-39.ngrok-free.app/webhook/" />
                   </queryParamState>
                 </list>
               </option>
               <option name="sortWeight" value="1000000" />
-              <option name="url" value="https://api.telegram.org/bot6972765226:AAEjUlP_isF823i3jsYBN8p6EmOZLHZGMyU/setWebhook?url=https://9c19-95-162-203-221.ngrok-free.app/webhook/" />
+              <option name="url" value="https://api.telegram.org/bot6972765226:AAEjUlP_isF823i3jsYBN8p6EmOZLHZGMyU/setWebhook?url=https://1706-5-134-162-39.ngrok-free.app/webhook/" />
             </requestState>
             <requestState>
               <option name="auth">

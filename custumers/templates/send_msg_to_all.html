@@ -1,32 +1,10 @@
-{% load compress %}
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-{% include "base_head.html" %}
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'home_page.css' %}">
-    <script>
-
-    </script>
-
+  <meta charset="UTF-8">
+  <title>$Title$</title>
 </head>
-
-<body dir="rtl">
-
-    {% include "navbar.html" %}
-    {% include 'messages.html' %}
-    <div id="main">
-        <form action="" method="post" novalidate dir="rtl">
-            {% csrf_token %}
-            <div>{{ form.all_user }}</div>
-            <div>{{ form.server }}</div>
-            <div>{{ form.message }}</div>
-            <input type="submit" value="Send">
-        </form>
-    </div>
-{% include "loading.html" %}
-
+<body>
+$END$
 </body>
 </html>

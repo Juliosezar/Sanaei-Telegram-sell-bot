@@ -12,8 +12,8 @@ from binary import BinaryUnits, convert_units
 from rest_framework.views import APIView
 from accounts.forms import SearchUserForm
 from django.contrib import messages
-from .forms import SendMessageForm
-from connection import tasks
+
+
 class Customer:
     @classmethod
     def create_custumer(cls, user_id, first_name, username):
@@ -120,19 +120,3 @@ class GetCustumersConfigsAPI(APIView):
         print(config["enable"])
         data = {"usage": usage, "total_usage": total_usage, "time_expire": time_expire, 'status': status}
         return Response(data=data)
-
-
-class SendMsgToAll(LoginRequiredMixin, View):
-    def get(self, request):
-        form = SendMessageForm
-        return render(request, 'send_msg_to_all.html', {"form": form})
-
-    def post(self, request):
-        form = SendMessageForm(request.POST)
-        customer_model = CustomerModel.objects.all()
-        if form.is_valid():
-            cd = form.cleaned_data
-            if cd['all_user']:
-                for i in customer_model:
-                    tasks.send_msg_to_bot.apply_async(args=[i.userid, cd["message"]])
-        return redirect('accounts:home')
