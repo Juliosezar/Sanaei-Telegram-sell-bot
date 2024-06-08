@@ -107,15 +107,20 @@ class ServerApi:
         }
         header = {"Accept": "application/json"}
         print("11111")
-        session = cls.create_session(server_id)
-        if not session:
+        try:
+            session = cls.create_session(server_id)
+            if not session:
+                return False
+            respons = session.post(url, headers=header, json=data1)
+            print(respons.content)
+            if respons.status_code == 200:
+                if respons.json()['success']:
+                    return True
             return False
-        respons = session.post(url, headers=header, json=data1)
-        print(respons.content)
-        if respons.status_code == 200:
-            if respons.json()['success']:
-                return True
-        return False
+        except Exception as e:
+            return False
+
+
 
     @classmethod
     def get_config(cls, server_id, config_name):
@@ -164,7 +169,7 @@ class Configs:
         from connection.command_runer import CommandRunner
         server_obj = ServerModel.objects.get(server_id=server)
         vless = cls.create_vless_text(config_uuid, server_obj, config_name)
-        CommandRunner.send_notification(user_id, vless)
+        CommandRunner.send_msg_to_user(user_id, vless)
 
     @classmethod
     def add_configs_to_queue_before_confirm(cls, server_id, user_id, config_uuid, usage_limit, expire_time, user_limit,
@@ -191,9 +196,11 @@ class Configs:
         return unique_number
 
     @classmethod
-    def create_config_from_queue(cls, config_uuid):
+    def create_config_from_queue(cls, config_uuid, by_celery=False):
         from connection.command_runer import CommandRunner
         config_queue_obj = CreateConfigQueue.objects.get(config_uuid=config_uuid)
+        config_queue_obj.sent_to_user = 1
+        config_queue_obj.save()
         respons = ServerApi.create_config(
             server_id=config_queue_obj.server.server_id,
             config_name=config_queue_obj.config_name,
@@ -205,13 +212,17 @@ class Configs:
         )
         if respons:
             change_wallet_amount(config_queue_obj.custumer.userid, -1 * config_queue_obj.price)
-            cls.send_config_to_user(config_queue_obj.custumer.userid, config_uuid,
-                                    config_queue_obj.server.server_id, config_queue_obj.config_name)
+            config_queue_obj.sent_to_user = 3
             cls.save_config_info(config_queue_obj.config_name, config_queue_obj.config_uuid,
                                  config_queue_obj.server.server_id, config_queue_obj.custumer.userid)
+            cls.send_config_to_user(config_queue_obj.custumer.userid, config_uuid,
+                                    config_queue_obj.server.server_id, config_queue_obj.config_name)
         else:
-            CommandRunner.send_notification(config_queue_obj.custumer.userid,
-                                            '🟢 کابر گرامی سرورها در حال آپدیت هستند و کانفیگ شما با کمی تاخیر بعد از اتمام آپدیت برای شما ارسال میشود.')
+            config_queue_obj.sent_to_user = 5
+            config_queue_obj.save()
+            if not by_celery:
+                CommandRunner.send_msg_to_user(config_queue_obj.custumer.userid,
+                                            '🟢 کابر گرامی کانفیگ شما تا دقایقی دیگر به صورت خودکار برای شما ارسال میشود.')
 
     @classmethod
     def create_config_from_wallet(cls, chat_id, server_id, expire_limit, usage_limit, user_limit, price):
@@ -223,7 +234,7 @@ class Configs:
                                                 user_limit, True)
         if create_config:
             vless = cls.create_vless_text(conf_uuid, server_obj, config_name)
-            CommandRunner.send_notification(chat_id, vless)
+            CommandRunner.send_msg_to_user(chat_id, vless)
             change_wallet_amount(chat_id, -1 * price)
             cls.save_config_info(config_name, conf_uuid, server_id, chat_id)
             return True

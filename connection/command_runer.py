@@ -14,7 +14,8 @@ from django.conf import settings
 from servers.views import Configs
 from uuid import uuid4
 from django.core.files.base import ContentFile
-from django.core.files.base import ContentFile
+from .models import SendMessage
+
 
 TOKEN = environ.get('TelegramToken')
 TELEGRAM_SERVER_URL = f"https://api.telegram.org/bot{TOKEN}/"
@@ -39,10 +40,12 @@ class CommandRunner:
     @classmethod
     def send_api(cls, api_method, data):
         url = TELEGRAM_SERVER_URL + api_method
-        response = requests.post(url, json=data).json()
-        print(response)
-        return response
-
+        try:
+            response = requests.post(url, json=data, timeout=2)
+            return response
+        except requests.exceptions.RequestException as e:
+            return False
+        # TODO : log error
     @classmethod
     def download_photo(cls, file_id, chat_id, config_in_queue):
         file_info = requests.get(f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file_id}").json()["result"]
@@ -59,22 +62,57 @@ class CommandRunner:
             cq.save()
 
     @classmethod
-    def send_notification(cls, chat_id, msg):
+    def send_msg_to_user(cls, chat_id, msg):
         data = {'chat_id': chat_id,
                 'text': msg,
                 'parse_mode': 'Markdown',
                 }
-        cls.send_api("sendMessage", data)
+        respons = cls.send_api("sendMessage", data)
+        if not respons:
+            SendMessage.objects.create(customer=CustumerModel.objects.get(userid=chat_id), message=msg)
+        return True
+
+    @classmethod
+    def celery_send_msg(cls, chat_id, msg):
+        data = {'chat_id': chat_id,
+                'text': msg,
+                'parse_mode': 'Markdown',
+                }
+        try:
+            url = TELEGRAM_SERVER_URL + 'sendMessage'
+            response = requests.post(url, json=data, timeout=2)
+            print('connecting')
+            if response.status_code == 200:
+                return 'Succes'
+            elif response.status_code == 403:
+                return 'Banned'
+            else:
+                return 'Faild'
+        except requests.exceptions.Timeout:
+            print('timeout')
+            return 'Timeout'
+        except requests.exceptions.SSLError or requests.exceptions.BaseHTTPError or requests.exceptions.ConnectionError\
+                or requests.exceptions.RetryError or requests.exceptions.HTTPError:
+            print('http error')
+            return 'Faild'
+        except requests.exceptions.RequestException as e:
+            print('Error')
+            return 'Faild'
+        except Exception as e:
+            return 'Error'
+# TODO : log error
+
 
     @classmethod
     def abort(cls, chat_id, *args):
-        cls.send_notification(chat_id, "❌ عملیات لغو شد.❗️")
+        cls.send_msg_to_user(chat_id, "❌ عملیات لغو شد.❗️")
         cls.main_menu(chat_id)
 
     @classmethod
     def get_user_info(cls, chat_id, *args):
         data = {'chat_id': chat_id}
         info = CommandRunner.send_api("getChat", data)
+        info = info.json()
         if "username" in info["result"]:
             username = info["result"]["username"]
         else:
@@ -89,7 +127,7 @@ class CommandRunner:
 
     @classmethod
     def welcome(cls, chat_id, *args):
-        cls.send_notification(chat_id, "به بات فروش NAPSV VPN خوش آمدید.")
+        cls.send_msg_to_user(chat_id, "به بات فروش NAPSV VPN خوش آمدید.")
 
     @classmethod
     def main_menu(cls, chat_id, *args):
@@ -170,9 +208,9 @@ class CommandRunner:
                 cls.send_api("sendMessage", data)
             else:
                 print("not number")
-                cls.send_notification(chat_id, "حداقل مقدار پرداختی 2000 تومان است. دوباره وارد کنید :")
+                cls.send_msg_to_user(chat_id, "حداقل مقدار پرداختی 2000 تومان است. دوباره وارد کنید :")
         else:
-            cls.send_notification(chat_id, "مقدار را به صورت لاتین(انگلیسی) و به تومان وارد کنید :")
+            cls.send_msg_to_user(chat_id, "مقدار را به صورت لاتین(انگلیسی) و به تومان وارد کنید :")
 
     @classmethod
     def contact_us(cls, chat_id, *args):
@@ -403,7 +441,7 @@ class CommandRunner:
             cls.send_api("editMessageText", data)
         else:
             msg = f'اتصال به سرور {ServerModel.objects.get(server_id=server_id).server_name} برقرار نشد.' '\n میتوانید کشور مورد نظر را تغییر دهید یا دقایقی دیگر دوباره امتحان کنید.'
-            CommandRunner.send_notification(chat_id, msg)
+            CommandRunner.send_msg_to_user(chat_id, msg)
 
     @classmethod
     def abort_buying(cls, chat_id, *args):

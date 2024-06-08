@@ -81,15 +81,15 @@ class FirstConfirmPayment(LoginRequiredMixin, View):
             Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.price)
             if model_obj.config_in_queue:
                 if Customer.objects.get(userid=model_obj.custumer.userid).wallet >= model_obj.price:
-                    CommandRunner.send_notification(model_obj.custumer.userid, "پرداخت شما تایید شد. ✅")
+                    CommandRunner.send_msg_to_user(model_obj.custumer.userid, "پرداخت شما تایید شد. ✅")
                     Configs.create_config_from_queue(config_uuid=model_obj.config_uuid)
                 else:
-                    CommandRunner.send_notification(model_obj.custumer.userid,
+                    CommandRunner.send_msg_to_user(model_obj.custumer.userid,
                                                     f'کابر گرامی مبلغ {model_obj.price} تومان به کیف پول شما اضافه گردید. این مبلغ برای خرید کانفیک مورد نظر کافی نیست. ')
             else:
                 Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.price)
                 msg = 'پرداخت شما تایید و به کیف پول شما اضافه شد.'
-                CommandRunner.send_notification(model_obj.custumer.userid, msg)
+                CommandRunner.send_msg_to_user(model_obj.custumer.userid, msg)
             model_obj.status = 2
             model_obj.save()
             messages.success(request, 'پرداخت با موفقیت تایید و به کاربر ارسال شد.')
@@ -108,12 +108,12 @@ class SecondConfirmPayment(LoginRequiredMixin, View):
                 if Customer.objects.get(userid=model_obj.custumer.userid).wallet >= model_obj.price:
                     Configs.create_config_from_queue(config_uuid=model_obj.config_uuid)
                 else:
-                    CommandRunner.send_notification(model_obj.custumer.userid,
+                    CommandRunner.send_msg_to_user(model_obj.custumer.userid,
                                                     f'کابر گرامی مبلغ {model_obj.price} تومان به کیف پول شما اضافه گردید. این مبلغ برای خرید کانفیک مورد نظر کافی نیست. ')
             else:
                 Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.price)
                 msg = 'پرداخت شما تایید و به کیف پول شما اضافه شد.'
-                CommandRunner.send_notification(model_obj.custumer.userid, msg)
+                CommandRunner.send_msg_to_user(model_obj.custumer.userid, msg)
             model_obj.status = 2
             model_obj.save()
             messages.success(request, 'پرداخت با موفقیت تایید و به کاربر ارسال شد.')
@@ -158,7 +158,7 @@ class DenyPaymentPage(LoginRequiredMixin, View):
                 if cd['ban_user']:
                     msg = msg + '\n' "🚫 به دلیل تخلف شما بن شده و از استفاده از بات محروم میشوید."
                 # TODO
-                CommandRunner.send_notification(model_obj.custumer.userid, msg)
+                CommandRunner.send_msg_to_user(model_obj.custumer.userid, msg)
                 model_obj.status = 10
                 model_obj.save()
                 messages.success(request, "پرداخت با موفقیت رد تایید شد.")
@@ -185,7 +185,9 @@ class DeleteOrEditPrice(LoginRequiredMixin, View):
             messages.success(request, "تعرفه با موفقیت حذف شد.")
             return redirect('finance:show_prices')
         elif action == "edit":
-            return render(request,)
+            return redirect('finance:show_prices')
+
+# TODO
 
 class AddPrice(LoginRequiredMixin, View):
     def get(self, request):
@@ -208,7 +210,7 @@ class AddPrice(LoginRequiredMixin, View):
                 usage = cd["usage"]
                 month = 0
                 ip_limit = cd["ip_limit"]
-            price = cd["price"]
+            price = cd["price"] * 1000
 
 
             PriceModel.objects.create(

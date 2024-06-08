@@ -24,7 +24,8 @@ class CreateConfigQueue(models.Model):
     expire_time = models.IntegerField()
     user_limit = models.IntegerField()
     price = models.IntegerField()
-    sent_to_user = models.BooleanField(default=False)
+    sent_to_user = models.IntegerField(default=0)
+    # 0 = Created    1 = pending server   2 = sent  5 = Faild
     pay_status = models.PositiveSmallIntegerField(default=0)
     # 0 => waiting for pay img / 1 => waiting for confirm / 2 => first confirmed / 3 => secoend confirm / 10 => denied
 

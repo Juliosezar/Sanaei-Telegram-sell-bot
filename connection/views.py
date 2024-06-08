@@ -48,7 +48,7 @@ COMMANDS = {
 def webhook(request):
 
     if request.method == 'POST':
-        # try:
+        try:
             update = json.loads(request.body)
             if 'message' in update:
                 chat_id = update['message']['chat']['id']
@@ -66,11 +66,11 @@ def webhook(request):
                     elif CustumerModel.objects.get(userid=chat_id).temp_status == "set_pay_amount":
                         CommandRunner.send_pay_card_info(chat_id, text)
                     elif CustumerModel.objects.get(userid=chat_id).temp_status == "get_paid_picture":
-                        CommandRunner.send_notification(chat_id, "لطفا عکس پرداختی خود را ارسال نمایید :")
+                        CommandRunner.send_msg_to_user(chat_id, "لطفا عکس پرداختی خود را ارسال نمایید :")
                     elif CustumerModel.objects.get(userid=chat_id).temp_status == "get_paid_picture_for_config":
-                        CommandRunner.send_notification(chat_id, "لطفا عکس پرداختی خود را ارسال نمایید :")
+                        CommandRunner.send_msg_to_user(chat_id, "لطفا عکس پرداختی خود را ارسال نمایید :")
                     else:
-                        CommandRunner.send_notification(chat_id,"ورودی نامعتبر")
+                        CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                         CommandRunner.main_menu(chat_id)
 
                 elif "photo" in update["message"]:
@@ -79,16 +79,16 @@ def webhook(request):
                         print(photo)
                         file_id = photo["file_id"]
                         CommandRunner.download_photo(file_id, chat_id, False)
-                        CommandRunner.send_notification(chat_id, "تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید مبلغ مورد نظر به کیف پولتان اضافه خواهد شد.")
+                        CommandRunner.send_msg_to_user(chat_id, "تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید مبلغ مورد نظر به کیف پولتان اضافه خواهد شد.")
 
                     elif CustumerModel.objects.get(userid=chat_id).temp_status == "get_paid_picture_for_config":
                         photo = (update["message"]["photo"][-1])
                         print(photo)
                         file_id = photo["file_id"]
                         CommandRunner.download_photo(file_id, chat_id, True)
-                        CommandRunner.send_notification(chat_id, "تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید کانفیگ شما به صورت خودکار برایتان ارسال میگردد.")
+                        CommandRunner.send_msg_to_user(chat_id, "تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید کانفیگ شما به صورت خودکار برایتان ارسال میگردد.")
                     else:
-                        CommandRunner.send_notification(chat_id, "ورودی نامعتبر")
+                        CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                     COMMANDS["/start"](chat_id)
 
             elif 'callback_query' in update:
@@ -104,9 +104,9 @@ def webhook(request):
                     else:
                         COMMANDS[command](chat_id, msg_id)
                 else:
-                    CommandRunner.send_notification(chat_id, "ورودی نامعتبر")
+                    CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                     COMMANDS["/start"](chat_id)
             return JsonResponse({'status': 'ok'})
-        # except Exception as e:
-        #     print(e)
+        except Exception as e:
+            print(e)
     return JsonResponse({'status': 'not a POST request'})

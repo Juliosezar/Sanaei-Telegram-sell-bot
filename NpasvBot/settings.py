@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'finance.apps.FinanceConfig',
     'custumers.apps.CustumersConfig',
     'compressor',
-    'rest_framework'
+    'rest_framework',
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
