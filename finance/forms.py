@@ -47,11 +47,12 @@ class AddPriceForm(forms.Form):
             raise ValidationError("این تعرفه قبلا ثبت شده است.")
 
 class EditPriceForm(forms.Form):
-    price = forms.IntegerField(required=True)
-    def clean(self):
+    price = forms.IntegerField(required=True,widget=forms.TextInput(attrs={'placeholder': 'قیمت جدید / هزارتومان'}))
+    def clean_price(self):
         price = self.cleaned_data.get('price')
         if price:
-            if not 10 < price < 999:
-                raise ValidationError('قیمت باید بین 10 تا 999 هزار تومان باشد.')
+            if not 5 < price < 999:
+                raise ValidationError('قیمت باید بین 5 تا 999 هزار تومان باشد.')
         else:
             raise ValidationError("قیمت را وارد کنید.")
+        return price * 1000

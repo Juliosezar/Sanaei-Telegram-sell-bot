@@ -112,20 +112,26 @@ td {
 }
 
 .tamdid {
-    background-color: #000d3f;
-    color: white;
+    /*background-color: #000d3f;*/
+    /*color: white;*/
     text-decoration: none;
     padding: 0.5rem 0.8rem;
     border-radius: 20px;
     margin-bottom: -0.5rem;
 }
 .delete {
-    background-color: #ff4d4d;
-    color: black;
+    /*background-color: #ff4d4d;*/
+    /*color: black;*/
     text-decoration: none;
-    padding: 0.5rem 1rem;
+    padding: 0;
     border-radius: 20px;
+    margin: 0;
 
+}
+.del_img {
+    margin: 0;
+    padding: 0;
+    width: 2rem;
 }
 
 .delete:hover {
@@ -133,10 +139,14 @@ td {
 }
 
 .tamdid:hover {
-    background-color: #91a6ff;
-    color: #000000;
+    /*background-color: #91a6ff;*/
+    /*color: #000000;*/
     text-decoration: none;
     border-radius: 20px;
+}
+
+.restart {
+    width: 3rem;
 }
 
 .last_on_red{
@@ -144,7 +154,9 @@ td {
     padding: 0.3rem 0;
     border-radius: 20px;
 }
-
+.enable{
+    width: 2.8rem;
+}
 
 .last_on_blue{
     background-color: #7cb8ff;
@@ -320,4 +332,8 @@ td {
     #point {
         margin-right: 1rem;
     }
+    .restart {
+    width: 2rem;
+}
+
 }

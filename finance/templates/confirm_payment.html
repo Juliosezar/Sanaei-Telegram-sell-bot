@@ -28,7 +28,7 @@
                     <div class="pay_info">
                         <div class="infobox">
                             <a class="info" href="">userid: {{ i.custumer.userid }}</a>
-                            <h3 class="info">price : {{ i.price|price }} T</h3>
+                            <h3 class="info">price : {{ i.pay_price|price }} T</h3>
 
                         </div>
                         <div class="conf_btns">
@@ -38,6 +38,9 @@
                             </div>
                             <div class="confirmbtn">
                                 <a href="{% url 'finance:second_confirm' i.id %}" class="sec_confirm c_btnd">تایید نهایی</a>
+                            </div>
+                            <div class="confirmbtn">
+                                <a href="{% url 'finance:edit_price' i.id %}" class="edit_price c_btnd">تغییر قیمت</a>
                             </div>
                             <div class="confirmbtn">
                                 <a href="{% url 'finance:deny_payments' i.id %}" class="deny c_btnd">عدم تایید</a>

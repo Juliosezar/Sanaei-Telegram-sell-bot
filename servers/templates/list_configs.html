@@ -10,12 +10,10 @@
     </head>
 	<body dir="ltr">
     <script>
-    function confirmDelete(uuid, name) {
+    function confirmDelete(uuid, name, inbound_id) {
         const result = confirm(" آیا از حذف کانفیگ " + name + " مطمئنید؟ " );
         if (result) {
-            window.location.href = "/configs/delete_config/{{ choosen_user }}/server/{{ serverid }}/inbound/{{ inboundid }}/"+ uuid;
-        } else {
-            location.reload()
+            window.location.href = "/servers/delete_config/{{ server_id }}/"+ uuid + '/' + name + "/" + inbound_id;
         }
 }
     </script>
@@ -45,15 +43,18 @@
                                 <th>نوع</th>
                                 <th>تمدید</th>
                                 <th>حذف</th>
+                                <th>غیرفعال</th>
 		    				</tr>
 		    			</thead>
 		    			<tbody>
                         {% for key ,value in data.items %}
 		    				<tr>
-                                {% if not value.enable %}
-		    					    <th class="fix_col name_red"><a class="c_name" style="color: red" href="">{{ key|break_name }}</a></th>
+                                {% if not value.ended %}
+		    					    <th class="fix_col name_red"><a class="c_name" style="color: red" href="{% url 'servers:conf_page' server_id value.uuid key %}">{{ key|break_name }}</a></th>
+                                {% elif not value.enable %}
+		    					    <th style="background-color: #888888" class="fix_col name_red"><a class="c_name" style="color: #000e47" href="{% url 'servers:conf_page' server_id value.uuid key  %}">🚫 {{ key|break_name }} 🚫</a></th>
                                 {% else %}
-		    					    <th class="fix_col"><a class="c_name" href="">{{ key|break_name }}</a></th>
+		    					    <th class="fix_col"><a class="c_name" href="{% url 'servers:conf_page' server_id value.uuid key  %}">{{ key|break_name }}</a></th>
                                 {% endif %}
                                 <td>
                                     {% if value.usage_limit == 0  %}
@@ -148,13 +149,29 @@
 
 
                                 <td>
-                                    <a class="tamdid" href="">تمدید</a>
+                                    <a class="tamdid" href="">
+                                        <img class="restart" src="{% static "img/icons8-restart-512.png" %}" alt="">
+                                    </a>
                                 </td>
 
                                 <td>
-                                    <p onclick=confirmDelete('{{ value.uuid }}',"{{ key }}") class="delete">حذف</p>
+                                    <p onclick=confirmDelete('{{ value.uuid }}',"{{ key }}","{{ value.inbound_id }}") class="delete">
+                                        <img class="del_img" src="{% static 'img/icons8-delete-64.png' %}" alt="">
+                                    </p>
                                 </td>
-
+                                {% if value.enable %}
+                                <td>
+                                    <a class="tamdid" href="{% url 'servers:disable_config' server_id value.uuid value.inbound_id key 1 value.ip_limit %}">
+                                        <img class="enable" src="{% static "img/enable.png" %}" alt="">
+                                    </a>
+                                </td>
+                                {% else %}
+                                <td>
+                                    <a class="tamdid" href="{% url 'servers:disable_config' server_id value.uuid value.inbound_id key 0 value.ip_limit %}">
+                                        <img class="enable" src="{% static "img/disable.png" %}" alt="">
+                                    </a>
+                                </td>
+                                {% endif %}
 
                             </tr>
 

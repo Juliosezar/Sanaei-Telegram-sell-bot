@@ -23,6 +23,8 @@ def day_and_hour(value):
 
 @register.filter(name="break_name")
 def break_name(value):
-    if '@' in value:
+    if value.startswith("NapsV_"):
+        return f'{value} 🤖'
+    elif '@' in value:
         return f'{value.split('@')[1]}🔒'
     return value

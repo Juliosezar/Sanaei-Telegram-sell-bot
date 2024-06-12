@@ -73,14 +73,43 @@
     background-color: rgba(0, 97, 158, 0.6);
     padding: 1rem 1.5rem;
     margin: 0 0.2rem;
-
 }
+
+.edit_price {
+        background-color: rgba(158, 113, 0, 0.6);
+    padding: 1rem 1.3rem;
+    margin: 0 0.2rem;
+}
+
 .c_btnd {
         margin: 0 0;
         border-radius: 5px;
     }
 a:hover {
     text-decoration: none;
+}
+
+.confirm_price_btn {
+    width: 98%;
+    background-color: white;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.confirm_price {
+    background-color: rgba(0, 48, 152, 0.3);
+    margin-top: 1rem;
+}
+#id_price {
+    text-align: center;
+}
+.errors {
+    width: 100%;
+    text-align: center;
+    background-color: #ff9d9d;
+    border: solid red 2px;
+    color: #000d3f;
 }
 @media  (max-width: 850px) {
     .paybox {

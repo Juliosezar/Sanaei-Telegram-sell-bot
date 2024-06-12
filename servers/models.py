@@ -33,4 +33,7 @@ class ConfigsInfo(models.Model):
     config_name = models.CharField(max_length=25, unique=True)
     config_uuid = models.UUIDField(unique=True)
     server = models.ForeignKey(Server, on_delete=models.DO_NOTHING)
-    chat_id = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
+    chat_id = models.ForeignKey(Customer, on_delete=models.DO_NOTHING, null=True)
+    price = models.PositiveIntegerField(default=0)
+    paid = models.BooleanField(default=True)
+    created_by = models.CharField(max_length=20, default="BOT")

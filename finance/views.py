@@ -8,7 +8,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from servers.views import ServerApi, Configs
 from django.contrib import messages
-from .forms import DenyForm, AddPriceForm
+from .forms import DenyForm, AddPriceForm, EditPriceForm
 
 
 class Wallet:
@@ -46,7 +46,8 @@ class Paying:
             PaymentQueueModel.objects.get(custumer=user_obj, status=0).delete()
         PaymentQueueModel.objects.create(
             custumer=user_obj,
-            price=price,
+            config_price=price,
+            pay_price=price,
             status=0,
             config_in_queue=True,
             config_uuid=uuid,
@@ -59,7 +60,8 @@ class Paying:
             PaymentQueueModel.objects.get(custumer=user_obj, status=0).delete()
         PaymentQueueModel.objects.create(
             custumer=user_obj,
-            price=price,
+            config_price=None,
+            pay_price=price,
             status=0,
             config_in_queue=False,
         ).save()
@@ -78,16 +80,16 @@ class FirstConfirmPayment(LoginRequiredMixin, View):
         from connection.command_runer import CommandRunner
         model_obj = PaymentQueueModel.objects.get(id=obj_id)
         if model_obj.status == 1:
-            Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.price)
+            Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.pay_price)
             if model_obj.config_in_queue:
-                if Customer.objects.get(userid=model_obj.custumer.userid).wallet >= model_obj.price:
+                if Customer.objects.get(userid=model_obj.custumer.userid).wallet >= model_obj.config_price:
                     CommandRunner.send_msg_to_user(model_obj.custumer.userid, "پرداخت شما تایید شد. ✅")
                     Configs.create_config_from_queue(config_uuid=model_obj.config_uuid)
                 else:
                     CommandRunner.send_msg_to_user(model_obj.custumer.userid,
-                                                    f'کابر گرامی مبلغ {model_obj.price} تومان به کیف پول شما اضافه گردید. این مبلغ برای خرید کانفیک مورد نظر کافی نیست. ')
+                                                    f'کابر گرامی مبلغ {model_obj.pay_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای خرید کانفیک مورد نظر کافی نیست. ')
             else:
-                Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.price)
+                Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.pay_price)
                 msg = 'پرداخت شما تایید و به کیف پول شما اضافه شد.'
                 CommandRunner.send_msg_to_user(model_obj.custumer.userid, msg)
             model_obj.status = 2
@@ -103,15 +105,15 @@ class SecondConfirmPayment(LoginRequiredMixin, View):
         from connection.command_runer import CommandRunner
         model_obj = PaymentQueueModel.objects.get(id=obj_id)
         if model_obj.status == 1:
-            Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.price)
+            Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.pay_price)
             if model_obj.config_in_queue:
-                if Customer.objects.get(userid=model_obj.custumer.userid).wallet >= model_obj.price:
+                if Customer.objects.get(userid=model_obj.custumer.userid).wallet >= model_obj.config_price:
                     Configs.create_config_from_queue(config_uuid=model_obj.config_uuid)
                 else:
                     CommandRunner.send_msg_to_user(model_obj.custumer.userid,
-                                                    f'کابر گرامی مبلغ {model_obj.price} تومان به کیف پول شما اضافه گردید. این مبلغ برای خرید کانفیک مورد نظر کافی نیست. ')
+                                                    f'کابر گرامی مبلغ {model_obj.config_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای خرید کانفیک مورد نظر کافی نیست. ')
             else:
-                Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.price)
+                Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.pay_price)
                 msg = 'پرداخت شما تایید و به کیف پول شما اضافه شد.'
                 CommandRunner.send_msg_to_user(model_obj.custumer.userid, msg)
             model_obj.status = 2
@@ -170,6 +172,24 @@ class DenyPaymentPage(LoginRequiredMixin, View):
                 return redirect('finance:confirm_payments')
 
 
+class EditPricePayment(LoginRequiredMixin, View):
+    def get(self, request, obj_id):
+        form = EditPriceForm
+        model_obj = PaymentQueueModel.objects.get(id=obj_id)
+        return render(request, 'edit_price_payment.html', {'obj': model_obj, 'form': form})
+
+    def post(self, request, obj_id):
+        form = EditPriceForm(request.POST)
+        model_obj = PaymentQueueModel.objects.get(id=obj_id)
+        if form.is_valid():
+            price = form.cleaned_data['price']
+            model_obj.pay_price = price
+            model_obj.save()
+            messages.success(request, "مبلغ با موفقیت تغییر کرد. از لیست زیر آن را تایید کنید.")
+            return redirect('finance:confirm_payments')
+        return render(request, 'edit_price_payment.html', {'obj': model_obj, 'form': form})
+
+
 class ShowPrices(LoginRequiredMixin, View):
     def get(self, request):
         price_model = PriceModel.objects.all().order_by('expire_limit', 'usage_limit')
@@ -209,7 +229,7 @@ class AddPrice(LoginRequiredMixin, View):
             elif cd["type_conf"] == "inf_time":
                 usage = cd["usage"]
                 month = 0
-                ip_limit = cd["ip_limit"]
+                ip_limit = 0
             price = cd["price"] * 1000
 
 

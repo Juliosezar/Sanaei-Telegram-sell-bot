@@ -12,9 +12,10 @@ from binary import BinaryUnits, convert_units
 from rest_framework.views import APIView
 from accounts.forms import SearchUserForm
 from django.contrib import messages
-from .forms import SendMessageForm
+from .forms import SendMessageToAllForm, SendMessageToCustomerForm
 from connection import tasks
 from connection.models import SendMessage
+
 class Customer:
     @classmethod
     def create_custumer(cls, user_id, first_name, username):
@@ -79,7 +80,7 @@ class CustomerDetail(LoginRequiredMixin, View):
         customer_obj = CustomerModel.objects.get(userid=customer_id)
         config_model = ConfigsInfo.objects.filter(chat_id=customer_obj)
         pay_model = ConfirmPaymentQueue.objects.filter(custumer=customer_obj, status=3)
-        sum_pays = sum(item.price for item in pay_model)
+        sum_pays = sum(item.pay_price for item in pay_model)
         sum_configs = True if len(config_model) > 0 else False
         return render(request, "Custumer_details.html", {"customer_obj": customer_obj, "sum_pays":sum_pays,
                                             "configs_model":config_model, "sum_configs":sum_configs})
@@ -90,46 +91,25 @@ class GetCustumersConfigsAPI(APIView):
         config = ServerApi.get_config(config_model.server.server_id, config_model.config_name)
         if not config:
             return Response(status=400)
-        presentDate = datetime.datetime.now()
-        unix_timestamp = datetime.datetime.timestamp(presentDate) * 1000
-        time_expire = config["expiryTime"]
-        expired = False
-        started = True
-        if time_expire > 0:
-            time_expire = int((time_expire - unix_timestamp) / 86400000)
-            if time_expire < 0:
-                expired = True
-                time_expire = abs(time_expire)
-        elif time_expire == 0:
-            time_expire = "&infin;"
-            if config['usage'] == 0:
-                started = False
-        else:
-            time_expire = abs(int(time_expire / 86400000))
-            started = False
-        usage = config['usage']
-        usage = round(convert_units(usage, BinaryUnits.BYTE, BinaryUnits.GB)[0], 2)
         total_usage = config["usage_limit"]
-        total_usage = int(convert_units(total_usage, BinaryUnits.BYTE, BinaryUnits.GB)[0])
         if total_usage == 0 :
             total_usage = "&infin;"
         status = '🟢 فعال'
-        if not started:
+        if not config["started"]:
             status = "🔵 استارت نخورده"
-        if not config["enable"]:
+        if not config["ended"]:
             status = "🔴 اتمام حجم یا زمان"
-        print(config["enable"])
-        data = {"usage": usage, "total_usage": total_usage, "time_expire": time_expire, 'status': status}
+        data = {"usage": config['usage'], "total_usage": total_usage, "time_expire": config['time_expire'], 'status': status}
         return Response(data=data)
 
 
 class SendMsgToAll(LoginRequiredMixin, View):
     def get(self, request):
-        form = SendMessageForm
+        form = SendMessageToAllForm
         return render(request, 'send_msg_to_all.html', {"form": form})
 
     def post(self, request):
-        form = SendMessageForm(request.POST)
+        form = SendMessageToAllForm(request.POST)
         customer_model = CustomerModel.objects.all()
         if form.is_valid():
             cd = form.cleaned_data
@@ -137,3 +117,17 @@ class SendMsgToAll(LoginRequiredMixin, View):
                 for i in customer_model:
                     SendMessage.objects.create(customer=i, message=cd['message']).save()
         return redirect('accounts:home')
+
+class SendMsgToUser(LoginRequiredMixin, View):
+    def get(self, request, userid):
+        form = SendMessageToCustomerForm
+        return render(request, 'send_msg_to_custumer.html', {"form": form})
+
+    def post(self, request, userid):
+        form = SendMessageToAllForm(request.POST)
+        customer_model = CustomerModel.objects.get(userid=userid)
+        if form.is_valid():
+            msg = form.cleaned_data['message']
+            SendMessage.objects.create(customer=customer_model, message=msg).save()
+            messages.success(request , "پیام شما در صف ارسال قرارا گرفت.")
+            return redirect('customers:custumer_detail', userid)

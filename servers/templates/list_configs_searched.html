@@ -24,7 +24,7 @@
 		    		<table class="overflow-y">
 		    			<thead>
 		    				<tr>
-                                <th>BY User</th>
+                                <th>For User</th>
 		    					<th>Config Name</th>
                                 <th>UUID</th>
                                 <th>Server</th>
@@ -33,8 +33,12 @@
 		    			<tbody>
                         {% for conf in configs_model %}
 		    				<tr>
+                            {% if conf.chat_id.userid == none %}
+                                <td>ثبت نشده</td>
+                                {% else %}
                                 <td><a href="{% url 'customers:custumer_detail' conf.chat_id.userid %}">{{ conf.chat_id.userid }}</a></td>
-                                <td>{{ conf.config_name }}</td>
+                            {% endif %}
+                                <td><a href="{% url 'servers:conf_page' conf.server.server_id conf.config_uuid conf.config_name %}">{{ conf.config_name }}</a></td>
                                 <td>{{ conf.config_uuid }}</td>
                                 <td>{{ conf.server.server_name }}</td>
                             </tr>
@@ -44,11 +48,7 @@
 		    			</tbody>
 		    		</table>
             </div>
-
-
         </div>
-
-
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
 		<script src={% static "js/list.js" %}></script>

@@ -20,24 +20,23 @@
 </head>
 <body>
     {% include "navbar.html" %}
-    {% if messages %}
-        <div class="message-container" dir="rtl">
-            {% for msg in messages %}
-                <h2 class="msg msg_{{ msg.tags }}">{{ msg }}</h2>
-            {% endfor %}
-        </div>
-    {% endif %}
+    {% include 'messages.html' %}
     <div id="main">
         <h3 id="title">عدم تایید پرداخت</h3>
         <div class="pay_info_box">
             <img class="pay_img" src="{{ obj.image.url }}" alt="pay_img">
             <div class="infobox">
                 <a class="info" href="">userid: {{ obj.custumer.userid }}</a>
-                <h3 class="info">price : {{ obj.price|price }} T</h3>
+                <h3 class="info">price : {{ obj.pay_price|price }} T</h3>
             </div>
         </div>
 
         <form novalidate method="post" action="" class="box" dir="rtl">
+            {% for field_errors in form.errors.values %}
+              {% for error in field_errors %}
+                  <p dir="rtl" class="errors">{{ error }}</p>
+              {% endfor %}
+            {% endfor %}
             {% csrf_token %}
             <h3 class="form-text">علت: {{ form.reason }}</h3>
             <h3 class="form-text bool_op">بن یوزر: {{ form.ban_user }}</h3>

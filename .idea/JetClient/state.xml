@@ -13,12 +13,12 @@
                 <list>
                   <queryParamState>
                     <option name="key" value="url" />
-                    <option name="value" value="https://7b65-2a01-4f9-c011-5150-00-1.ngrok-free.app/webhook/" />
+                    <option name="value" value="https://537e-95-162-252-60.ngrok-free.app/webhook/" />
                   </queryParamState>
                 </list>
               </option>
               <option name="sortWeight" value="1000000" />
-              <option name="url" value="https://api.telegram.org/bot6972765226:AAEjUlP_isF823i3jsYBN8p6EmOZLHZGMyU/setWebhook?url=https://7b65-2a01-4f9-c011-5150-00-1.ngrok-free.app/webhook/" />
+              <option name="url" value="https://api.telegram.org/bot6972765226:AAEjUlP_isF823i3jsYBN8p6EmOZLHZGMyU/setWebhook?url=https://537e-95-162-252-60.ngrok-free.app/webhook/" />
             </requestState>
             <requestState>
               <option name="auth">
@@ -30,7 +30,7 @@
               <option name="method" value="GET" />
               <option name="name" value="Draft (1)" />
               <option name="sortWeight" value="2000000" />
-              <option name="url" value="http://127.0.0.1:8000/servers/list_configs/2/" />
+              <option name="url" value="http://127.0.0.1:8000/servers/api_get_config_chices/" />
             </requestState>
           </list>
         </option>

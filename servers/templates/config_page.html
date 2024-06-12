@@ -1,0 +1,145 @@
+{% load compress %}
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'servers/config_page.css' %}">
+</head>
+
+<body dir="">
+    {% include "navbar.html" %}
+    {% include 'messages.html' %}
+<div id="main">
+        <h3 id="conf_name">{{ config_name }}</h3>
+        <div id="box0" dir="rtl">
+        {% if config_info %}
+            <h3 class="c_info">سرور: {{ config_info.server.server_name }}</h3>
+            {% if config_info.chat_id == none %}
+                <h3 class="c_info">یوزر: ----</h3>
+             {% else %}
+                <h3 class="c_info">یوزر: <a style="color: white" href="{% url 'customers:custumer_detail' config_info.chat_id.userid %}">{{ config_info.chat_id.userid }}</a></h3>
+            {% endif %}
+            <h3 class="c_info">ساخته توسط: {{ config_info.created_by }}</h3>
+            <h3 class="c_info">مبلغ: {{ config_info.price }} T</h3>
+            {% if config_info.paid %}
+            <h3 class="c_info">پرداخت شده: ✅</h3> {% else %} <h3 class="c_info">پرداخت شده: ❌</h3>
+            {% endif %}
+        {% else %}
+            <h3 class="text_error">❗ کانفیگ در بات ثبت نشده است. ❗</h3>
+        {% endif %}
+        </div>
+        <div id="box1">
+        {% if config_usage %}
+            <div class="show_usage">
+                {% if config_usage.usage_limit == 0  %}
+                    <div class="centering">
+                        <h4 class="usage_text">{{ config_usage.usage|floatformat:2 }}GB / <span style="font-size: x-large">∞</span></h4>
+                        <div class="progress progressـusage_box">
+                            {% if config_usage.started %}
+                                <div class="progressـusage progress-bar bg-unlimit" role="progressbar" style="width: 100%" aria-confinfonow="100" aria-confinfomin="0" aria-confinfomax="100">∞</div>
+                            {% else %}
+                                <div class="progressـusage progress-bar bg-success" role="progressbar" style="width:100%" aria-confinfonow="100" aria-confinfomin="0" aria-confinfomax="100">Not Started</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    {% if config_usage.usage|percent:config_usage.usage_limit > 99 %}
+                        <div class="centering">
+                            <h4 class="usage_text">{{ config_usage.usage|floatformat:2 }}GB /{{ config_usage.usage_limit }}GB</h4>
+                            <div class="progress progressـusage_box">
+                                <div class="progressـusage progress-bar bg-danger" role="progressbar" style="width: {{ config_usage.usage|percent:config_usage.usage_limit }}%" aria-confinfonow="{{ config_usage.usage|percent:config_usage.usage_limit }}" aria-confinfomin="0" aria-confinfomax="100">{{ config_usage.usage|percent:config_usage.usage_limit }}%</div>
+                            </div>
+                        </div>
+                    {% elif config_usage.usage|percent:config_usage.usage_limit > 95 %}
+                        <div class="centering">
+                            <h4 class="usage_text">{{ config_usage.usage|floatformat:2 }}GB /{{ config_usage.usage_limit }}GB</h4>
+                            <div class="progress progressـusage_box">
+                                <div class="progressـusage progress-bar bg-warning" role="progressbar" style="width: {{ config_usage.usage|percent:config_usage.usage_limit }}%" aria-confinfonow="{{ config_usage.usage|percent:config_usage.usage_limit }}" aria-confinfomin="0" aria-confinfomax="100">{{ config_usage.usage|percent:config_usage.usage_limit }}%</div>
+                            </div>
+                        </div>
+                    {% elif config_usage.usage|percent:config_usage.usage_limit > 0 %}
+                        <div class="centering">
+                            <h4 class="usage_text">{{ config_usage.usage|floatformat:2 }}GB /{{ config_usage.usage_limit }}GB</h4>
+                            <div class="progress progressـusage_box">
+                                <div class="progressـusage progress-bar bg-info" role="progressbar" style="width: {{ config_usage.usage|percent:config_usage.usage_limit }}%" aria-confinfonow="{{ config_usage.usage|percent:config_usage.usage_limit }}" aria-confinfomin="0" aria-confinfomax="100">{{ config_usage.usage|percent:config_usage.usage_limit }}%</div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="centering">
+                            <h4 class="usage_text">{{ config_usage.usage|floatformat:2 }}GB /{{ config_usage.usage_limit }}GB</h4>
+                            <div class="progress progressـusage_box">
+                                {% if config_usage.started  %}
+                                    <div class="progressـusage progress-bar bg-info" role="progressbar" style="width:0%" aria-confinfonow="0" aria-confinfomin="0" aria-confinfomax="100">0%</div>
+                                {% else %}
+                                    <div class="progressـusage progress-bar bg-success" role="progressbar" style="width:100%" aria-confinfonow="{{ config_usage.3 }}" aria-confinfomin="0" aria-confinfomax="100">Not Started</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+            <div class="show_usage">
+                {% if config_usage.time_expire == 0 %}
+                    <div class="time">
+                        <h4 class="expire_text blue_infinite">∞ day</h4>
+                    </div>
+                {% elif config_usage.exp_time_sta is False and config_usage.time_expire > 3 %}
+                    <div class="time">
+                        <h4 class="expire_text blue ">{{ config_usage.time_expire|dh }} day</h4>
+                    </div>
+                {% elif config_usage.exp_time_sta is False and config_usage.time_expire > 0 %}
+                    <div class="time">
+                        <h4 class="expire_text orange">{{ config_usage.time_expire|dh }} day</h4>
+                    </div>
+                {% elif config_usage.time_expire < 0 and config_usage.exp_time_sta is False %}
+                    <div class="time">
+                        <h4 class="expire_text green">{% widthratio config_usage.time_expire 1 -1 %} day</h4>
+                    </div>
+                {% else %}
+                    <div class="time">
+                        <h4 class="expire_text red">{{ config_usage.time_expire|dh }} day ago</h4>
+                    </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <h3 class="text_error">❗ Connection Error ❗</h3>
+        {% endif %}
+        </div>
+
+        <div id="box2">
+            <div>
+                <div class="btnslist">
+                    <button dir="rtl" class="btn" onclick="copyToClipboard('#bot_link')">📋 لینک دریافت کانفیگ 📋</button>
+                </div>
+                <div class="btnslist">
+                    <button class="btn" onclick="copyToClipboard('#vless')">📡 کپی کانفیگ 📡</button>
+                </div>
+
+
+
+                    <p hidden id="vless">{{ vless }}</p>
+                    <p hidden id="bot_link" style="white-space: pre-line;">{{ get_config_link }}</p>
+            </div>
+        </div>
+
+<script>
+            function copyToClipboard(element) {
+          var $temp = $("<textarea>");
+          $("body").append($temp);
+          var text = $(element).text();
+          $temp.val(text).select();
+          document.execCommand("copy");
+          $temp.remove();
+          alert("با موفقیت کپی شد.");
+        }
+        </script>
+
+    </div>
+{% include "loading.html" %}
+
+</body>
+</html>

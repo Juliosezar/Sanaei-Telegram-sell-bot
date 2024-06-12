@@ -8,4 +8,5 @@ urlpatterns = [
    path("custumer_detail/<int:customer_id>/", views.CustomerDetail.as_view(), name="custumer_detail"),
    path('custumer_configs_api/<str:config_uuid>/', views.GetCustumersConfigsAPI.as_view(), name="custumer_configs_api"),
    path("send_msg_to_all/", views.SendMsgToAll.as_view(), name="send_msg_to_all"),
+   path("send_msg_to_Custumer/<int:userid>/", views.SendMsgToUser.as_view(), name="send_msg_to_user"),
 ]

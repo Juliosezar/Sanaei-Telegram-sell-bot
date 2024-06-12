@@ -85,7 +85,7 @@
         <h3>ساخت کانفیگ</h3>
         <div class="server_lists" >
             {% for s in servers %}
-                <a class="server_name" href="">🌐 {{ s.server_name }}</a>
+                <a class="server_name" href="{% url 'servers:create_config_page' s.server_id 'auto' %}">🌐 {{ s.server_name }}</a>
             {% endfor %}
         </div>
 

@@ -4,7 +4,8 @@ from custumers.models import Customer
 
 class ConfirmPaymentQueue(models.Model):
     custumer = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
-    price = models.PositiveIntegerField()
+    pay_price = models.PositiveIntegerField()
+    config_price = models.PositiveIntegerField(default=0, null=True, blank=True)
     pay_date = models.DateField(null=True, blank=True)
     status = models.PositiveIntegerField(default=0)
     # 0 => waiting for upload picture / 1 => waiting for confirmation / 2 => first confirme / 3 => second confirm / 10 => denied /

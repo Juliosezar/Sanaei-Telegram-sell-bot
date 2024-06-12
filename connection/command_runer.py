@@ -1,11 +1,10 @@
 from os import environ
 from finance.views import Wallet
-from django.conf import settings
 import requests
 from custumers.views import Customer
 import json
 from custumers.models import Customer as CustumerModel
-from servers.models import Server as ServerModel, CreateConfigQueue
+from servers.models import Server as ServerModel, CreateConfigQueue, ConfigsInfo
 from finance.views import Prices
 from finance.models import Prices as PricesModel
 from finance.models import ConfirmPaymentQueue as ConfirmPaymentQueueModel
@@ -15,7 +14,14 @@ from servers.views import Configs
 from uuid import uuid4
 from django.core.files.base import ContentFile
 from .models import SendMessage
+from uuid import UUID
 
+def is_valid_uuid(uuid_to_test):
+    try:
+        uuid_obj = UUID(uuid_to_test, version=4)
+    except ValueError:
+        return False
+    return str(uuid_obj) == uuid_to_test
 
 TOKEN = environ.get('TelegramToken')
 TELEGRAM_SERVER_URL = f"https://api.telegram.org/bot{TOKEN}/"
@@ -82,6 +88,7 @@ class CommandRunner:
             url = TELEGRAM_SERVER_URL + 'sendMessage'
             response = requests.post(url, json=data, timeout=2)
             print('connecting')
+            print(response.json())
             if response.status_code == 200:
                 return 'Succes'
             elif response.status_code == 403:
@@ -145,7 +152,7 @@ class CommandRunner:
                     [{'text': 'ثبت لینک 🔗'}, {'text': 'تست رایگان 🔥'}],
                     [{'text': 'سرویس های من 🧑‍💻'}, {'text': 'کیف پول 💰'}],
                     [{'text': 'تعرفه ها 💳'}, {'text': 'ارتباط با ما 👤'}],
-                    [{'text': 'آیدی من 💎'}, {'text': 'لینک دعوت 📥'}],
+                    [{'text': 'آیدی من 🆔'}, {'text': 'لینک دعوت 📥'}],
                     [{'text': 'راهنمای اتصال 💡'}, {'text': 'دانلود اپلیکیشن 💻📱'}],
                 ],
                 'resize_keyboard': True,
@@ -378,9 +385,6 @@ class CommandRunner:
                                         [{'text': 'انصراف ❌', 'callback_data': 'abort_buying'}]]
                 },
             }
-            data2 = {
-
-            }
         cls.send_api("editMessageText", data)
 
     @classmethod
@@ -441,7 +445,13 @@ class CommandRunner:
             cls.send_api("editMessageText", data)
         else:
             msg = f'اتصال به سرور {ServerModel.objects.get(server_id=server_id).server_name} برقرار نشد.' '\n میتوانید کشور مورد نظر را تغییر دهید یا دقایقی دیگر دوباره امتحان کنید.'
-            CommandRunner.send_msg_to_user(chat_id, msg)
+            data = {
+                'message_id': msg_id,
+                'chat_id': chat_id,
+                'text': msg,
+                'parse_mode': 'Markdown',
+            }
+            cls.send_api("editMessageText", data)
 
     @classmethod
     def abort_buying(cls, chat_id, *args):
@@ -454,3 +464,46 @@ class CommandRunner:
         }
         cls.send_api("editMessageText", data)
         cls.main_menu(chat_id)
+
+    @classmethod
+    def register_config(cls, chat_id, msg):
+        if is_valid_uuid(msg):
+            if ConfigsInfo.objects.filter(config_uuid=msg).exists():
+                custumer = CustumerModel.objects.get(userid=chat_id)
+                obj = ConfigsInfo.objects.get(config_uuid=msg)
+                obj.chat_id = custumer
+                obj.save()
+                vless = Configs.create_vless_text(msg, obj.server, obj.config_name)
+                cls.send_msg_to_user(chat_id, "🟢 کانفیگ شما ثبت شد.")
+                data = {
+                    'chat_id': chat_id,
+                    'text': vless,
+                    'parse_mode': 'Markdown',
+                    'reply_markup': {
+                        'inline_keyboard': [[{'text': 'دریافت QRcode',
+                                              'callback_data': f'QRcode<~>{msg}'}],
+                        ]
+
+                    },
+                }
+                cls.send_api("sendMessage", data)
+            else:
+                cls.send_msg_to_user(chat_id, "کانفیگی با این مشخصات ثبت نشده است.")
+        else:
+            cls.send_msg_to_user(chat_id, 'لینک نامعتبر است.')
+
+
+    @classmethod
+    def myid(cls, chat_id, *args):
+        cls.send_msg_to_user(chat_id,'👤 آیدی شما : \n ' f'🆔 `{chat_id}`')
+
+    @classmethod
+    def send_prices(cls, chat_id, *args):
+
+
+
+
+
+
+
+

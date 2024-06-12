@@ -1,0 +1,196 @@
+{% load compress %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'servers/create_config.css' %}">
+</head>
+<body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let type = document.querySelector('#id_type');
+        let usage = document.querySelector('#usage');
+        let time_limit = document.querySelector("#time_limit")
+        let ip_limit = document.querySelector('#ip_limit')
+        function toggleexpireField() {
+            if (type.value === "limited") {
+                time_limit.style.display = "block"
+                usage.style.display = "block"
+                ip_limit.style.display = "none"
+            }
+            else if (type.value === 'time_unlimit') {
+                time_limit.style.display = "none"
+                usage.style.display = "block"
+                ip_limit.style.display = "none"
+            }
+            else if (type.value === 'usage_unlimit'){
+                time_limit.style.display = "block"
+                usage.style.display = "none"
+                ip_limit.style.display = "block"
+            }
+        }
+
+        type.addEventListener('change', toggleexpireField);
+        toggleexpireField();
+    });
+</script>
+{% include "navbar.html" %}
+{% include 'messages.html' %}
+<div id="main">
+    <div id="zx">
+    {% if form_type == 'auto' %}
+        <a href="{% url 'servers:create_config_page' server_id 'manual' %}" class="change_form">کانفیگ دستی</a>
+    {% else %}
+        <a href="{% url 'servers:create_config_page' server_id 'auto' %}" class="change_form">کانفیگ خودکار</a>
+    {% endif %}
+    </div>
+        <form novalidate action="" method="post" dir="rtl">
+            {% for field_errors in form.errors.values %}
+              {% for error in field_errors %}
+                  <p dir="rtl" class="errors">{{ error }}</p>
+              {% endfor %}
+            {% endfor %}
+            <h3 id="title">ساخت کانفیگ جدید</h3>
+            {% csrf_token %}
+            <div class="textinput item"><h3 class="item_text">نوع کانفیگ : </h3>{{ form.type }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text">مدت زمان کانفیگ : </h3>{{ form.days_limit }}</div>
+            <div id="usage" class="textinput item"><h3 class="item_text">حجم کانفیگ : </h3>{{ form.usage_limit }}</div>
+            <div id="ip_limit" class="textinput item"><h3 class="item_text">تعداد کاربر : </h3>{{ form.ip_limit }}</div>
+            {% if form_type == 'auto' %}
+            <h3 class="item_text" dir="ltr" style="display:inline-block; ">: قیمت<div class="loader2" dir="ltr" id="price_loading"></div><h4 id="pricespan"> </h4></h3>
+            <div id="divloader" style="display: flex; align-items: center"><div class="loader" id="subloader"></div></div>
+            {% else %}
+            <div id="price" class="textinput item"><h3 class="item_text"> قیمت : </h3>{{ form.price }} هزار تومان</div>
+            {% endif %}
+            <div id="paid" class="textinput item paid_text">پرداخت شده : {{ form.paid }}</div>
+            <input id="create" type="submit" value="Create">
+        {% if form_type == "auto" %}
+            <script>
+    const days_limit = document.getElementById('id_days_limit');
+    const usage_limit = document.getElementById('id_usage_limit');
+    const type = document.getElementById('id_type');
+    const ip_limit = document.getElementById('id_ip_limit');
+    const h3Element = document.getElementById('pricespan');
+    const submitButton = document.getElementById('create');
+    const subloader = document.getElementById('subloader');
+    const priceloading = document.getElementById('price_loading');
+    function fetchTimeChoices() {
+        days_limit.disabled = true;
+        usage_limit.disabled = true;
+        ip_limit.disabled = true;
+        submitButton.style.display = 'none';
+        subloader.style.display = 'block';
+        priceloading.style.display = 'block';
+        const otherField2Value = type.value;
+        const url = `{% url "servers:api_get_time_choices" %}?type=${otherField2Value}`;
+        h3Element.textContent = ``;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                {#h3Element.textContent = data;#}
+                days_limit.innerHTML = '';
+                data.choices.forEach(choice => {
+                    const option = document.createElement('option');
+                    option.value = choice[0];
+                    option.text = choice[1];
+                    days_limit.add(option);
+
+                });
+                submitButton.style.display = 'block';
+                subloader.style.display = 'none';
+                days_limit.disabled = false;
+                fetchUsageChoices()
+            });
+
+    }
+    function fetchUsageChoices() {
+        usage_limit.disabled = true;
+        ip_limit.disabled = true;
+        submitButton.style.display = 'none';
+        subloader.style.display = 'block';
+        priceloading.style.display = 'block';
+        const otherField2Value = type.value;
+        const otherField1Value = days_limit.value;
+        const url = `{% url "servers:api_get_usage_choices" %}?type=${otherField2Value}&time=${otherField1Value}`;
+        h3Element.textContent = ``;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                {#h3Element.textContent = data;#}
+                usage_limit.innerHTML = '';
+                data.choices.forEach(choice => {
+                    const option = document.createElement('option');
+                    option.value = choice[0];
+                    option.text = choice[1];
+                    usage_limit.add(option);
+
+                });
+                submitButton.style.display = 'block';
+                subloader.style.display = 'none';
+                usage_limit.disabled = false;
+                fetchIPLimitChoices()
+            });
+
+    }
+    function fetchIPLimitChoices() {
+        submitButton.style.display = 'none';
+        ip_limit.disabled = true;
+        subloader.style.display = 'block';
+        priceloading.style.display = 'block';
+        const otherField2Value = type.value;
+        const otherField1Value = days_limit.value;
+        const url = `{% url "servers:api_get_iplimit_choices" %}?type=${otherField2Value}&time=${otherField1Value}`;
+        h3Element.textContent = ``;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                {#h3Element.textContent = data;#}
+                ip_limit.innerHTML = '';
+                data.choices.forEach(choice => {
+                    const option = document.createElement('option');
+                    option.value = choice[0];
+                    option.text = choice[1];
+                    ip_limit.add(option);
+                    ip_limit.disabled = false;
+                });
+                submitButton.style.display = 'block';
+                subloader.style.display = 'none';
+
+                price();
+            });
+
+    }
+    function price() {
+        days_limit.disabled = false;
+
+        priceloading.style.display = 'block';
+        const otherField1Value = usage_limit.value;
+        const otherField2Value = type.value;
+        const otherField3Value = days_limit.value;
+        const otherField4Value = ip_limit.value;
+        const url = `{% url "servers:api_get_axact_price" %}?usage=${otherField1Value}&type=${otherField2Value}&time=${otherField3Value}&iplimit=${otherField4Value}`;
+        h3Element.textContent = ``;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                    h3Element.textContent = `T ${data.price}`;
+                    priceloading.style.display = 'none';
+                    submitButton.style.display = 'block';
+            });
+
+    }
+    fetchTimeChoices();
+    type.addEventListener('change', fetchTimeChoices);
+    days_limit.addEventListener('change', fetchUsageChoices)
+    usage_limit.addEventListener('change', fetchIPLimitChoices);
+    ip_limit.addEventListener('change', price);
+</script>
+        {% endif %}
+        </form>
+    </div>
+{% include "loading.html" %}
+</body>
+</html>

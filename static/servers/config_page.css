@@ -1,0 +1,133 @@
+body {
+    font-family: "vazirmatn";
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(52, 73, 94, 0.18);
+}
+#conf_name {
+    margin: 3rem 0 1rem 0;
+    font-size: xx-large;
+}
+
+#main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.progress{
+    height: 1.5rem;
+    font-size: large;
+}
+.green {
+    background-color: #4CAF50;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+}
+
+.orange {
+    background-color: #eedc68;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+}
+
+.red {
+    background-color: #ff4949;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+}
+
+.blue {
+    background-color: #49d5ff;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+}
+
+.blue_infinite {
+    background-color: #2170fc;
+    padding: 0.8rem 1.5rem;
+    width: max-content;
+    border-radius: 25px;
+}
+#box1, #box2, #box0 {
+    background-color: #000d3f;
+    padding: 1rem;
+    box-shadow: black 0 0 10px 3px ;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 95%;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+    justify-self: center;
+    margin: 1rem 0;
+}
+
+.show_usage {
+    background-color: white;
+    box-shadow: #000000 0 0 10px 3px ;
+    margin: 1rem;
+    width: 30rem;
+    padding: 1rem;
+}
+.btnslist {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1rem 0;
+}
+.btn{
+        font-size: larger;
+}
+
+#box0 {
+    display: flex;
+    flex-direction: row;
+    justify-items: center;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.time{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.c_info {
+    font-size: large;
+    margin: 0.5rem 1rem;
+    color: white;
+}
+.text_error {
+    color: white;
+    font-size: x-large;
+}
+
+@media (max-width: 650px) {
+    .c_info {
+    font-size: large;
+}
+    .btn{
+        font-size: medium;
+}
+    .usage_text ,.expire_text {
+        font-size:  large;
+}
+#conf_name {
+    margin: 1.5rem 0 0.5rem 0;
+    font-size: x-large;
+}
+.text_error {
+    font-size: large;
+}
+}
+
+@media (min-width: 1000px) {
+        #qr {
+    width: 30rem;
+}
+}
