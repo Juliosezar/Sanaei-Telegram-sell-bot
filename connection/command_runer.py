@@ -15,6 +15,7 @@ from uuid import uuid4
 from django.core.files.base import ContentFile
 from .models import SendMessage
 from uuid import UUID
+from servers.views import ServerApi
 
 def is_valid_uuid(uuid_to_test):
     try:
@@ -22,6 +23,7 @@ def is_valid_uuid(uuid_to_test):
     except ValueError:
         return False
     return str(uuid_obj) == uuid_to_test
+
 
 TOKEN = environ.get('TelegramToken')
 TELEGRAM_SERVER_URL = f"https://api.telegram.org/bot{TOKEN}/"
@@ -48,10 +50,13 @@ class CommandRunner:
         url = TELEGRAM_SERVER_URL + api_method
         try:
             response = requests.post(url, json=data, timeout=2)
+            print(response.json())
             return response
         except requests.exceptions.RequestException as e:
+            print(e)
             return False
         # TODO : log error
+
     @classmethod
     def download_photo(cls, file_id, chat_id, config_in_queue):
         file_info = requests.get(f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file_id}").json()["result"]
@@ -98,8 +103,8 @@ class CommandRunner:
         except requests.exceptions.Timeout:
             print('timeout')
             return 'Timeout'
-        except requests.exceptions.SSLError or requests.exceptions.BaseHTTPError or requests.exceptions.ConnectionError\
-                or requests.exceptions.RetryError or requests.exceptions.HTTPError:
+        except requests.exceptions.SSLError or requests.exceptions.BaseHTTPError or requests.exceptions.ConnectionError \
+               or requests.exceptions.RetryError or requests.exceptions.HTTPError:
             print('http error')
             return 'Faild'
         except requests.exceptions.RequestException as e:
@@ -107,8 +112,8 @@ class CommandRunner:
             return 'Faild'
         except Exception as e:
             return 'Error'
-# TODO : log error
 
+    # TODO : log error
 
     @classmethod
     def abort(cls, chat_id, *args):
@@ -148,9 +153,9 @@ class CommandRunner:
             'text': '🏠 منوی اصلی 🏠',
             'reply_markup': {
                 'keyboard': [
-                    [{'text': 'خرید سرویس 🛍', 'callback_data': "kjhbjbk"}],
-                    [{'text': 'ثبت لینک 🔗'}, {'text': 'تست رایگان 🔥'}],
-                    [{'text': 'سرویس های من 🧑‍💻'}, {'text': 'کیف پول 💰'}],
+                    [{'text': 'خرید سرویس 🛍'}],
+                    [{'text': 'سرویس های من 🧑‍💻'}],
+                    [{'text': 'تست رایگان 🔥'}, {'text': 'کیف پول 💰'}],
                     [{'text': 'تعرفه ها 💳'}, {'text': 'ارتباط با ما 👤'}],
                     [{'text': 'آیدی من 🆔'}, {'text': 'لینک دعوت 📥'}],
                     [{'text': 'راهنمای اتصال 💡'}, {'text': 'دانلود اپلیکیشن 💻📱'}],
@@ -396,7 +401,7 @@ class CommandRunner:
         usage_limit = int(arg_splited[2])
         user_limit = int(arg_splited[3])
         price = PricesModel.objects.get(usage_limit=usage_limit, expire_limit=expire_limit, user_limit=user_limit).price
-        with open(settings.BASE_DIR / 'connection/settings.json', 'r') as f:
+        with open(settings.BASE_DIR / 'settings.json', 'r') as f:
             data = json.load(f)
             card_num = data["pay_card_number"]
             card_name = data["pay_card_name"]
@@ -427,14 +432,15 @@ class CommandRunner:
 
     @classmethod
     def buy_config_from_wallet(cls, chat_id, *args):
-        msg_id = args[0]
+        msg_id = int(args[0])
         arg_splited = args_spliter(args[1])
         server_id = arg_splited[0]
         expire_limit = int(arg_splited[1])
         usage_limit = int(arg_splited[2])
         user_limit = int(arg_splited[3])
         price = PricesModel.objects.get(usage_limit=usage_limit, expire_limit=expire_limit, user_limit=user_limit).price
-        create_config = Configs.create_config_from_wallet(chat_id, server_id, expire_limit, usage_limit, user_limit, price)
+        create_config = Configs.create_config_from_wallet(chat_id, server_id, expire_limit, usage_limit, user_limit,
+                                                          price)
         if create_config:
             data = {
                 'message_id': msg_id,
@@ -455,7 +461,7 @@ class CommandRunner:
 
     @classmethod
     def abort_buying(cls, chat_id, *args):
-        msg_id = args[0]
+        msg_id = int(args[0])
         data = {
             'message_id': msg_id,
             'chat_id': chat_id,
@@ -482,7 +488,7 @@ class CommandRunner:
                     'reply_markup': {
                         'inline_keyboard': [[{'text': 'دریافت QRcode',
                                               'callback_data': f'QRcode<~>{msg}'}],
-                        ]
+                                            ]
 
                     },
                 }
@@ -492,18 +498,130 @@ class CommandRunner:
         else:
             cls.send_msg_to_user(chat_id, 'لینک نامعتبر است.')
 
-
     @classmethod
     def myid(cls, chat_id, *args):
-        cls.send_msg_to_user(chat_id,'👤 آیدی شما : \n ' f'🆔 `{chat_id}`')
+        cls.send_msg_to_user(chat_id, '👤 آیدی شما : \n ' f'🆔 `{chat_id}`')
 
     @classmethod
     def send_prices(cls, chat_id, *args):
+        with open(settings.BASE_DIR / 'settings.json', 'r') as f:
+            data = json.load(f)
+            msg_id = data["prices_msg_id"]
+
+        data = {
+            'chat_id': chat_id,
+            'from_chat_id': '@Naps_V',
+            'message_id': msg_id
+        }
+        cls.send_api("forwardMessage", data)
+
+    @classmethod
+    def my_services(cls, chat_id, *args):
+        services = ConfigsInfo.objects.filter(chat_id__userid=chat_id)
+        opts = []
+        for service in services:
+            opts.append([{'text': " 🔗 " + service.config_name + "\n" + service.server.server_name,
+                          'callback_data': f'service_status<~>{service.config_uuid}'}])
+        data = {
+            'chat_id': chat_id,
+            'text': '🌐 سرویس های شما 👇🏻',
+            'parse_mode': 'Markdown',
+            'reply_markup': {
+                'inline_keyboard': opts
+
+            },
+        }
+        if args:
+            msg_id = int(args[0])
+            data["message_id"] = msg_id
+            cls.send_api("editMessageText", data)
+        else:
+            cls.send_api("sendMessage", data)
+
+    @classmethod
+    def get_service(cls, chat_id, *args):
+        msg_id = int(args[0])
+        arg_splited = args_spliter(args[1])
+        conf_uuid = arg_splited[0]
+        if ConfigsInfo.objects.filter(config_uuid=conf_uuid).exists():
+            service = ConfigsInfo.objects.get(config_uuid=conf_uuid)
+            text = '🔰 نام سرویس: ' + f'{service.config_name}' '\n\n' '🌐 سرور: ' f"{service.server.server_name}"
+            api = ServerApi.get_config(service.server.server_id, service.config_name)
+            print(api)
+            if api:
+                usage = round(api['usage'], 2)
+                usage_limit = api['usage_limit']
+                kind = "حجمی"
+                if usage_limit == 0:
+                    kind = "حجم نامحدود"
+                    usage_limit = "♾"
+                else:
+                    usage_limit = str(usage_limit)+"GB"
+                    kind = "حجمی / زمان نامحدود"
+                expire_days = api['time_expire']
+                if expire_days == 0:
+                    expire_days = "♾"
+                else:
+                    hour = int((abs(expire_days) % 1) * 24)
+                    day = abs(int(expire_days))
+                    expire_days = f'{day} ساعت ' f"و {hour} روز"
+                if usage == 0:
+                    status = "استارت نشده 🔵"
+                elif api["ended"]:
+                    status = "فعال 🟢"
+                else:
+                    status = "تماما شده 🔴"
+                text = text + '\n\n' "📥 حجم مصرفی: " f'{usage}GB از {usage_limit}' '\n\n' '⏳ روز های باقی مانده: ' f'{expire_days}' '\n\n' '📶 وضعیت: ' f'{status}' '\n\n' f'⚙️ نوع: ' f'{kind}'
+                text = text +"\n\n" " برای آپدیت اطلاعات بالا بر روی دکمه (Refresh) کلیک کنید 👇"
+            else:
+                text = text + "\n\n" + f"اتصال به سرور {service.server.server_name}🔃 برقرار نشد، دقایقی دیگر با زدن بر روی دکمه (Refresh) دوباره امتحان کنید 👇🏻"
+        else:
+            text = '❌ این سرویس دیگر فعال نیست.'
+        text = text.replace('_', "\\_")
+        data = {
+            'chat_id': chat_id,
+            'message_id': msg_id,
+            'text': text,
+            'parse_mode': 'Markdown',
+            'reply_markup': {
+                'inline_keyboard': [
+                    [{'text': '🔄 Refresh 🔄', 'callback_data': f'service_status<~>{conf_uuid}'}],
+                    [{'text': '🔙 بازگشت', 'callback_data': f"سرویس های من 🧑‍💻"}]]
+            },
+        }
+        cls.send_api("editMessageText", data)
 
 
+    @classmethod
+    def download_apps(cls, chat_id, *args):
+        data = {
+            'chat_id': chat_id,
+            'text': '🏻📥 لیست نرم افزار ها به شرح زیر است. متانسب با سیستم عامل خود انتخاب کنید. 👇',
+            'parse_mode': 'Markdown',
+            'reply_markup': {
+                'inline_keyboard': [
+                    [{'text': 'V2RayNG / Android 📱', 'url': f'https://github.com/2dust/v2rayNG/releases/download/1.8.22/v2rayNG_1.8.22.apk'}],
+                    [{'text': 'HiddifyNG / Android 📱', 'url': f'https://github.com/hiddify/hiddify-next/releases/latest/download/Hiddify-Android-universal.apk'}],
+                    [{'text': 'Streisand / ios 📱🍎', 'url': f'https://apps.apple.com/us/app/streisand/id6450534064?platform=iphone'}],
+                    [{'text': 'HiddifyNG / Windows 💻', 'url': f'https://github.com/hiddify/hiddify-next/releases/latest/download/Hiddify-Windows-Setup-x64.exe'}],
+                    [{'text': 'HiddifyNG / MacOS 💻🍎','url': f'https://github.com/hiddify/hiddify-next/releases/latest/download/Hiddify-MacOS-Installer.pkg'}],
+                    [{'text': 'Fair VPN / MacOS 💻🍎', 'url': f'https://apps.apple.com/us/app/fair-vpn/id1533873488'}],
+                ]
+            },
+        }
+        cls.send_api("sendMessage", data)
 
+    @classmethod
+    def help_connect(cls, chat_id, *args):
+        data = {
+            'chat_id': chat_id,
+            'text': '💡 آموزش استفاده از کانفیگ ها 👇',
+            'parse_mode': 'Markdown',
+            'reply_markup': {
+                'inline_keyboard': [
+                    [{'text': 'V2RayNG / Android 📱', 'url': f'https://github.com/2dust/v2rayNG/releases/download/1.8.22/v2rayNG_1.8.22.apk'}],
 
-
-
-
-
+                ]
+            },
+        }
+        cls.send_api("sendMessage", data)

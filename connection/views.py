@@ -16,15 +16,15 @@ COMMANDS = {
     'خرید سرویس 🛍': CommandRunner.select_server,
     'back_to_servers': CommandRunner.back_to_select_server,
     'کیف پول 💰': CommandRunner.show_wallet_status,
-    'ثبت لینک 🔗': None,
+    # 'ثبت لینک 🔗': None,
     'تست رایگان 🔥': None,
-    'سرویس های من 🧑‍💻': None,
+    'سرویس های من 🧑‍💻': CommandRunner.my_services,
     'تعرفه ها 💳': CommandRunner.send_prices,
     'ارتباط با ما 👤': CommandRunner.contact_us,
     'آیدی من 🆔': CommandRunner.myid,
     'لینک دعوت 📥': None,
-    'راهنمای اتصال 💡': None,
-    'دانلود اپلیکیشن 💻📱': None,
+    'راهنمای اتصال 💡': CommandRunner.help_connect,
+    'دانلود اپلیکیشن 💻📱': CommandRunner.download_apps,
     'add_to_wallet': CommandRunner.set_pay_amount,
     'set_pay_amount': CommandRunner.send_pay_card_info,
     '❌ لغو پرداخت 💳': CommandRunner.abort,
@@ -34,7 +34,8 @@ COMMANDS = {
     'usage_limit': CommandRunner.confirm_config_buying,
     'pay_for_config': CommandRunner.pay_for_config,
     'buy_config_from_wallet': CommandRunner.buy_config_from_wallet,
-    'abort_buying': CommandRunner.abort_buying
+    'abort_buying': CommandRunner.abort_buying,
+    'service_status':CommandRunner.get_service,
 }
 
 '''
@@ -48,7 +49,7 @@ COMMANDS = {
 def webhook(request):
 
     if request.method == 'POST':
-        # try:
+        try:
             update = json.loads(request.body)
             if 'message' in update:
                 chat_id = update['message']['chat']['id']
@@ -72,6 +73,9 @@ def webhook(request):
                         CommandRunner.send_msg_to_user(chat_id, "لطفا عکس پرداختی خود را ارسال نمایید :")
                     elif "/start register_" in text:
                         CommandRunner.register_config(chat_id, text.replace("/start register_", ""))
+                    elif "/start register_" in text:
+                        CommandRunner.register_config(chat_id, text.replace("/start register_", ""))
+
                     else:
                         CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                         CommandRunner.main_menu(chat_id)
@@ -110,6 +114,6 @@ def webhook(request):
                     CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                     COMMANDS["/start"](chat_id)
             return JsonResponse({'status': 'ok'})
-        # except Exception as e:
-        #     print(e)
+        except Exception as e:
+            print(e)
     return JsonResponse({'status': 'not a POST request'})

@@ -1,0 +1,14 @@
+{
+  "pay_card_number" : "6219 8619 197",
+  "pay_card_name" : "سینا علی ئی",
+  "infinte_usage_limit": 130,
+  "prices_msg_id" : 551,
+  "applicatios": [
+    {
+      "name": "V2rayNG",
+      "url": "url",
+      "guid": "link"
+    }
+  ]
+}
+
