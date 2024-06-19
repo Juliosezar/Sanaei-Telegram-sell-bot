@@ -68,15 +68,16 @@ class Paying:
 
 
 class ConfirmPaymentPage(LoginRequiredMixin, View):
-    def get(self, request, show_box=1):
+    def get(self, request, show_box):
         pay_queue_obj = PaymentQueueModel.objects.filter(status=1)
-        if not pay_queue_obj.exists():
-            messages.info(request, "پرداختی برای تایید نمانده است. \n برای اطمینان یکبار صفحه را رفرش کنید.")
         second_pay_queue_obj = PaymentQueueModel.objects.filter(status=2)
         not_paid_obj = ConfigsInfo.objects.filter(paid=False)
-        return render(request, 'confirm_payment.html', {'confirm': pay_queue_obj, "confirm_count": pay_queue_obj.count(),
-                                            "second_confirm": second_pay_queue_obj, "second_confirm_count": second_pay_queue_obj.count(),
-                                            "not_paid": not_paid_obj, "not_paid_count": not_paid_obj.count(), "show_box":show_box})
+        if not not_paid_obj.exists() and not pay_queue_obj.exists() and not second_pay_queue_obj.exists():
+            messages.info(request, "پرداختی برای تایید نمانده است. \n برای اطمینان یکبار صفحه را رفرش کنید.")
+        return render(request, 'confirm_payment.html',
+                      {'confirm': pay_queue_obj, "confirm_count": pay_queue_obj.count(),
+                       "second_confirm": second_pay_queue_obj, "second_confirm_count": second_pay_queue_obj.count(),
+                       "not_paid": not_paid_obj, "not_paid_count": not_paid_obj.count(), "show_box": show_box})
 
 
 class FirstConfirmPayment(LoginRequiredMixin, View):
@@ -91,7 +92,7 @@ class FirstConfirmPayment(LoginRequiredMixin, View):
                     Configs.create_config_from_queue(config_uuid=model_obj.config_uuid)
                 else:
                     CommandRunner.send_msg_to_user(model_obj.custumer.userid,
-                                                    f'کابر گرامی مبلغ {model_obj.pay_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای خرید کانفیک مورد نظر کافی نیست. ')
+                                                   f'کابر گرامی مبلغ {model_obj.pay_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای خرید کانفیک مورد نظر کافی نیست. ')
             else:
                 Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.pay_price)
                 msg = 'پرداخت شما تایید و به کیف پول شما اضافه شد.'
@@ -101,7 +102,7 @@ class FirstConfirmPayment(LoginRequiredMixin, View):
             messages.success(request, 'پرداخت با موفقیت تایید و به کاربر ارسال شد.')
         else:
             messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
-        return redirect('finance:confirm_payments')
+        return redirect('finance:confirm_payments', 1)
 
 
 class SecondConfirmPayment(LoginRequiredMixin, View):
@@ -115,21 +116,24 @@ class SecondConfirmPayment(LoginRequiredMixin, View):
                     Configs.create_config_from_queue(config_uuid=model_obj.config_uuid)
                 else:
                     CommandRunner.send_msg_to_user(model_obj.custumer.userid,
-                                                    f'کابر گرامی مبلغ {model_obj.config_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای خرید کانفیک مورد نظر کافی نیست. ')
+                                                   f'کابر گرامی مبلغ {model_obj.config_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای خرید کانفیک مورد نظر کافی نیست. ')
             else:
                 Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.pay_price)
                 msg = 'پرداخت شما تایید و به کیف پول شما اضافه شد.'
                 CommandRunner.send_msg_to_user(model_obj.custumer.userid, msg)
-            model_obj.status = 2
+            model_obj.status = 3
             model_obj.save()
             messages.success(request, 'پرداخت با موفقیت تایید و به کاربر ارسال شد.')
 
         elif model_obj.status == 2:
-            pass
+            model_obj.status = 3
+            model_obj.save()
+            messages.success(request, 'پرداخت با موفقیت تایید شد.')
+            return redirect('finance:confirm_payments', 2)
         # ToDO
         else:
             messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
-        return redirect('finance:confirm_payments')
+        return redirect('finance:confirm_payments', 1)
 
 
 class DenyPaymentPage(LoginRequiredMixin, View):
@@ -137,7 +141,7 @@ class DenyPaymentPage(LoginRequiredMixin, View):
         model_obj = PaymentQueueModel.objects.get(id=obj_id)
         if model_obj.status != 1:
             messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
-            return redirect('finance:confirm_payments')
+            return redirect('finance:confirm_payments', 1)
         form = DenyForm()
         return render(request, 'deny_payment.html', {'obj': model_obj, 'form': form})
 
@@ -168,12 +172,12 @@ class DenyPaymentPage(LoginRequiredMixin, View):
                 model_obj.status = 10
                 model_obj.save()
                 messages.success(request, "پرداخت با موفقیت رد تایید شد.")
-                return redirect('finance:confirm_payments')
+                return redirect('finance:confirm_payments', 1)
 
 
             else:
                 messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
-                return redirect('finance:confirm_payments')
+                return redirect('finance:confirm_payments', 1)
 
 
 class EditPricePayment(LoginRequiredMixin, View):
@@ -190,14 +194,28 @@ class EditPricePayment(LoginRequiredMixin, View):
             model_obj.pay_price = price
             model_obj.save()
             messages.success(request, "مبلغ با موفقیت تغییر کرد. از لیست زیر آن را تایید کنید.")
-            return redirect('finance:confirm_payments')
+            return redirect('finance:confirm_payments', 1)
         return render(request, 'edit_price_payment.html', {'obj': model_obj, 'form': form})
+
+
+class PayedAfterCreate(LoginRequiredMixin, View):
+    def get(self, request, obj_id):
+        try:
+            model_obj = ConfigsInfo.objects.get(id=obj_id)
+            model_obj.paid = True
+            model_obj.save()
+            messages.success(request, "پرداخت تایید شد.")
+            # TODO: if config disabled ,enable it
+        except:
+            messages.error(request, "ارور در تایید پرداخت.")
+        return redirect("finance:confirm_payments", 3)
 
 
 class ShowPrices(LoginRequiredMixin, View):
     def get(self, request):
         price_model = PriceModel.objects.all().order_by('expire_limit', 'usage_limit')
         return render(request, 'show_prices.html', {'price_model': price_model})
+
 
 class DeleteOrEditPrice(LoginRequiredMixin, View):
     def get(self, request, obj_id, action):
@@ -210,6 +228,7 @@ class DeleteOrEditPrice(LoginRequiredMixin, View):
             return redirect('finance:show_prices')
         elif action == "edit":
             return redirect('finance:show_prices')
+
 
 # TODO
 
@@ -235,7 +254,6 @@ class AddPrice(LoginRequiredMixin, View):
                 month = 0
                 ip_limit = 0
             price = cd["price"] * 1000
-
 
             PriceModel.objects.create(
                 price=price,

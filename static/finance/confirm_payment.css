@@ -2,6 +2,9 @@
     max-height: 90vh;
     max-width: 60vw;
 }
+img {
+    border-radius: 15px;
+}
 #box1 ,#box2 , #box3{
     display: flex;
     flex-direction: column;
@@ -19,6 +22,7 @@
     margin: 1rem;
     padding: 1rem;
     width: min-content;
+    border-radius: 15px;
 }
 
 .pay_info {
@@ -34,6 +38,7 @@
     align-items: center;
     justify-content: center;
     justify-items: center;
+    border-radius: 20px;
 }
 
 .info {
@@ -65,9 +70,14 @@
     background-color: rgba(163, 0, 0, 0.53);
     padding: 1rem 1.7rem;
     margin: 0 0.2rem;
-
-
 }
+
+.disable {
+    background-color: rgba(163, 62, 0, 0.53);
+    padding: 1rem 1.7rem;
+    margin: 0 0.2rem;
+}
+
 
 .sec_confirm {
     background-color: rgba(0, 97, 158, 0.6);
@@ -151,14 +161,82 @@ border-radius: 30px 0 0 30px;
     border-radius: 50px;
 }
 
+.xy {
+    background-color: #000d3f;
+    margin: 1rem 0.5rem;
+    padding: 1rem;
+    border-radius: 20px;
+    width: 80%;
+    max-width: 60rem;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    align-content: center;
+}
+.notpaid_text {
+    color: white;
+    font-size: x-large;
+}
+.nspan {
+    font-size: large;
+}
+
+.pbox {
+    background-color: white;
+    padding: 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    margin-right:2rem;
+    border-radius: 10px;
+}
+.x_btnd {
+    border-radius: 5px;
+    text-align: center;
+    width: 10rem;
+    margin: 0.5rem;
+
+}
 @media  (max-width: 850px) {
+    .notpaid_text{
+        font-size: large;
+    }
+    .nspan {
+    font-size: medium;
+}
+    .x_btnd {
+        border-radius: 5px;
+        min-width: 8rem;
+        margin: 0.5rem 1rem;
+        font-size: small;
+        text-align: center;
+        padding: 1rem;
+}
+    .xy {
+        width: 90%;
+        flex-direction: column;
+    }
+    .pbox {
+    background-color: white;
+    padding: 0.5rem 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    align-content: space-evenly;
+        margin-right:0;
+
+}
     .changebtns {
     margin: 1rem 0;
     border: none;
     padding: 1rem 0.5rem;
-        font-size: small;
+    font-size: small;
 }
-.number_not{
+
+    .number_not{
     margin: 0 0.25rem;
     padding: 0.15rem 0.25rem 0.10rem;
     border-radius: 50px;
@@ -174,7 +252,8 @@ border-radius: 30px 0 0 30px;
         border: solid #030055 3px;
         border-radius: 5px;
 }
-    .pay_info {
+
+.pay_info {
     margin: 0 0;
     padding: 1rem;
     background-color: #000d3f;
@@ -186,6 +265,7 @@ border-radius: 30px 0 0 30px;
     align-items: center;
     justify-content: center;
     justify-items: center;
+        border-radius: 0;
 }
     .conf_btns {
         display: flex;

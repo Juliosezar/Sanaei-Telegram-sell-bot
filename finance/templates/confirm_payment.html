@@ -85,7 +85,7 @@
                     <div class="pay_info">
                         <div class="infobox">
                             <a class="info" href="">userid: {{ i.custumer.userid }}</a>
-                            <h3 class="info">price : {{ i.pay_price|price }} T</h3>
+                            <h3 class="info"><span class="nspan">price : </span>{{ i.pay_price|price }} T</h3>
 
                         </div>
                         <div class="conf_btns">
@@ -114,7 +114,7 @@
                     <div class="pay_info">
                         <div class="infobox">
                             <a class="info" href="">userid: {{ i.custumer.userid }}</a>
-                            <h3 class="info">price : {{ i.pay_price|price }} T</h3>
+                            <h3 class="info"><span class="nspan">price : </span>{{ i.pay_price|price }} T</h3>
 
                         </div>
                         <div class="conf_btns">
@@ -134,11 +134,20 @@
         <div id="box3">
             {% for i in not_paid %}
                 <div class="xy">
-                    <h3>{{ i.price }}</h3>
-                    <h3>{{ i.config_name }}</h3>
-                    <h3>{{ i.chat_id.userid }}</h3>
-                    <h3>{{ i.chat_id.username }}</h3>
-                    <h3>{{ i.server.server_name }}</h3>
+                    <div class="fbox">
+                        <a href="{% url "servers:conf_page" i.server.server_id i.config_uuid i.config_name %}" class="notpaid_text"><span class="nspan">config: </span> {{ i.config_name }}</a>
+                        <h3 class="notpaid_text"><span class="nspan">price: </span> {{ i.price|price }} T</h3>
+                        {% if i.chat_id == none %}
+                            <h3 class="notpaid_text"><span class="nspan">user: </span> ----</h3>
+                        {% else %}
+                            <a href="{% url "customers:custumer_detail" i.chat_id.userid %}" class="notpaid_text"><span class="nspan">user: </span> {{ i.chat_id.userid }}</a>
+                        {% endif %}
+                    </div>
+                    <div class="pbox">
+                        <a href="{% url "finance:paid_after_create" i.id %}" class="confirm x_btnd">پرداخت شده</a>
+                        <a href="" class="disable x_btnd">غیرفعال کانفیگ</a>
+                        <a href="" class="deny x_btnd">حذف کانفیگ</a>
+                    </div>
                 </div>
             {% endfor %}
         </div>
