@@ -2,9 +2,7 @@
     max-height: 90vh;
     max-width: 60vw;
 }
-img {
-    border-radius: 15px;
-}
+
 #box1 ,#box2 , #box3{
     display: flex;
     flex-direction: column;
