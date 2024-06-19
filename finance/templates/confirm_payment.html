@@ -17,13 +17,70 @@
             });
         });
     </script>
+    <script>
+        $(document).ready(function() {
+            {% if show_box == 1 %}
+                $("#box1").show();
+                $("#box2").hide();
+                $("#box3").hide();
+                $("#btn1").css({"background-color": "#000d3f", "color":"white"})
+                $("#btn2").css({"background-color": "white", "color":"#000d3f"})
+                $("#btn3").css({"background-color": "white", "color":"#000d3f"})
+            {% elif show_box == 2 %}
+                $("#box1").hide();
+                $("#box2").show();
+                $("#box3").hide();
+                $("#btn1").css({"background-color": "white", "color":"#000d3f"})
+                $("#btn2").css({"background-color": "#000d3f", "color":"white"})
+                $("#btn3").css({"background-color": "white", "color":"#000d3f"})
+            {% elif show_box == 3 %}
+                $("#box1").hide();
+                $("#box2").hide();
+                $("#box3").show();
+                $("#btn1").css({"background-color": "white", "color":"#000d3f"})
+                $("#btn2").css({"background-color": "white", "color":"#000d3f"})
+                $("#btn3").css({"background-color": "#000d3f", "color":"white"})
+            {% endif %}
+
+
+            $("#btn1").click(function () {
+                $("#box1").show();
+                $("#box2").hide();
+                $("#box3").hide();
+                $("#btn1").css({"background-color": "#000d3f", "color":"white"})
+                $("#btn2").css({"background-color": "white", "color":"#000d3f"})
+                $("#btn3").css({"background-color": "white", "color":"#000d3f"})
+            });
+            $("#btn2").click(function () {
+                $("#box1").hide();
+                $("#box2").show();
+                $("#box3").hide();
+                $("#btn1").css({"background-color": "white", "color":"#000d3f"})
+                $("#btn2").css({"background-color": "#000d3f", "color":"white"})
+                $("#btn3").css({"background-color": "white", "color":"#000d3f"})
+            });
+            $("#btn3").click(function () {
+                $("#box1").hide();
+                $("#box2").hide();
+                $("#box3").show();
+                $("#btn1").css({"background-color": "white", "color":"#000d3f"})
+                $("#btn2").css({"background-color": "white", "color":"#000d3f"})
+                $("#btn3").css({"background-color": "#000d3f", "color":"white"})
+            });
+        });
+    </script>
 </head>
 <body>
     {% include "navbar.html" %}
     {% include 'messages.html' %}
     <div id="main">
+        <div id="changebox" dir="rtl">
+            <button class="changebtns" id="btn1"> تایید پرداخت<span class="number_not">{{ confirm_count }}</span></button>
+            <button class="changebtns" id="btn2"> تایید نهایی <span class="number_not">{{ second_confirm_count }}</span></button>
+            <button class="changebtns" id="btn3"> پرداخت بدهی<span class="number_not">{{ not_paid_count }}</span></button>
+        </div>
         <div id="box1">
-            {% for i in obj %}
+            {% for i in confirm %}
                 <div class="paybox" >
                     <div class="pay_info">
                         <div class="infobox">
@@ -51,8 +108,41 @@
                 </div>
             {% endfor %}
         </div>
-    </div>
+        <div id="box2">
+            {% for i in second_confirm %}
+                <div class="paybox" >
+                    <div class="pay_info">
+                        <div class="infobox">
+                            <a class="info" href="">userid: {{ i.custumer.userid }}</a>
+                            <h3 class="info">price : {{ i.pay_price|price }} T</h3>
 
+                        </div>
+                        <div class="conf_btns">
+                            <div class="confirmbtn">
+                                <a href="{% url 'finance:second_confirm' i.id %}" class="sec_confirm c_btnd">تایید نهایی</a>
+                            </div>
+                            <div class="confirmbtn">
+                                <a href="{% url 'finance:deny_payments' i.id %}" class="deny c_btnd">عدم تایید</a>
+                            </div>
+                        </div>
+                    </div>
+                    <img class="pay_img" src="{{ i.image.url }}" alt="pay_img">
+                </div>
+            {% endfor %}
+        </div>
+
+        <div id="box3">
+            {% for i in not_paid %}
+                <div class="xy">
+                    <h3>{{ i.price }}</h3>
+                    <h3>{{ i.config_name }}</h3>
+                    <h3>{{ i.chat_id.userid }}</h3>
+                    <h3>{{ i.chat_id.username }}</h3>
+                    <h3>{{ i.server.server_name }}</h3>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% include "loading.html" %}
 </body>
 </html>

@@ -3,7 +3,7 @@ from .models import Prices as PriceModel
 # from .models import Payment
 from custumers.models import Customer
 from finance.models import ConfirmPaymentQueue as PaymentQueueModel
-from servers.models import CreateConfigQueue
+from servers.models import CreateConfigQueue, ConfigsInfo
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from servers.views import ServerApi, Configs
@@ -68,11 +68,15 @@ class Paying:
 
 
 class ConfirmPaymentPage(LoginRequiredMixin, View):
-    def get(self, request):
+    def get(self, request, show_box=1):
         pay_queue_obj = PaymentQueueModel.objects.filter(status=1)
         if not pay_queue_obj.exists():
             messages.info(request, "پرداختی برای تایید نمانده است. \n برای اطمینان یکبار صفحه را رفرش کنید.")
-        return render(request, 'confirm_payment.html', {'obj': pay_queue_obj})
+        second_pay_queue_obj = PaymentQueueModel.objects.filter(status=2)
+        not_paid_obj = ConfigsInfo.objects.filter(paid=False)
+        return render(request, 'confirm_payment.html', {'confirm': pay_queue_obj, "confirm_count": pay_queue_obj.count(),
+                                            "second_confirm": second_pay_queue_obj, "second_confirm_count": second_pay_queue_obj.count(),
+                                            "not_paid": not_paid_obj, "not_paid_count": not_paid_obj.count(), "show_box":show_box})
 
 
 class FirstConfirmPayment(LoginRequiredMixin, View):

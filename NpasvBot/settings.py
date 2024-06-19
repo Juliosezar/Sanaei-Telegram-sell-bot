@@ -160,4 +160,3 @@ MEDIA_ROOT = environ.get('MEDIA_ROOT')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# tetsing git

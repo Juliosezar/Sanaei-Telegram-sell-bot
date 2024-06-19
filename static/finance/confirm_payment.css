@@ -2,7 +2,7 @@
     max-height: 90vh;
     max-width: 60vw;
 }
-#box1 {
+#box1 ,#box2 , #box3{
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
@@ -111,7 +111,60 @@ a:hover {
     border: solid red 2px;
     color: #000d3f;
 }
+
+#changebox {
+    display: inline-flex;
+    width: 100%;
+    align-items: center;
+    justify-items: center;
+    align-content: center;
+    justify-content: center;
+    padding: 1rem 0;
+    background-color: #8a8a8a;
+}
+
+.changebtns {
+    margin: 1rem 0;
+    border: none;
+    padding: 1rem 2rem;
+}
+
+#btn1 {
+border-radius: 0 30px 30px 0 ;
+}
+
+#btn3 {
+border-radius: 30px 0 0 30px;
+}
+
+#btn2 {
+    border-left: #000d3f 1px solid;
+    border-right: #000d3f 1px solid;
+}
+
+
+.number_not{
+    background-color: #9e0000;
+    color: white;
+    margin: 0 0.25rem;
+    padding: 0.25rem 0.5rem 0.20rem;
+    border-radius: 50px;
+}
+
 @media  (max-width: 850px) {
+    .changebtns {
+    margin: 1rem 0;
+    border: none;
+    padding: 1rem 0.5rem;
+        font-size: small;
+}
+.number_not{
+    margin: 0 0.25rem;
+    padding: 0.15rem 0.25rem 0.10rem;
+    border-radius: 50px;
+}
+
+
     .paybox {
         display: flex;
         flex-direction: column-reverse;

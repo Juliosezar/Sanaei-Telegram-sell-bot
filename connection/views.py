@@ -48,7 +48,7 @@ COMMANDS = {
 def webhook(request):
 
     if request.method == 'POST':
-        try:
+        # try:
             update = json.loads(request.body)
             if 'message' in update:
                 chat_id = update['message']['chat']['id']
@@ -113,6 +113,6 @@ def webhook(request):
                     CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                     COMMANDS["/start"](chat_id)
             return JsonResponse({'status': 'ok'})
-        except Exception as e:
-            print(e)
+        # except Exception as e:
+        #     print(e)
     return JsonResponse({'status': 'not a POST request'})

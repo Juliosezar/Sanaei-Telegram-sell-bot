@@ -8,12 +8,10 @@ from django.views import View
 from servers.models import ConfigsInfo
 from finance.models import ConfirmPaymentQueue
 from servers.views import ServerApi
-from binary import BinaryUnits, convert_units
 from rest_framework.views import APIView
 from accounts.forms import SearchUserForm
 from django.contrib import messages
 from .forms import SendMessageToAllForm, SendMessageToCustomerForm
-from connection import tasks
 from connection.models import SendMessage
 
 class Customer:

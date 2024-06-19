@@ -9,7 +9,6 @@ celery_app = Celery('NpasvBot')
 
 celery_app.conf.broker_connection_retry_on_startup = True
 celery_app.autodiscover_tasks()
-# celery_app.conf.broker_url = 'amqp://'
 celery_app.conf.broker_url = environ.get("CELERY_BROKER_URL")
 celery_app.conf.result_backend = 'rpc://'
 celery_app.conf.task_serializer = 'json'

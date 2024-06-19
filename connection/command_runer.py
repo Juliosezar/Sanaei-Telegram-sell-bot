@@ -205,7 +205,7 @@ class CommandRunner:
         if amount.isnumeric():
             amount = int(amount)
             if 2000 <= amount < 1000000:
-                with open(settings.BASE_DIR / 'connection/settings.json', 'r') as f:
+                with open(settings.BASE_DIR / 'settings.json', 'r') as f:
                     data = json.load(f)
                     card_num = data["pay_card_number"]
                     card_name = data["pay_card_name"]
