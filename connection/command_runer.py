@@ -25,7 +25,7 @@ def is_valid_uuid(uuid_to_test):
     return str(uuid_obj) == uuid_to_test
 
 
-TOKEN = environ.get('TelegramToken')
+TOKEN = environ.get('TELEGRAM_TOKEN')
 TELEGRAM_SERVER_URL = f"https://api.telegram.org/bot{TOKEN}/"
 
 """

@@ -21,7 +21,7 @@ from rest_framework.response import Response
 from time import sleep, time
 from os import environ
 
-BOT_USERNAME = environ.get('bot_username')
+BOT_USERNAME = environ.get('BOT_USERNAME')
 
 def change_wallet_amount(user_id, amount):
     model_obj = CustomerModel.objects.get(userid=user_id)

@@ -10,7 +10,6 @@ from servers.views import ServerApi
 COMMANDS = {
     "/test": ServerApi.create_config,
 
-
     #########################
     '/start': CommandRunner.main_menu,
     'خرید سرویس 🛍': CommandRunner.select_server,
