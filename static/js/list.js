@@ -58,45 +58,7 @@ $(function(){
 					// Set width of sticky table col
 					$stickyCol.find('th').add($stickyInsct.find('th')).width($t.find('thead th').width())
 				},
-				repositionStickyHead = function () {
-					// Return value of calculated allowance
-					var allowance = calcAllowance();
-				
-					// Check if wrapper parent is overflowing along the y-axis
-					if($t.height() > $stickyWrap.height()) {
-						// If it is overflowing (advanced layout)
-						// Position sticky header based on wrapper scrollTop()
-						if($stickyWrap.scrollTop() > 0) {
-							// When top of wrapping parent is out of view
-							$stickyHead.add($stickyInsct).css({
-								opacity: 1,
-								top: $stickyWrap.scrollTop()
-							});
-						} else {
-							// When top of wrapping parent is in view
-							$stickyHead.add($stickyInsct).css({
-								opacity: 0,
-								top: 0
-							});
-						}
-					} else {
-						// If it is not overflowing (basic layout)
-						// Position sticky header based on viewport scrollTop
-						if($w.scrollTop() > $t.offset().top && $w.scrollTop() < $t.offset().top + $t.outerHeight() - allowance) {
-							// When top of viewport is in the table itself
-							$stickyHead.add($stickyInsct).css({
-								opacity: 1,
-								top: $w.scrollTop() - $t.offset().top
-							});
-						} else {
-							// When top of viewport is above or below table
-							$stickyHead.add($stickyInsct).css({
-								opacity: 0,
-								top: 0
-							});
-						}
-					}
-				},
+
 				repositionStickyCol = function () {
 					if($stickyWrap.scrollLeft() > 0) {
 						// When left of wrapping parent is out of view
@@ -132,7 +94,6 @@ $(function(){
 			setWidths();
 
 			$t.parent('.sticky-wrap').scroll($.throttle(0, function() {
-				repositionStickyHead();
 				repositionStickyCol();
 			}));
 
@@ -140,10 +101,8 @@ $(function(){
 			.load(setWidths)
 			.resize($.debounce(0, function () {
 				setWidths();
-				repositionStickyHead();
 				repositionStickyCol();
 			}))
-			.scroll($.throttle(0, repositionStickyHead));
 		}
 	});
 });

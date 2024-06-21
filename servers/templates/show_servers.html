@@ -1,0 +1,58 @@
+{% load compress %}
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'servers/show_servers.css' %}">
+</head>
+
+<body dir="ltr">
+    {% include "navbar.html" %}
+    {% include 'messages.html' %}
+<div id="main">
+    <div id="main">
+        <h2 id="header">
+            Servers
+        </h2>
+        <div id="x">
+            <a href="" id="add_server_btn">Add Server</a>
+        </div>
+        <div class="servers_list">
+            {% for server in servers %}
+                <div class="server_item">
+                    <h3 class="server_url">ID = <span class="cspan">{{ server.server_id }}</span></h3>
+                    <h3 class="server_url">server name: <span class="cspan">{{ server.server_name }}</span></h3>
+                    <h3 class="server_url">server url: <span class="cspan">{{ server.server_url }}</span></h3>
+                    <h3 class="server_url">fake domain: <span class="cspan">{{ server.server_fake_domain }}</span></h3>
+                    <h3 class="server_url">inbound id: <span class="cspan">{{ server.inbound_id }}</span></h3>
+                    <h3 class="server_url">inbound port: <span class="cspan">{{ server.inbound_port }}</span></h3>
+                    {% if server.active %}
+                    	<h3 dir="rtl" class="server_url"> <span class="cspan"> فعال ✅</span> :status</h3>
+                     {% else %}
+                        <h3 dir="rtl" class="server_url">وضعیت: غیرفعال ❌</h3>
+                    {% endif %}
+                    <div class="btnn" style="width: 100%">
+                        <a class="edit_btn" href="">Edit Server</a>
+                    </div>
+                </div>
+
+            {% endfor %}
+        </div>
+    <h2 id="header" style="margin: 1rem 0 0">TEST SERVER</h2>
+    <div class="servers_list">
+                <a class="server_item" href="">
+                    <h3 class="server_name"><span class="red_span"></span>{{ server_test }}</h3>
+                </a>
+    </div>
+    </div>
+
+
+</div>
+{% include "loading.html" %}
+
+</body>
+</html>

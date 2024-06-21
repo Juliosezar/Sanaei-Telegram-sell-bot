@@ -8,7 +8,7 @@ from django.db.models import Q
 from .models import Server as ServerModel, ConfigsInfo
 import requests
 import json
-from servers.models import CreateConfigQueue
+from servers.models import CreateConfigQueue, TamdidConfigQueue
 import random
 import string
 from custumers.models import Customer as CustomerModel
@@ -38,12 +38,15 @@ class ServerApi:
         login_payload = {"username": server_obj.username, "password": server_obj.password}
         login_url = server_url + "login/"
         header = {"Accept": "application/json"}
-        session = requests.Session()
-        login_response = session.post(login_url, headers=header, json=login_payload, timeout=15)
-        if login_response.status_code == 200:
-            if login_response.json()["success"]:
-                return session
-        else:
+        try:
+            session = requests.Session()
+            login_response = session.post(login_url, headers=header, json=login_payload, timeout=15)
+            if login_response.status_code == 200:
+                if login_response.json()["success"]:
+                    return session
+            else:
+                return False
+        except:
             return False
 
     @classmethod
@@ -84,7 +87,8 @@ class ServerApi:
                         'started': started,
                         'expire_time': time_expire,
                         'usage_limit': total_usage,
-                        'inbound_id': i["inboundId"]
+                        'inbound_id': i["inboundId"],
+                        "expired": expired
                     }
                 for i in json.loads(respons["settings"])["clients"]:
                     joined_data[i["email"]]['uuid'] = i["id"]
@@ -92,7 +96,6 @@ class ServerApi:
                     joined_data[i["email"]]['enable'] = i["enable"]
             return joined_data
         except Exception as e:
-            print(e)
             return False
 
 
@@ -139,7 +142,6 @@ class ServerApi:
             if respons.json()['success']:
                 obj = respons.json()["obj"]
                 if obj:
-                    print(obj)
                     expired = False
                     started = True
                     presentDate = datetime.datetime.now()
@@ -166,7 +168,8 @@ class ServerApi:
                         'usage_limit': total_usage,
                         'started': started,
                         'exp_time_sta': expired,
-                        'inbound_id': int(obj["inboundId"])
+                        'inbound_id': int(obj["inboundId"]),
+                        "expired":expired
                     }
 
         return False
@@ -258,6 +261,20 @@ class Configs:
             server=ServerModel.objects.get(server_id=server_id),
             config_uuid=config_uuid,
             config_name=Configs.generate_unique_name(),
+            usage_limit=usage_limit,
+            expire_time=expire_time,
+            user_limit=user_limit,
+            price=price
+        ).save()
+
+    @classmethod
+    def add_configs_to__tamdid__queue_before_confirm(cls,config_uuid, usage_limit, expire_time, user_limit,price):
+        config_info = ConfigsInfo.objects.get(config_uuid=config_uuid)
+        if TamdidConfigQueue.objects.filter(config=config_info, pay_status=0).exists():
+            TamdidConfigQueue.objects.get(config=config_info, pay_status=0).delete()
+
+        TamdidConfigQueue.objects.create(
+            config=config_info,
             usage_limit=usage_limit,
             expire_time=expire_time,
             user_limit=user_limit,
@@ -530,3 +547,14 @@ class DisableConfig(LoginRequiredMixin, View):
                 if obj:
                     ServerApi.disable_config(session,server_id, config_uuid, inbound_id, config_name, bool(enable), ip_limit, obj['expiryTime'], obj['total'])
                     return redirect('servers:list_configs', server_id)
+
+
+class ShowServers(LoginRequiredMixin, View):
+    def get(self, request):
+        obj = ServerModel.objects.all()
+        return render(request, "show_servers.html", {'servers': obj})
+
+
+class EditServer(LoginRequiredMixin, View):
+    def get(self, request, server_id):
+        pass

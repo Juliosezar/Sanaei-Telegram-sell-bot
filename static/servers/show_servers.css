@@ -1,0 +1,127 @@
+body {
+    background-color: #cecece;
+
+}
+#main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+#header {
+    font-size: xx-large;
+    margin-top: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+form {
+    background-color: grey;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+.inline_form {
+
+    margin: 0.5rem 2rem;
+    display: flex;
+    flex-direction: row;
+}
+
+.servers_list {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    margin: 3rem 0;
+}
+
+.server_item {
+    flex-direction: column;
+    display: flex;
+    background-color: #000f4a;
+    color: white;
+    border-radius: 15px;
+    margin: 1rem 0;
+    width: 50%;
+    box-shadow: black 0 0 10px 1px;
+    padding: 1rem ;
+}
+.server_name {
+    font-size: larger;
+    margin-top: 1rem;
+    color: white;
+}
+.server_url {
+    font-size: medium;
+    color: white;
+    margin: 1rem 0;
+
+}
+.errors {
+    width: 100%;
+    text-align: center;
+    background-color: #ff9d9d;
+    border: solid red 2px;
+}
+
+#x {
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+    justify-content: right;
+    margin: 0.5rem 0;
+    width: 80%;
+}
+.red_span {
+    color: #700000;
+
+}
+
+#add_server_btn {
+    background-color: rgba(219, 255, 203, 0.73);
+    padding: 1rem 2rem;
+    font-size: large;
+    border-radius: 15px;
+    box-shadow: black 0 0 10px 1px;
+}
+
+.cspan {
+    background-color: white;
+    color: #000d3f;
+    padding: 0 0.5rem;
+    border-radius: 30px;
+
+}
+
+.edit_btn {
+    background-color: #a8ffab;
+    color: #000d3f;
+    padding: 0.5rem 2rem;
+    margin-top: 0.5rem;
+    border-radius: 10px;
+}
+.btnn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+@media (max-width: 650px) {
+ .servers_list{
+     width: 95%;
+
+ }
+
+    .server_item{
+        width: 95%;
+    }
+    #add_server_btn {
+        margin-top: 2rem;
+    }
+
+}

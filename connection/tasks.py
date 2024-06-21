@@ -1,7 +1,7 @@
 from celery import shared_task
 from .models import SendMessage
-from servers.models import CreateConfigQueue
-from servers.views import Configs
+from servers.models import CreateConfigQueue, ConfigsInfo, MsgEndOfConfig, Server
+from servers.views import Configs, ServerApi
 @shared_task
 def send_msg_to_bot():
     from connection.command_runer import CommandRunner
@@ -21,3 +21,52 @@ def create_config():
     if obj.exists():
         for conf in obj:
             Configs.create_config_from_queue(config_uuid=conf.config_uuid, by_celery=True)
+
+@shared_task
+def send_end_conf_notif():
+    from connection.command_runer import CommandRunner
+    for server in Server.objects.all():
+        api = ServerApi.get_list_configs(server.server_id)
+        if api:
+            for name in api:
+                if ConfigsInfo.objects.filter(config_name=name).exists():
+                    config_mdl = ConfigsInfo.objects.get(config_name=name)
+                    if MsgEndOfConfig.objects.filter(config=config_mdl).exists():
+                        if not api[name]["ended"]:
+                            CommandRunner.send_end_of_config_notif(config_mdl.chat_id.userid, api[name])
+                        else:
+                            if api[name]["usage_limit"] != 0:
+                                if (api[name]["usage_limit"] - api[name]["usage"]) < 0.5:
+                                    CommandRunner.send_almost_end_of_config_notif(config_mdl.chat_id.userid, api[name], 0)
+                            if api[name]["expire_time"] != 0:
+                                if (api[name]["expire_time"] * 24) < 13:
+                                       CommandRunner.send_almost_end_of_config_notif(config_mdl.chat_id.userid, api[name], 1)
+                    else:
+                        MsgEndOfConfig.objects.create(config=config_mdl)
+        else:
+            pass
+        #TODO : log errors
+
+
+    # for conf in ConfigsInfo.objects.all():
+    #     if MsgEndOfConfig.objects.filter(config=conf).exists():
+    #         config = ServerApi.get_config(conf.server.server_id, conf.config_name)
+            # print(config["ended"])
+            # if not config["ended"]:
+            #     msg = "مشتری گرامی، اشتراک سرویس شما با نام" f" {conf.config_name} " "به اتمام رسیده است." "\n\n" "برای "
+            #     CommandRunner.send_end_of_config_notif(conf.chat_id.userid, msg)
+            # else:
+            #     if config["usage_limit"] != 0:
+            #         if (config["usage_limit"] - config["usage"]) < 0.5:
+            #             print(config["usage_limit"] - config["usage"])
+            #             print(conf.config_name)
+            #     if config["time_expire"] != 0:
+            #         if (config["time_expire"] * 24) < 13:
+            #             print(conf.config_name, config["time_expire"] * 24)
+
+
+        # else:
+        #     MsgEndOfConfig.objects.create(config=conf)
+
+
+

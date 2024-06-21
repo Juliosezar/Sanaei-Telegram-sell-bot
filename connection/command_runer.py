@@ -4,10 +4,11 @@ import requests
 from custumers.views import Customer
 import json
 from custumers.models import Customer as CustumerModel
-from servers.models import Server as ServerModel, CreateConfigQueue, ConfigsInfo
+from servers.models import Server as ServerModel, CreateConfigQueue, ConfigsInfo, TamdidConfigQueue
 from finance.views import Prices
 from finance.models import Prices as PricesModel
 from finance.models import ConfirmPaymentQueue as ConfirmPaymentQueueModel
+from finance.models import ConfirmTamdidPaymentQueue as TamdidConfirmPaymentQueueModel
 from finance.views import Paying
 from django.conf import settings
 from servers.views import Configs
@@ -58,19 +59,29 @@ class CommandRunner:
         # TODO : log error
 
     @classmethod
-    def download_photo(cls, file_id, chat_id, config_in_queue):
+    def download_photo(cls, file_id, chat_id, config_in_queue, for_tamdid=False):
         file_info = requests.get(f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file_id}").json()["result"]
         file_url = f"https://api.telegram.org/file/bot{TOKEN}/{file_info['file_path']}"
         img_data = requests.get(file_url).content
         user_obj = CustumerModel.objects.get(userid=chat_id)
-        cpq_obj = ConfirmPaymentQueueModel.objects.get(custumer=user_obj, status=0)
-        cpq_obj.image.save(file_id + ".jpg", ContentFile(img_data), save=False)
-        cpq_obj.status = 1
-        cpq_obj.save()
-        if config_in_queue:
-            cq = CreateConfigQueue.objects.get(custumer=user_obj, pay_status=0, sent_to_user=False)
-            cq.pay_status = 1
-            cq.save()
+        if for_tamdid:
+            cpq_obj = TamdidConfirmPaymentQueueModel.objects.get(config__chat_id=user_obj, status=0)
+            print("ثقلرثفلذثفل")
+            cpq_obj.image.save(file_id + ".jpg", ContentFile(img_data), save=False)
+            cpq_obj.status = 1
+            cpq_obj.save()
+            tmdid_obj = TamdidConfigQueue.objects.get(config__chat_id=user_obj, pay_status=0)
+            tmdid_obj.pay_status = 1
+            tmdid_obj.save()
+        else:
+            cpq_obj = ConfirmPaymentQueueModel.objects.get(custumer=user_obj, status=0)
+            cpq_obj.image.save(file_id + ".jpg", ContentFile(img_data), save=False)
+            cpq_obj.status = 1
+            cpq_obj.save()
+            if config_in_queue:
+                cq = CreateConfigQueue.objects.get(custumer=user_obj, pay_status=0, sent_to_user=False)
+                cq.pay_status = 1
+                cq.save()
 
     @classmethod
     def send_msg_to_user(cls, chat_id, msg):
@@ -104,11 +115,8 @@ class CommandRunner:
             print('timeout')
             return 'Timeout'
         except requests.exceptions.SSLError or requests.exceptions.BaseHTTPError or requests.exceptions.ConnectionError \
-               or requests.exceptions.RetryError or requests.exceptions.HTTPError:
+               or requests.exceptions.RetryError or requests.exceptions.HTTPError or requests.exceptions.RequestException:
             print('http error')
-            return 'Faild'
-        except requests.exceptions.RequestException as e:
-            print('Error')
             return 'Faild'
         except Exception as e:
             return 'Error'
@@ -547,7 +555,6 @@ class CommandRunner:
             service = ConfigsInfo.objects.get(config_uuid=conf_uuid)
             text = '🔰 نام سرویس: ' + f'{service.config_name}' '\n\n' '🌐 سرور: ' f"{service.server.server_name}"
             api = ServerApi.get_config(service.server.server_id, service.config_name)
-            print(api)
             if api:
                 usage = round(api['usage'], 2)
                 usage_limit = api['usage_limit']
@@ -555,26 +562,28 @@ class CommandRunner:
                 if usage_limit == 0:
                     kind = "حجم نامحدود"
                     usage_limit = "♾"
-                else:
+                elif api['expire_time'] == 0:
                     usage_limit = str(usage_limit)+"GB"
                     kind = "حجمی / زمان نامحدود"
                 expire_days = api['time_expire']
                 if expire_days == 0:
                     expire_days = "♾"
+                elif api['expired']:
+                    expire_days = "اتمام اشتراک ❌"
                 else:
                     hour = int((abs(expire_days) % 1) * 24)
                     day = abs(int(expire_days))
-                    expire_days = f'{day} ساعت ' f"و {hour} روز"
+                    expire_days = f" {day} روز" f' و {hour} ساعت '
                 if usage == 0:
                     status = "استارت نشده 🔵"
                 elif api["ended"]:
                     status = "فعال 🟢"
                 else:
                     status = "تماما شده 🔴"
-                text = text + '\n\n' "📥 حجم مصرفی: " f'{usage}GB از {usage_limit}' '\n\n' '⏳ روز های باقی مانده: ' f'{expire_days}' '\n\n' '📶 وضعیت: ' f'{status}' '\n\n' f'⚙️ نوع: ' f'{kind}'
-                text = text +"\n\n" " برای آپدیت اطلاعات بالا بر روی دکمه (Refresh) کلیک کنید 👇"
+                text += '\n\n' "📥 حجم مصرفی: " f'{usage}GB از {usage_limit}' '\n\n' '⏳ روز های باقی مانده: ' f'{expire_days}' '\n\n' '📶 وضعیت: ' f'{status}' '\n\n' f'⚙️ نوع: ' f'{kind}'
+                text += "\n\n" " برای آپدیت اطلاعات بالا بر روی دکمه (Refresh) کلیک کنید 👇"
             else:
-                text = text + "\n\n" + f"اتصال به سرور {service.server.server_name}🔃 برقرار نشد، دقایقی دیگر با زدن بر روی دکمه (Refresh) دوباره امتحان کنید 👇🏻"
+                text +=  "\n\n" + f"اتصال به سرور {service.server.server_name}🔃 برقرار نشد، دقایقی دیگر با زدن بر روی دکمه (Refresh) دوباره امتحان کنید 👇🏻"
         else:
             text = '❌ این سرویس دیگر فعال نیست.'
         text = text.replace('_', "\\_")
@@ -625,3 +634,296 @@ class CommandRunner:
             },
         }
         cls.send_api("sendMessage", data)
+
+
+
+    @classmethod
+    def send_end_of_config_notif(cls, chat_id, api,*args):
+        service = ConfigsInfo.objects.get(config_uuid=api["uuid"])
+        text = "‼️ مشتری گرامی، اشتراک سرویس زیر به اتمام رسیده است.🔔 \n\n"
+        text += '🔰 نام سرویس: ' + f'{service.config_name}' '\n\n' '🌐 سرور: ' f"{service.server.server_name}"
+        usage = round(api['usage'], 2)
+        usage_limit = api['usage_limit']
+        kind = "حجمی"
+        if usage_limit == 0:
+            kind = "حجم نامحدود"
+            usage_limit = "♾"
+        elif api['expire_time'] == 0:
+            usage_limit = str(usage_limit)+"GB"
+            kind = "حجمی / زمان نامحدود"
+        expire_days = api['expire_time']
+        if expire_days == 0:
+            expire_days = "♾"
+        elif api['expired']:
+            expire_days = "اتمام اشتراک ❌"
+        else:
+            hour = int((abs(expire_days) % 1) * 24)
+            day = abs(int(expire_days))
+            expire_days = f'{hour} ساعت ' f"و {day} روز"
+        if usage == 0:
+            status = "استارت نشده 🔵"
+        elif api["ended"]:
+            status = "فعال 🟢"
+        else:
+            status = "تمام شده 🔴"
+        text +=  '\n' "📥 حجم مصرفی: " f'{usage}GB از {usage_limit}' '\n' '⏳ روز های باقی مانده: ' f'{expire_days}' '\n' '📶 وضعیت: ' f'{status}' '\n' f'⚙️ نوع: ' f'{kind}'
+        text += "\n\n" "✅ برای تمدید سرویس بر روی دکمه (تمدید) کلیک کنید 👇"
+
+        text = text.replace('_', "\\_")
+        data = {
+            'chat_id': chat_id,
+            'text': text,
+            'parse_mode': 'Markdown',
+            'reply_markup': {
+                'inline_keyboard': [
+                    [{'text': '♻️ تمدید ♻️', 'callback_data': f'tamdid<~>{api["uuid"]}'}],]
+            },
+        }
+        cls.send_api("sendMessage", data)
+
+    @classmethod
+    def send_almost_end_of_config_notif(cls, chat_id, api, type, *args):
+        service = ConfigsInfo.objects.get(config_uuid=api["uuid"])
+        if type == 0:
+            text = "🔶 مشتری گرامی، کمتر از 0.5 گیگ (500مگابایت) از سرویس شما باقی مانده است، برای جلوگیری از قطع شدن سرویس خود آنرا تمدید کنید.🔔 \n\n"
+        else:
+            text = "🔶 مشتری گرامی، کمتر از 12 ساعت تا اتمام سرویس شما باقی مانده است، برای جلوگیری از قطع شدن سرویس خود آنرا تمدید کنید.🔔 \n\n"
+        text += '🔰 نام سرویس: ' + f'{service.config_name}' '\n\n' '🌐 سرور: ' f"{service.server.server_name}"
+        usage = round(api['usage'], 2)
+        usage_limit = api['usage_limit']
+        kind = "حجمی"
+        if usage_limit == 0:
+            kind = "حجم نامحدود"
+            usage_limit = "♾"
+        elif api['expire_time'] == 0:
+            usage_limit = str(usage_limit)+"GB"
+            kind = "حجمی / زمان نامحدود"
+        expire_days = api['expire_time']
+        if expire_days == 0:
+            expire_days = "♾"
+        elif api['expired']:
+            expire_days = "اتمام اشتراک ❌"
+        else:
+            hour = int((abs(expire_days) % 1) * 24)
+            day = abs(int(expire_days))
+            expire_days = f'{hour} ساعت ' f"و {day} روز"
+        if usage == 0:
+            status = "استارت نشده 🔵"
+        elif api["ended"]:
+            status = "فعال 🟢"
+        else:
+            status = "تمام شده 🔴"
+        text += '\n' "📥 حجم مصرفی: " f'{usage}GB از {usage_limit}' '\n' '⏳ روز های باقی مانده: ' f'{expire_days}' '\n' '📶 وضعیت: ' f'{status}' '\n' f'⚙️ نوع: ' f'{kind}'
+        text += "\n\n" "✅ برای تمدید سرویس بر روی دکمه (تمدید) کلیک کنید 👇"
+
+        text = text.replace('_', "\\_")
+        data = {
+            'chat_id': chat_id,
+            'text': text,
+            'parse_mode': 'Markdown',
+            'reply_markup': {
+                'inline_keyboard': [
+                    [{'text': '♻️ تمدید ♻️', 'callback_data': f'tamdid<~>{api["uuid"]}'}],]
+            },
+        }
+        cls.send_api("sendMessage", data)
+
+
+
+    @classmethod
+    def tamdid_select_config_expire_time(cls, chat_id, *args):
+        msg_id = int(args[0])
+        arg_splited = args_spliter(args[1])
+        if ConfigsInfo.objects.filter(config_uuid=arg_splited[0]).exists():
+            config_info = ConfigsInfo.objects.get(config_uuid=arg_splited[0])
+            server_id = config_info.server.server_id
+            month_list = []
+            for m in Prices.get_expire_times():
+                if m == 0:
+                    m_text = " ♾ " + "زمان نامحدود"
+                else:
+                    m_text = " 🔘 " + f"{m} ماهه"
+                month_list.append([{'text': f"{m_text}", 'callback_data': f"tamdid_expire_time<~>{config_info.config_uuid}<%>{m}"}])
+            # month_list.append([{'text': '🔙 بازگشت', 'callback_data': f"back_to_servers<~>"}])
+            server_name = ServerModel.objects.get(server_id=server_id).server_name
+            data = {
+                'chat_id': chat_id,
+                'message_id': msg_id,
+                'text': f"♻️ تمدید سرویس: {config_info.config_name}" "\n\n" f' 🌍 سرور: {server_name} \n\n' + '⏱ مدت زمان سرویس خود را انتخاب کنید 👇🏻',
+                'reply_markup': {
+                    'inline_keyboard': month_list
+                },
+            }
+            cls.send_api("editMessageText", data)
+
+    @classmethod
+    def tamdid_select_config_usage(cls, chat_id, *args):
+        msg_id = int(args[0])
+        arg_splited = args_spliter(args[1])
+        if ConfigsInfo.objects.filter(config_uuid=arg_splited[0]).exists():
+            config_info = ConfigsInfo.objects.get(config_uuid=arg_splited[0])
+            expire_month = int(arg_splited[1])
+            price_obj = Prices.get_usage_and_prices_of_selected_month(expire_month)
+            usage_list = []
+            for u in price_obj:
+                if u.usage_limit == 0:
+                    u_text = " ♾ " + "نامحدود" + " - " + f"{u.user_limit} کاربره" + " - " + f"{u.price} تومان "
+                else:
+                    u_text = " 🔘 " + f"{u.usage_limit} گیگ" + " - " + f"{u.price} تومان "
+                usage_list.append([{'text': u_text,
+                                    'callback_data': f"tam_usage<~>{config_info.config_uuid}<%>{expire_month}<%>{u.usage_limit}<%>{u.user_limit}"}])
+            usage_list.append([{'text': '🔙 بازگشت', 'callback_data': f"tamdid<~>{config_info.config_uuid}"}])
+            server_name = config_info.server.server_name
+            if expire_month == 0:
+                choosen = " زمان نامحدود ♾ "
+            else:
+                choosen = f" {expire_month} ماهه"
+            data = {
+                'chat_id': chat_id,
+                'message_id': msg_id,
+                'text':f"♻️ تمدید سرویس: {config_info.config_name}" "\n\n" f' 🌍 سرور:  {server_name} \n\n' + f' ⏱ انقضا: {choosen}\n\n' + '🔃 حجم کانفیگ خود را انتخاب کنید 👇🏻',
+                'reply_markup': {
+                    'inline_keyboard': usage_list
+                },
+            }
+            print(6354655)
+            cls.send_api("editMessageText", data)
+
+
+    @classmethod
+    def tamdid_confirm_config_buying(cls, chat_id, *args):
+        msg_id = int(args[0])
+        arg_splited = args_spliter(args[1])
+        if ConfigsInfo.objects.filter(config_uuid=arg_splited[0]).exists():
+            config_info = ConfigsInfo.objects.get(config_uuid=arg_splited[0])
+            expire_month = int(arg_splited[1])
+            usage_limit = int(arg_splited[2])
+            user_limit = int(arg_splited[3])
+            custumer_obj = CustumerModel.objects.get(userid=chat_id)
+            wallet_amount = custumer_obj.wallet
+            price = PricesModel.objects.get(expire_limit=expire_month, user_limit=user_limit, usage_limit=usage_limit).price
+            pay_amount = price - wallet_amount
+            price_text = f"{price:,}"
+            wallet_amount_text = f"{wallet_amount:,}"
+            pay_amount_text = f"{pay_amount:,}"
+
+            if expire_month == 0:
+                expire_month_text = " زمان نامحدود ♾"
+            else:
+                expire_month_text = f" {expire_month} ماهه"
+            if usage_limit == 0:
+                usage_limit_text = ' نامحدود ♾'
+            else:
+                usage_limit_text = f'{usage_limit} GB'
+
+            if user_limit == 0:
+                user_limit_text = ' بدون محدودیت ♾'
+            else:
+                user_limit_text = user_limit
+            server_name = config_info.server.server_name
+
+            if wallet_amount >= price:
+
+                data = {
+                    'chat_id': chat_id,
+                    'message_id': msg_id,
+                    'text':f"♻️ تمدید سرویس: {config_info.config_name}" "\n\n" f' 🌍 سرور:  {server_name} \n' + f' ⏱ انقضا: {expire_month_text}\n'
+                                                            f' 🔃 حجم : {usage_limit_text} \n' + f' 👤 محدودیت کاربر: {user_limit_text}\n\n' + f' 💵 هزینه سرویس: {price_text} تومان \n\n'
+                                                                                                                                             f'کاربر گرامی، موجودی کیف پول شما {wallet_amount_text} تومان است، برای فعال سازی این سرویس مبلغ {price_text}'
+                            + f' تومان از کیف پول شما کسر خواهد شد.\n تایید تمدید 👇🏻',
+                    'reply_markup': {
+                        'inline_keyboard': [[{'text': '✅ تایید خرید 💳',
+                                              'callback_data': f'tam_wallet<~>{config_info.config_uuid}<%>{expire_month}<%>{usage_limit}<%>{user_limit}'}],
+                                            [{"text": '🔙 بازگشت',
+                                              'callback_data': f"tamdid_expire_time<~>{config_info.config_uuid}<%>{expire_month}"}],
+                                            [{'text': 'انصراف ❌', 'callback_data': 'abort_buying'}]]
+                    },
+                }
+            else:
+                if wallet_amount == 0:
+                    text_pay = f'کاربر گرامی، برای تمدید این سرویس مبلغ {pay_amount_text}'
+                else:
+                    text_pay = f'کاربر گرامی، موجودی کیف پول شما {wallet_amount_text} تومان است، برای تمدید این سرویس مبلغ {pay_amount_text}'
+                data = {
+                    'chat_id': chat_id,
+                    'message_id': msg_id,
+                    'text': f"♻️ تمدید سرویس: {config_info.config_name}" "\n\n" f' 🌍 سرور:  {server_name} \n' + f' ⏱ انقضا: {expire_month_text}\n'
+                                                            f' 🔃 حجم : {usage_limit_text} \n' + f' 👤 محدودیت کاربر: {user_limit_text}\n\n' + f' 💵 هزینه سرویس: {price_text} تومان \n\n'
+                            + text_pay + f' تومان را پرداخت کنید 👇🏻',
+                    'reply_markup': {
+                        'inline_keyboard': [[{'text': '✅ پرداخت / کارت به کارت 💳',
+                                              'callback_data': f'tam_pay<~>{config_info.config_uuid}<%>{expire_month}<%>{usage_limit}<%>{user_limit}'}],
+                                            [{"text": '🔙 بازگشت',
+                                              'callback_data': f"tamdid_expire_time<~>{config_info.config_uuid}<%>{expire_month}"}],
+                                            [{'text': 'انصراف ❌', 'callback_data': 'abort_buying'}]]
+                    },
+                }
+            cls.send_api("editMessageText", data)
+
+
+    @classmethod
+    def tamdid_pay_for_config(cls, chat_id, *args):
+        msg_id = args[0]
+        arg_splited = args_spliter(args[1])
+        if ConfigsInfo.objects.filter(config_uuid=arg_splited[0]).exists():
+            config_info = ConfigsInfo.objects.get(config_uuid=arg_splited[0])
+            expire_limit = int(arg_splited[1])
+            usage_limit = int(arg_splited[2])
+            user_limit = int(arg_splited[3])
+            price = PricesModel.objects.get(usage_limit=usage_limit, expire_limit=expire_limit, user_limit=user_limit).price
+            with open(settings.BASE_DIR / 'settings.json', 'r') as f:
+                data = json.load(f)
+                card_num = data["pay_card_number"]
+                card_name = data["pay_card_name"]
+            data = {
+                'message_id': msg_id,
+                'chat_id': chat_id,
+                'text': f" مبلغ {price}تومان را به شماره کارت زیر انتقال دهید، سپس عکس آنرا بعد از همین پیام ارسال نمایید : " + f'\n\n`{card_num}`\n {card_name}',
+                'parse_mode': 'Markdown',
+            }
+            data2 = {
+                'chat_id': chat_id,
+                "text": "تصویر پرداختی خود را ارسال کنید :",
+                'resize_keyboard': True,
+                'one_time_keyboard': True,
+                'reply_markup': {
+                    'keyboard': [
+                        [{'text': '❌ لغو پرداخت 💳'}]]
+                },
+            }
+            Customer.change_custimer_temp_status(chat_id, "get_paid_picture_for_tamdid")
+            Paying.pay__tamdid__config_before_img(chat_id, price, config_info.config_uuid)
+            Configs.add_configs_to__tamdid__queue_before_confirm(config_info.config_uuid , usage_limit, expire_limit * 30, user_limit, price)
+            # expire limit * 30
+            cls.send_api("sendMessage", data2)
+            cls.send_api("editMessageText", data)
+
+    @classmethod
+    def tamdid_config_from_wallet(cls, chat_id, *args):
+        msg_id = int(args[0])
+        arg_splited = args_spliter(args[1])
+        if ConfigsInfo.objects.filter(config_uuid=arg_splited[0]).exists():
+            config_info = ConfigsInfo.objects.get(config_uuid=arg_splited[0])
+            expire_limit = int(arg_splited[1])
+            usage_limit = int(arg_splited[2])
+            user_limit = int(arg_splited[3])
+            price = PricesModel.objects.get(usage_limit=usage_limit, expire_limit=expire_limit, user_limit=user_limit).price
+            create_config = Configs.create_config_from_wallet(chat_id, config_info.server.server_id, expire_limit, usage_limit, user_limit,
+                                                              price)
+            if create_config:
+                data = {
+                    'message_id': msg_id,
+                    'chat_id': chat_id,
+                    'text': f"کانفیک شما ارسال شد و مبلغ {price} تومان از کیف پول شما کسر شد.",
+                    'parse_mode': 'Markdown',
+                }
+                cls.send_api("editMessageText", data)
+            else:
+                msg = f'اتصال به سرور {ServerModel.objects.get(server_id=config_info.server.server_id).server_name} برقرار نشد.' '\n میتوانید کشور مورد نظر را تغییر دهید یا دقایقی دیگر دوباره امتحان کنید.'
+                data = {
+                    'message_id': msg_id,
+                    'chat_id': chat_id,
+                    'text': msg,
+                    'parse_mode': 'Markdown',
+                }
+                cls.send_api("editMessageText", data)

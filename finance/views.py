@@ -3,6 +3,7 @@ from .models import Prices as PriceModel
 # from .models import Payment
 from custumers.models import Customer
 from finance.models import ConfirmPaymentQueue as PaymentQueueModel
+from finance.models import ConfirmTamdidPaymentQueue as TamdidPaymentQueueModel
 from servers.models import CreateConfigQueue, ConfigsInfo
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -63,7 +64,19 @@ class Paying:
             config_price=None,
             pay_price=price,
             status=0,
-            config_in_queue=False,
+        ).save()
+
+    @classmethod
+    def pay__tamdid__config_before_img(cls, user_id, price, uuid):
+        config = ConfigsInfo.objects.get(config_uuid=uuid)
+        user_obj = Customer.objects.get(userid=user_id)
+        if TamdidPaymentQueueModel.objects.filter(config=config, status=0).exists():
+            TamdidPaymentQueueModel.objects.get(config=config, status=0).delete()
+        TamdidPaymentQueueModel.objects.create(
+            config=config,
+            config_price=price,
+            pay_price=price,
+            status=0,
         ).save()
 
 

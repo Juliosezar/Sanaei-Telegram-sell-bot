@@ -35,6 +35,12 @@ COMMANDS = {
     'buy_config_from_wallet': CommandRunner.buy_config_from_wallet,
     'abort_buying': CommandRunner.abort_buying,
     'service_status':CommandRunner.get_service,
+
+    'tamdid': CommandRunner.tamdid_select_config_expire_time,
+    'tamdid_expire_time': CommandRunner.tamdid_select_config_usage,
+    'tam_usage': CommandRunner.tamdid_confirm_config_buying,
+    'tam_wallet' : CommandRunner.tamdid_config_from_wallet,
+    "tam_pay": CommandRunner.tamdid_pay_for_config
 }
 
 '''
@@ -48,7 +54,7 @@ COMMANDS = {
 def webhook(request):
 
     if request.method == 'POST':
-        # try:
+        try:
             update = json.loads(request.body)
             if 'message' in update:
                 chat_id = update['message']['chat']['id']
@@ -69,6 +75,8 @@ def webhook(request):
                     elif CustumerModel.objects.get(userid=chat_id).temp_status == "get_paid_picture":
                         CommandRunner.send_msg_to_user(chat_id, "لطفا عکس پرداختی خود را ارسال نمایید :")
                     elif CustumerModel.objects.get(userid=chat_id).temp_status == "get_paid_picture_for_config":
+                        CommandRunner.send_msg_to_user(chat_id, "لطفا عکس پرداختی خود را ارسال نمایید :")
+                    elif CustumerModel.objects.get(userid=chat_id).temp_status == "get_paid_picture_for_tamdid":
                         CommandRunner.send_msg_to_user(chat_id, "لطفا عکس پرداختی خود را ارسال نمایید :")
                     elif "/start register_" in text:
                         CommandRunner.register_config(chat_id, text.replace("/start register_", ""))
@@ -93,6 +101,15 @@ def webhook(request):
                         file_id = photo["file_id"]
                         CommandRunner.download_photo(file_id, chat_id, True)
                         CommandRunner.send_msg_to_user(chat_id, "تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید کانفیگ شما به صورت خودکار برایتان ارسال میگردد.")
+
+                    elif CustumerModel.objects.get(userid=chat_id).temp_status == "get_paid_picture_for_tamdid":
+                        photo = (update["message"]["photo"][-1])
+                        print(photo)
+                        file_id = photo["file_id"]
+                        CommandRunner.download_photo(file_id, chat_id, True, True)
+                        CommandRunner.send_msg_to_user(chat_id, "تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید کانفیگ شما به صورت خودکار تمدید میگردد و به شما اطلاع رسانی میشود.")
+
+
                     else:
                         CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                     COMMANDS["/start"](chat_id)
@@ -113,6 +130,6 @@ def webhook(request):
                     CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                     COMMANDS["/start"](chat_id)
             return JsonResponse({'status': 'ok'})
-        # except Exception as e:
-        #     print(e)
+        except Exception as e:
+            print(e)
     return JsonResponse({'status': 'not a POST request'})
