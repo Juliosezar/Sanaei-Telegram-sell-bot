@@ -85,9 +85,18 @@ form{
     flex-direction: row;
     align-items: end;
 }
-
+.tamdid_conf {
+    font-size: x-large;
+    color: #98e0ff;
+    background-color: #000d3f;
+    padding: 0.5rem 0;
+}
 
 @media (max-width: 650px) {
+    .tamdid_conf {
+        font-size: medium;
+    }
+
     #id_create_for ,#id_config_name ,#id_type ,#id_usage_limit ,#id_days_limit ,#id_comment, #id_price,#id_daily_usage_limit
         ,#id_type_conf,#id_month,#id_price, #id_usage, #id_ip_limit
 {

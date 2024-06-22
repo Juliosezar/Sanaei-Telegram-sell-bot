@@ -66,7 +66,6 @@ class CommandRunner:
         user_obj = CustumerModel.objects.get(userid=chat_id)
         if for_tamdid:
             cpq_obj = TamdidConfirmPaymentQueueModel.objects.get(config__chat_id=user_obj, status=0)
-            print("ثقلرثفلذثفل")
             cpq_obj.image.save(file_id + ".jpg", ContentFile(img_data), save=False)
             cpq_obj.status = 1
             cpq_obj.save()
@@ -908,18 +907,17 @@ class CommandRunner:
             usage_limit = int(arg_splited[2])
             user_limit = int(arg_splited[3])
             price = PricesModel.objects.get(usage_limit=usage_limit, expire_limit=expire_limit, user_limit=user_limit).price
-            create_config = Configs.create_config_from_wallet(chat_id, config_info.server.server_id, expire_limit, usage_limit, user_limit,
-                                                              price)
+            create_config = Configs.tamdid_config_from_wallet(arg_splited[0],expire_limit, usage_limit, user_limit,price)
             if create_config:
                 data = {
                     'message_id': msg_id,
                     'chat_id': chat_id,
-                    'text': f"کانفیک شما ارسال شد و مبلغ {price} تومان از کیف پول شما کسر شد.",
+                    'text': f"کانفیک شما تمدید شد و مبلغ {price} تومان از کیف پول شما کسر شد.",
                     'parse_mode': 'Markdown',
                 }
                 cls.send_api("editMessageText", data)
             else:
-                msg = f'اتصال به سرور {ServerModel.objects.get(server_id=config_info.server.server_id).server_name} برقرار نشد.' '\n میتوانید کشور مورد نظر را تغییر دهید یا دقایقی دیگر دوباره امتحان کنید.'
+                msg = f'اتصال به سرور {ServerModel.objects.get(server_id=config_info.server.server_id).server_name} برقرار نشد.' '\nدقایقی دیگر دوباره امتحان کنید.'
                 data = {
                     'message_id': msg_id,
                     'chat_id': chat_id,

@@ -12,7 +12,7 @@ urlpatterns = [
     path('disable_config/<int:server_id>/<str:config_uuid>/<int:inbound_id>/<str:config_name>/<int:enable>/<int:ip_limit>/', views.DisableConfig.as_view(), name="disable_config"),
     path('show_servers/', views.ShowServers.as_view(), name="show_servers"),
     path("edit_servers/<int:server_id>", views.EditServer.as_view(), name="edit_server"),
-
+    path("renew_page/<str:uuid>/<str:form_type>/", views.RenewPage.as_view(), name="renew_page"),
     path("api_get_config_time_chices/", views.ApiGetConfigTimeChoices.as_view(), name="api_get_time_choices"),
     path("api_get_config_usage_chices/", views.ApiGetConfigUsageChoices.as_view(), name="api_get_usage_choices"),
     path("api_get_config_ip_limit_chices/", views.ApiGetConfigIPLimitChoices.as_view(), name="api_get_iplimit_choices"),

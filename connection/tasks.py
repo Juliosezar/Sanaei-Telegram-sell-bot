@@ -1,6 +1,6 @@
 from celery import shared_task
 from .models import SendMessage
-from servers.models import CreateConfigQueue, ConfigsInfo, MsgEndOfConfig, Server
+from servers.models import CreateConfigQueue, ConfigsInfo, MsgEndOfConfig, Server, TamdidConfigQueue
 from servers.views import Configs, ServerApi
 @shared_task
 def send_msg_to_bot():
@@ -48,25 +48,13 @@ def send_end_conf_notif():
         #TODO : log errors
 
 
-    # for conf in ConfigsInfo.objects.all():
-    #     if MsgEndOfConfig.objects.filter(config=conf).exists():
-    #         config = ServerApi.get_config(conf.server.server_id, conf.config_name)
-            # print(config["ended"])
-            # if not config["ended"]:
-            #     msg = "مشتری گرامی، اشتراک سرویس شما با نام" f" {conf.config_name} " "به اتمام رسیده است." "\n\n" "برای "
-            #     CommandRunner.send_end_of_config_notif(conf.chat_id.userid, msg)
-            # else:
-            #     if config["usage_limit"] != 0:
-            #         if (config["usage_limit"] - config["usage"]) < 0.5:
-            #             print(config["usage_limit"] - config["usage"])
-            #             print(conf.config_name)
-            #     if config["time_expire"] != 0:
-            #         if (config["time_expire"] * 24) < 13:
-            #             print(conf.config_name, config["time_expire"] * 24)
+@shared_task
+def tamdid_config():
+    obj = TamdidConfigQueue.objects.filter(sent_to_user=5)
+    if obj.exists():
+        for conf in obj:
+            Configs.tamdid_config_from_queue(config_uuid=conf.config.config_uuid, by_celery=True)
 
-
-        # else:
-        #     MsgEndOfConfig.objects.create(config=conf)
 
 
 

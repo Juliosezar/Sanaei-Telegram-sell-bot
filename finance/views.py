@@ -83,14 +83,18 @@ class Paying:
 class ConfirmPaymentPage(LoginRequiredMixin, View):
     def get(self, request, show_box):
         pay_queue_obj = PaymentQueueModel.objects.filter(status=1)
+        pay_tamdid_obj = TamdidPaymentQueueModel.objects.filter(status=1)
         second_pay_queue_obj = PaymentQueueModel.objects.filter(status=2)
+        second_tamdid_pay_queue_obj = TamdidPaymentQueueModel.objects.filter(status=2)
         not_paid_obj = ConfigsInfo.objects.filter(paid=False)
         if not not_paid_obj.exists() and not pay_queue_obj.exists() and not second_pay_queue_obj.exists():
             messages.info(request, "پرداختی برای تایید نمانده است. \n برای اطمینان یکبار صفحه را رفرش کنید.")
         return render(request, 'confirm_payment.html',
-                      {'confirm': pay_queue_obj, "confirm_count": pay_queue_obj.count(),
-                       "second_confirm": second_pay_queue_obj, "second_confirm_count": second_pay_queue_obj.count(),
-                       "not_paid": not_paid_obj, "not_paid_count": not_paid_obj.count(), "show_box": show_box})
+                      {'confirm': pay_queue_obj, "confirm_count": pay_queue_obj.count() + pay_tamdid_obj.count(),
+                       "second_confirm": second_pay_queue_obj, "second_confirm_count": second_pay_queue_obj.count() + second_tamdid_pay_queue_obj.count(),
+                       "second_tamdid_pay": second_tamdid_pay_queue_obj,
+                       "not_paid": not_paid_obj, "not_paid_count": not_paid_obj.count(),
+                       "confirm_tamdid_pay": pay_tamdid_obj,"show_box": show_box})
 
 
 class FirstConfirmPayment(LoginRequiredMixin, View):
@@ -147,6 +151,55 @@ class SecondConfirmPayment(LoginRequiredMixin, View):
         else:
             messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
         return redirect('finance:confirm_payments', 1)
+
+
+class FirstTamdidConfirmPayment(LoginRequiredMixin, View):
+    def get(self, request, obj_id):
+        from connection.command_runer import CommandRunner
+        model_obj = TamdidPaymentQueueModel.objects.get(id=obj_id)
+        if model_obj.status == 1:
+            Wallet.add_to_wallet(model_obj.config.chat_id.userid, model_obj.pay_price)
+
+            if Customer.objects.get(userid=model_obj.config.chat_id.userid).wallet >= model_obj.config_price:
+                CommandRunner.send_msg_to_user(model_obj.config.chat_id.userid, "پرداخت شما تایید شد. ✅")
+                Configs.tamdid_config_from_queue(config_uuid=model_obj.config.config_uuid)
+            else:
+                CommandRunner.send_msg_to_user(model_obj.config.chat_id.userid,
+                                               f'کابر گرامی مبلغ {model_obj.pay_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای تمدید سرویس مورد نظر کافی نیست. ')
+            model_obj.status = 2
+            model_obj.save()
+            messages.success(request, 'پرداخت با موفقیت تایید و به کاربر ارسال شد.')
+        else:
+            messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
+        return redirect('finance:confirm_payments', 1)
+
+class SecondTamdidConfirmPayment(LoginRequiredMixin, View):
+    def get(self, request, obj_id):
+        from connection.command_runer import CommandRunner
+        model_obj = TamdidPaymentQueueModel.objects.get(id=obj_id)
+        if model_obj.status == 1:
+            Wallet.add_to_wallet(model_obj.config.chat_id.userid, model_obj.pay_price)
+
+            if Customer.objects.get(userid=model_obj.config.chat_id.userid).wallet >= model_obj.config_price:
+                Configs.tamdid_config_from_queue(config_uuid=model_obj.config.config_uuid)
+            else:
+                CommandRunner.send_msg_to_user(model_obj.config.chat_id.userid,
+                                               f'کابر گرامی مبلغ {model_obj.config_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای تمدید سرویس مورد نظر کافی نیست. ')
+
+            model_obj.status = 3
+            model_obj.save()
+            messages.success(request, 'پرداخت با موفقیت تایید و به کاربر ارسال شد.')
+
+        elif model_obj.status == 2:
+            model_obj.status = 3
+            model_obj.save()
+            messages.success(request, 'پرداخت با موفقیت تایید شد.')
+            return redirect('finance:confirm_payments', 2)
+        # ToDO
+        else:
+            messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
+        return redirect('finance:confirm_payments', 1)
+
 
 
 class DenyPaymentPage(LoginRequiredMixin, View):

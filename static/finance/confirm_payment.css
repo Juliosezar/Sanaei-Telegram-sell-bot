@@ -41,10 +41,16 @@
 
 .info {
     color: white;
-    margin: 1rem 0;
-
+    margin: 0.5rem 0;
+    text-align: center;
+    font-size: large;
 }
-
+.infobox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center
+}
 .confirmbtn {
     background-color: white;
     padding: 2rem;
@@ -173,10 +179,10 @@ border-radius: 30px 0 0 30px;
 }
 .notpaid_text {
     color: white;
-    font-size: x-large;
+    font-size: large;
 }
 .nspan {
-    font-size: large;
+    font-size: x-large;
 }
 
 .pbox {
@@ -201,7 +207,7 @@ border-radius: 30px 0 0 30px;
         font-size: large;
     }
     .nspan {
-    font-size: medium;
+    font-size: larger;
 }
     .x_btnd {
         border-radius: 5px;

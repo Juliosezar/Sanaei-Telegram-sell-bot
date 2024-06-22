@@ -84,8 +84,13 @@
                 <div class="paybox" >
                     <div class="pay_info">
                         <div class="infobox">
-                            <a class="info" href="">userid: {{ i.custumer.userid }}</a>
-                            <h3 class="info"><span class="nspan">price : </span>{{ i.pay_price|price }} T</h3>
+                            {% if i.config_in_queue %}
+                                <h4 class="info">Buy Service</h4>
+                            {% else %}
+                                <h4 class="info">Add To Wallet</h4>
+                            {% endif %}
+                            <h3 class="info" href="">userid: <a style="color: #98e2ff">{{ i.custumer.userid }}</a></h3>
+                            <h3 class="info">price : <span class="nspan">{{ i.pay_price|price }} T</span></h3>
 
                         </div>
                         <div class="conf_btns">
@@ -107,19 +112,67 @@
                     <img class="pay_img" src="{{ i.image.url }}" alt="pay_img">
                 </div>
             {% endfor %}
+            {% for i in confirm_tamdid_pay %}
+                <div class="paybox" >
+                    <div class="pay_info">
+                        <div class="infobox">
+                            <h4 class="info">Renew: <a style="color: #98e2ff" href="">{{ i.config.config_name }}</a></h4>
+                            <h3 class="info" href="">userid: <a style="color: #98e2ff">{{ i.config.chat_id.userid }}</a></h3>
+                            <h3 class="info">price : <span class="nspan">{{ i.pay_price|price }} T</span></h3>
+
+                        </div>
+                        <div class="conf_btns">
+
+                            <div class="confirmbtn">
+                                <a href="{% url 'finance:first_tamdid_confirm' i.id %}" class="confirm c_btnd">تایید اولیه</a>
+                            </div>
+                            <div class="confirmbtn">
+                                <a href="{% url 'finance:second_tamdid_confirm' i.id %}" class="sec_confirm c_btnd">تایید نهایی</a>
+                            </div>
+                            <div class="confirmbtn">
+                                <a href="{% url 'finance:edit_price' i.id %}" class="edit_price c_btnd">تغییر قیمت</a>
+                            </div>
+                            <div class="confirmbtn">
+                                <a href="{% url 'finance:deny_payments' i.id %}" class="deny c_btnd">عدم تایید</a>
+                            </div>
+                        </div>
+                    </div>
+                    <img class="pay_img" src="{{ i.image.url }}" alt="pay_img">
+                </div>
+            {% endfor %}
         </div>
         <div id="box2">
             {% for i in second_confirm %}
                 <div class="paybox" >
                     <div class="pay_info">
                         <div class="infobox">
-                            <a class="info" href="">userid: {{ i.custumer.userid }}</a>
-                            <h3 class="info"><span class="nspan">price : </span>{{ i.pay_price|price }} T</h3>
+                            <h3 class="info">userid:<a style="color: #98e2ff" href=""> {{ i.custumer.userid }}</a></h3>
+                            <h3 class="info">price : <span class="nspan">{{ i.pay_price|price }} T</span></h3>
 
                         </div>
                         <div class="conf_btns">
                             <div class="confirmbtn">
                                 <a href="{% url 'finance:second_confirm' i.id %}" class="sec_confirm c_btnd">تایید نهایی</a>
+                            </div>
+                            <div class="confirmbtn">
+                                <a href="{% url 'finance:deny_payments' i.id %}" class="deny c_btnd">عدم تایید</a>
+                            </div>
+                        </div>
+                    </div>
+                    <img class="pay_img" src="{{ i.image.url }}" alt="pay_img">
+                </div>
+            {% endfor %}
+            {% for i in second_tamdid_pay %}
+                <div class="paybox" >
+                    <div class="pay_info">
+                        <div class="infobox">
+                            <h3 class="info">userid:<a style="color: #98e2ff" href=""> {{ i.config.chat_id.userid }}</a></h3>
+                            <h3 class="info">price : <span class="nspan">{{ i.pay_price|price }} T</span></h3>
+
+                        </div>
+                        <div class="conf_btns">
+                            <div class="confirmbtn">
+                                <a href="{% url 'finance:second_tamdid_confirm' i.id %}" class="sec_confirm c_btnd">تایید نهایی</a>
                             </div>
                             <div class="confirmbtn">
                                 <a href="{% url 'finance:deny_payments' i.id %}" class="deny c_btnd">عدم تایید</a>
@@ -135,12 +188,12 @@
             {% for i in not_paid %}
                 <div class="xy">
                     <div class="fbox">
-                        <a href="{% url "servers:conf_page" i.server.server_id i.config_uuid i.config_name %}" class="notpaid_text"><span class="nspan">config: </span> {{ i.config_name }}</a>
-                        <h3 class="notpaid_text"><span class="nspan">price: </span> {{ i.price|price }} T</h3>
+                        <a href="{% url "servers:conf_page" i.server.server_id i.config_uuid i.config_name %}" class="notpaid_text">Service: <span class="nspan" style="color: #98E2FFFF">{{ i.config_name }}</span> </a>
+                        <h3 class="notpaid_text">price:  <span class="nspan">{{ i.price|price }} T</span></h3>
                         {% if i.chat_id == none %}
-                            <h3 class="notpaid_text"><span class="nspan">user: </span> ----</h3>
+                            <h3 class="notpaid_text">user:  <span class="nspan">----</span></h3>
                         {% else %}
-                            <a href="{% url "customers:custumer_detail" i.chat_id.userid %}" class="notpaid_text"><span class="nspan">user: </span> {{ i.chat_id.userid }}</a>
+                            <a href="{% url "customers:custumer_detail" i.chat_id.userid %}" class="notpaid_text">user:  <span style="color: #98E2FFFF" class="nspan">{{ i.chat_id.userid }}</span></a>
                         {% endif %}
                     </div>
                     <div class="pbox">

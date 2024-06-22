@@ -107,6 +107,35 @@ body {
     font-size: x-large;
 }
 
+.conf_btnsbox {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    /*background-color: #000609;*/
+        flex-wrap: wrap;
+    border-radius: 10px;
+}
+
+.conf_btnss{
+    width: 43%;
+    text-align: center;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    margin: 1rem 0.5rem;
+    background-color: #ececec;
+    color: #000d3f;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+
+img {
+    width: 2rem;
+}
+
 @media (max-width: 650px) {
     .c_info {
     font-size: large;

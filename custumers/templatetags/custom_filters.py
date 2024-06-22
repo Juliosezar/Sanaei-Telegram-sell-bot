@@ -1,5 +1,5 @@
 from django import template
-
+from servers.models import ConfigsInfo
 register = template.Library()
 
 
@@ -23,8 +23,14 @@ def day_and_hour(value):
 
 @register.filter(name="break_name")
 def break_name(value):
-    if value.startswith("NapsV_"):
+    if ConfigsInfo.objects.filter(config_name=value).exists():
         return f'{value} 🤖'
     elif '@' in value:
-        return f'{value.split('@')[1]}🔒'
+        return False
     return value
+
+@register.filter(name="config_seved")
+def config_seved(value):
+    if ConfigsInfo.objects.filter(config_uuid=value).exists():
+        return True
+    return False

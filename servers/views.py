@@ -43,6 +43,7 @@ class ServerApi:
             login_response = session.post(login_url, headers=header, json=login_payload, timeout=15)
             if login_response.status_code == 200:
                 if login_response.json()["success"]:
+                    print("connnect session")
                     return session
             else:
                 return False
@@ -129,6 +130,44 @@ class ServerApi:
             return False
         except Exception as e:
             return False
+
+    @classmethod
+    def renew_config(cls,server_id, config_uuid, config_name, expire_time, total_usage, ip_limit, reset=True):
+        print("start")
+        server_obj = ServerModel.objects.get(server_id=server_id)
+        url = server_obj.server_url + "panel/api/inbounds"
+        expire_time = (int(expire_time) * 24 * 60 * 60 * 1000 * -1)
+        total_usage = (int(convert_units(int(total_usage), BinaryUnits.GB, BinaryUnits.BYTE)[0]))
+        setting = {
+            'clients': [{
+                'id': str(config_uuid), 'alterId': 0, 'email': config_name,
+                'limitIp': ip_limit, 'totalGB': total_usage,
+                'expiryTime': expire_time, 'enable': True,
+                "tgId": '', 'subId': ''
+            }]
+        }
+        data1 = {
+            "id": int(server_obj.inbound_id),
+            "settings": json.dumps(setting)
+        }
+        print(data1)
+        header = {"Accept": "application/json"}
+
+        try:
+            session = cls.create_session(server_id)
+            if not session:
+                return False
+            respons = session.post(url + f"/updateClient/{str(config_uuid)}/", headers=header, json=data1, timeout=6)
+            # if reset:
+                # respons2 = session.post(url + f"/{server_obj.inbound_id}/resetClientTraffic/{config_name}/", headers={}, data={}, timeout=6)
+            print(respons.json())
+            if respons.status_code == 200 : # TODO: add respons2 with and operotor
+                if respons.json()['success']:
+                    return True
+            return False
+        except Exception as e:
+            return False
+
 
     @classmethod
     def get_config(cls, server_id, config_name):
@@ -231,6 +270,15 @@ class Configs:
             paid=paid,
             price=price
         ).save()
+
+    @classmethod
+    def change_config_info(cls, config_uuid, price, ):
+        if ConfigsInfo.objects.filter(config_uuid=config_uuid).exists():
+            config_info = ConfigsInfo.objects.get(config_uuid=config_uuid)
+            config_info.renew_count += 1
+            config_info.price = price
+            paid = True
+            config_info.save()
 
     @classmethod
     def create_vless_text(cls, config_uuid, server_obj, config_name):
@@ -336,7 +384,7 @@ class Configs:
         return False
 
     @classmethod
-    def create_config_by_admins(cls, server_id, expire_limit, usage_limit, user_limit, price, paid, created_by, request):
+    def create_config_by_admins(cls, server_id, expire_limit, usage_limit, user_limit, price, paid, created_by):
         conf_uuid = uuid.uuid4()
         config_name = Configs.generate_unique_name()
         create_config = ServerApi.create_config(server_id, config_name, conf_uuid, usage_limit, expire_limit * 30,
@@ -346,8 +394,60 @@ class Configs:
             return {'config_name':config_name, 'config_uuid':conf_uuid}
         return None
 
-
 # TODO: save config price
+
+    @classmethod
+    def tamdid_config_from_queue(cls, config_uuid, by_celery=False):
+        from connection.command_runer import CommandRunner
+        config_queue_obj = TamdidConfigQueue.objects.get(config__config_uuid=config_uuid, sent_to_user=0)
+        config_queue_obj.sent_to_user = 1
+        config_queue_obj.save()
+        respons = ServerApi.renew_config(
+            server_id=config_queue_obj.config.server.server_id,
+            config_name=config_queue_obj.config.config_name,
+            config_uuid=config_uuid,
+            total_usage=config_queue_obj.usage_limit,
+            expire_time=config_queue_obj.expire_time,
+            ip_limit=config_queue_obj.user_limit,
+        )
+        if respons:
+            change_wallet_amount(config_queue_obj.custumer.userid, -1 * config_queue_obj.price)
+            config_queue_obj.sent_to_user = 3
+            cls.change_config_info(config_queue_obj.config.config_uuid, config_queue_obj.price)
+            CommandRunner.send_msg_to_user(config_queue_obj.config.chat_id.userid,
+                        f"✅ سرویس {config_queue_obj.config.config_name} تمدید شد. از بخش (سرویس های من) در منوی اصلی میتوانید وضعیت سرویس خود را مشاهده کنید.")
+        else:
+            config_queue_obj.sent_to_user = 5
+            config_queue_obj.save()
+            if not by_celery:
+                CommandRunner.send_msg_to_user(config_queue_obj.config.chat_id.userid,
+                                               '🟢 کابر گرامی کانفیگ شما تا دقایقی دیگر به صورت خودکار تمدید میشود.')
+
+    @classmethod
+    def tamdid_config_from_wallet(cls, config_uuid,expire_limit, usage_limit, user_limit,price):
+        from connection.command_runer import CommandRunner
+        config_obj = ConfigsInfo.objects.get(config_uuid=config_uuid)
+        renew_config = ServerApi.renew_config(config_obj.server.server_id, config_uuid, config_obj.config_name, expire_limit * 30, usage_limit, user_limit)
+        if renew_config:
+            CommandRunner.send_msg_to_user(config_obj.chat_id.userid,
+                                           f"✅ سرویس {config_obj.config_name} تمدید شد. از بخش (سرویس های من) در منوی اصلی میتوانید وضعیت سرویس خود را مشاهده کنید.")
+
+            change_wallet_amount(config_obj.chat_id.userid, -1 * price)
+            config_obj.renew_count += 1
+            config_obj.price = True
+            config_obj.save()
+            return True
+        return False
+
+    @classmethod
+    def tamdid_config_by_admins(cls, config_uuid, expire_limit, usage_limit, user_limit,price, paid, by_admin):
+        conf = ConfigsInfo.objects.get(config_uuid=config_uuid)
+        create_config = ServerApi.renew_config(conf.server.server_id, config_uuid, conf.config_name, expire_limit *30, usage_limit, user_limit)
+        if create_config:
+            cls.change_config_info(config_uuid, price)
+            return {'config_name': conf.config_name, 'config_uuid': config_uuid}
+        return None
+
 
 class ListConfigs(LoginRequiredMixin, View):
     def get(self, request, server_id, *args, **kwargs):
@@ -429,10 +529,9 @@ class CreateConfigPage(LoginRequiredMixin, View):
             else:
                 price = cd['price']
             paid = cd["paid"]
-            create_config = Configs.create_config_by_admins(server_id, time_limit, usage, ip_limit, price, paid, request.user.username, request),
-            print(create_config)
+            create_config = Configs.create_config_by_admins(server_id, time_limit, usage, ip_limit, price, paid, request.user.username),
+
             if create_config[0]:
-                print('dfvsdfvdfsvbsdgb')
                 return redirect('servers:conf_page', server_id, create_config[0]["config_uuid"], create_config[0]["config_name"])
 
             messages.error(request,"اتصال به سرور برقرار نشد.")
@@ -558,3 +657,44 @@ class ShowServers(LoginRequiredMixin, View):
 class EditServer(LoginRequiredMixin, View):
     def get(self, request, server_id):
         pass
+
+
+class RenewPage(LoginRequiredMixin, View):
+
+    def get(self, request, uuid, form_type):
+        conf = ConfigsInfo.objects.get(config_uuid=uuid)
+        forms = {'auto': CreateConfigForm, 'manual': ManualCreateConfigForm}
+        return render(request, 'renew_config.html',
+                      {"config":conf,'form': forms[form_type], 'form_type': form_type})
+
+    def post(self, request, uuid, form_type):
+        conf = ConfigsInfo.objects.get(config_uuid=uuid)
+        forms = {'auto': CreateConfigForm, 'manual': ManualCreateConfigForm}
+        form = forms[form_type](request.POST)
+        if form.is_valid():
+            ip_limit = 0
+            time_limit = 0
+            usage = 0
+            cd = form.cleaned_data
+            if cd['type'] == "limited":
+                usage = int(cd["usage_limit"])
+                time_limit = int(cd['days_limit'])
+            elif cd['type'] == 'usage_unlimit':
+                time_limit = int(cd['days_limit'])
+                ip_limit = int(cd['ip_limit'])
+            elif cd['type'] == 'time_unlimit':
+                usage = int(cd["usage_limit"])
+            if form_type == 'auto':
+                price = PricesModel.objects.get(usage_limit=usage, expire_limit=time_limit,
+                                                user_limit=ip_limit).price
+            else:
+                price = cd['price']
+            paid = cd["paid"]
+            create_config = Configs.tamdid_config_by_admins(uuid, time_limit, usage, ip_limit, price, paid, request.user.username)
+            print(create_config)
+            if create_config:
+                messages.success(request,f"سرویس {conf.config_name} با موفقیت تمدید شد.")
+                return redirect('servers:conf_page', conf.server.server_id, create_config["config_uuid"],
+                                create_config["config_name"])
+            messages.error(request, "اتصال به سرور برقرار نشد.")
+        return render(request, 'renew_config.html', {"config":conf,'form': forms[form_type], 'form_type': form_type})

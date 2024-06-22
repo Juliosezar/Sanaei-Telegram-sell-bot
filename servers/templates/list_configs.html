@@ -17,6 +17,54 @@
         }
 }
     </script>
+    <script>
+        function togg() {
+            $("#Active").prop("checked", false);
+            $("#Ended").prop("checked", false);
+            $("#Disabled").prop("checked", false);
+            $("#All").prop("checked", false);
+            $(".ended").show();
+            $(".active").show();
+            $(".disabled").show();
+        }
+        $(document).ready(function() {
+            $("#All").prop("checked", true);
+            $("#All").click(function () {
+                $("#Active").prop("checked", false);
+                $("#Ended").prop("checked", false);
+                $("#Disabled").prop("checked", false);
+                $(".ended").show();
+                $(".active").show();
+                $(".disabled").show();
+            });
+
+            $("#Active").click(function () {
+                togg();
+                $("#Active").prop("checked", true);
+                $(".ended").hide();
+                $(".active").show();
+                $(".disabled").hide();
+            });
+
+            $("#Ended").click(function () {
+                togg();
+                $("#Ended").prop("checked", true);
+                $(".ended").show();
+                $(".active").hide();
+                $(".disabled").hide();
+            });
+            $("#Disabled").click(function () {
+                togg();
+                $("#Disabled").prop("checked", true);
+                $(".ended").hide();
+                $(".active").hide();
+                $(".disabled").show();
+            });
+
+        })
+    </script>
+
+
         {% include "navbar.html" %}
         {% include 'messages.html' %}
         <div id="main">
@@ -32,7 +80,14 @@
                  {% endif %}
              </div>
          </form>
+        <div id="filterbox">
+                    <div><input id="All" type="checkbox" value="All Configs" name="All"> <label for="All"> All Configs</label></div>
+                    <div><input id="Ended" type="checkbox" value="Ended" name="Ended"> <label for="Ended"> Ended</label></div>
+                    <div><input id="Disabled" type="checkbox" value="Disabled" name="Disabled"> <label for="Disabled"> Disabled</label></div>
+                    <div><input id="Active" type="checkbox" value="Active" name="Active"> <label for="Active"> Active</label></div>
+                </div>
 		    <div class="xcontainer">
+
 		    		<table class="overflow-y">
 		    			<thead>
 		    				<tr>
@@ -44,11 +99,23 @@
                                 <th>تمدید</th>
                                 <th>حذف</th>
                                 <th>غیرفعال</th>
+                                <th>ویرایش</th>
 		    				</tr>
 		    			</thead>
 		    			<tbody>
                         {% for key ,value in data.items %}
-		    				<tr>
+                            {% if key|break_name %}
+
+                                {% if not value.ended %}
+                                <tr class="ended">
+                                {% elif not value.enable %}
+                                <tr class="disabled">
+                                {% else %}
+                                <tr class="active">
+                                {% endif %}
+
+
+
                                 {% if not value.ended %}
 		    					    <th class="fix_col name_red"><a class="c_name" style="color: red" href="{% url 'servers:conf_page' server_id value.uuid key %}">{{ key|break_name }}</a></th>
                                 {% elif not value.enable %}
@@ -149,9 +216,13 @@
 
 
                                 <td>
-                                    <a class="tamdid" href="">
+                                    {% if value.uuid|config_seved %}
+                                    <a class="tamdid" href="{% url "servers:renew_page" value.uuid 'auto' %}">
                                         <img class="restart" src="{% static "img/icons8-restart-512.png" %}" alt="">
                                     </a>
+                                    {% else %}
+                                        <p>----</p>
+                                    {% endif %}
                                 </td>
 
                                 <td>
@@ -172,10 +243,14 @@
                                     </a>
                                 </td>
                                 {% endif %}
-
+                                <td>
+                                    <a class="tamdid" href="{% url 'servers:disable_config' server_id value.uuid value.inbound_id key 0 value.ip_limit %}">
+                                        <img class="enable" src="{% static "img/setting.png" %}" alt="">
+                                    </a>
+                                </td>
                             </tr>
 
-
+                        {% endif %}
                         {% endfor %}
 		    			</tbody>
 		    		</table>

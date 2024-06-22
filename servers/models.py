@@ -21,6 +21,7 @@ class ConfigsInfo(models.Model):
     price = models.PositiveIntegerField(default=0)
     paid = models.BooleanField(default=True)
     created_by = models.CharField(max_length=20, default="BOT")
+    renew_count = models.IntegerField(default=0)
 
 
 class CreateConfigQueue(models.Model):
