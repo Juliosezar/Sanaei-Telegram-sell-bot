@@ -85,8 +85,10 @@ class CustomerDetail(LoginRequiredMixin, View):
 
 class GetCustumersConfigsAPI(APIView):
     def get(self, request , config_uuid):
+        print(6546654)
         config_model = ConfigsInfo.objects.get(config_uuid=config_uuid)
         config = ServerApi.get_config(config_model.server.server_id, config_model.config_name)
+        print(config)
         if not config:
             return Response(status=400)
         total_usage = config["usage_limit"]
@@ -98,6 +100,7 @@ class GetCustumersConfigsAPI(APIView):
         if not config["ended"]:
             status = "🔴 اتمام حجم یا زمان"
         data = {"usage": config['usage'], "total_usage": total_usage, "time_expire": config['time_expire'], 'status': status}
+        print(data)
         return Response(data=data)
 
 

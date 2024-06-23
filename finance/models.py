@@ -14,6 +14,8 @@ class ConfirmPaymentQueue(models.Model):
     deny_reseon = models.CharField(max_length=100, blank=True, null=True)
     config_uuid = models.UUIDField(unique=True, blank=True, null=True)
 
+    def __str__(self):
+        return str(self.custumer.userid)
 
 
 class ConfirmTamdidPaymentQueue(models.Model):
@@ -26,6 +28,8 @@ class ConfirmTamdidPaymentQueue(models.Model):
     image = models.ImageField(upload_to='payment_images/', blank=True, null=True)
     deny_reseon = models.CharField(max_length=100, blank=True, null=True)
 
+    def __str__(self):
+        return str(self.config.config_name)
 
 
 class Prices(models.Model):
@@ -33,3 +37,4 @@ class Prices(models.Model):
     expire_limit = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
     user_limit = models.PositiveIntegerField(default=0)
+

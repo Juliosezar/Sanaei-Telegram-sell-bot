@@ -13,6 +13,9 @@ class Server(models.Model):
     inbound_port = models.IntegerField()
     active = models.BooleanField(default=True)
 
+    def __str__(self):
+        return self.server_name
+
 class ConfigsInfo(models.Model):
     config_name = models.CharField(max_length=25, unique=True)
     config_uuid = models.UUIDField(unique=True)
@@ -22,6 +25,9 @@ class ConfigsInfo(models.Model):
     paid = models.BooleanField(default=True)
     created_by = models.CharField(max_length=20, default="BOT")
     renew_count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.config_name
 
 
 class CreateConfigQueue(models.Model):
@@ -38,6 +44,9 @@ class CreateConfigQueue(models.Model):
     pay_status = models.PositiveSmallIntegerField(default=0)
     # 0 => waiting for pay img / 1 => waiting for confirm / 2 => first confirmed / 3 => secoend confirm / 10 => denied
 
+    def __str__(self):
+        return self.config_name
+
 class TamdidConfigQueue(models.Model):
     config = models.ForeignKey(ConfigsInfo, on_delete=models.CASCADE)
     usage_limit = models.IntegerField()
@@ -49,6 +58,8 @@ class TamdidConfigQueue(models.Model):
     pay_status = models.PositiveSmallIntegerField(default=0)
     # 0 => waiting for pay img / 1 => waiting for confirm / 2 => first confirmed / 3 => secoend confirm / 10 => denied
 
+    def __str__(self):
+        return self.config.config_name
 
 
 

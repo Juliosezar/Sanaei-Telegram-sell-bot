@@ -13,6 +13,9 @@ class Customer(models.Model):
     pay_temp_amount = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
 
+    def __str__(self):
+        return self.first_name + " / " + str(self.userid)
+
 class CustumerHistory(models.Model):
     custumer = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
     by_user = models.CharField(max_length=50)
