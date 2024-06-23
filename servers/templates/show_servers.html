@@ -19,7 +19,7 @@
             Servers
         </h2>
         <div id="x">
-            <a href="" id="add_server_btn">Add Server</a>
+            <a href="{% url "servers:add_server" %}" id="add_server_btn">Add Server</a>
         </div>
         <div class="servers_list">
             {% for server in servers %}
@@ -36,7 +36,7 @@
                         <h3 dir="rtl" class="server_url">وضعیت: غیرفعال ❌</h3>
                     {% endif %}
                     <div class="btnn" style="width: 100%">
-                        <a class="edit_btn" href="">Edit Server</a>
+                        <a class="edit_btn" href="{% url "servers:edit_server" server.server_id %}">Edit Server</a>
                     </div>
                 </div>
 

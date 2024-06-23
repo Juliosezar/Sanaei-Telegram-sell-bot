@@ -1,0 +1,35 @@
+{% load compress %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'servers/create_config.css' %}">
+</head>
+<body>
+{% include "navbar.html" %}
+{% include 'messages.html' %}
+<div id="main">
+        <form novalidate action="" method="post" dir="rtl">
+            {% for field_errors in form.errors.values %}
+              {% for error in field_errors %}
+                  <p dir="rtl" class="errors">{{ error }}</p>
+              {% endfor %}
+            {% endfor %}
+            <h3 id="title">تنظیمات</h3>
+            {% csrf_token %}
+            <div id="time_limit" class="textinput item"><h3 class="item_text">شماره کارت : </h3>{{ form.card_number }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text">اسم کارت : </h3>{{ form.card_name }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text"> محدودیت حجم 1 کاربره : </h3>{{ form.one_usage_limit }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text"> محدودیت حجم 2 کاربره : </h3>{{ form.two_usage_limit }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text"> محدودیت حجم 3 کاربره : </h3>{{ form.three_usage_limit }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text">msg_id تعرقه ها : </h3>{{ form.prices_msg_id }}</div>
+
+            <input id="create" type="submit" value="Change">
+        </form>
+    </div>
+{% include "loading.html" %}
+</body>
+</html>

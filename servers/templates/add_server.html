@@ -1,0 +1,40 @@
+{% load compress %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'servers/create_config.css' %}">
+</head>
+<body>
+{% include "navbar.html" %}
+{% include 'messages.html' %}
+<div id="main">
+        <form novalidate action="" method="post" dir="ltr">
+            {% for field_errors in form.errors.values %}
+              {% for error in field_errors %}
+                  <p dir="rtl" class="errors">{{ error }}</p>
+              {% endfor %}
+            {% endfor %}
+            <h3 id="title">Add Server</h3>
+            {% csrf_token %}
+            {% if edit %}
+                <div id="time_limit" class="textinput item"><h3 class="item_text">server ID: </h3>{{ form.server_id }}</div>
+            {% endif %}
+            <div id="time_limit" class="textinput item"><h3 class="item_text">server name: </h3>{{ form.server_name }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text">Url: </h3>{{ form.server_url }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text"> Username: </h3>{{ form.username }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text">Password: </h3>{{ form.password }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text">Fake Domain : </h3>{{ form.server_fake_domain }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text">Inbound id: </h3>{{ form.inbound_id }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text">Port: </h3>{{ form.inbound_port }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text">Active: </h3>{{ form.active }}</div>
+
+            <input id="create" type="submit" value="Change">
+        </form>
+    </div>
+{% include "loading.html" %}
+</body>
+</html>

@@ -83,25 +83,26 @@
                 {% endif %}
             </div>
             <div class="show_usage">
-                {% if config_usage.time_expire == 0 %}
+                {% if config_usage.expire_time == 0 %}
                     <div class="time">
                         <h4 class="expire_text blue_infinite">∞ day</h4>
                     </div>
-                {% elif config_usage.exp_time_sta is False and config_usage.time_expire > 3 %}
+                {% elif config_usage.expire_time > 0 and not config_usage.started %}
                     <div class="time">
-                        <h4 class="expire_text blue ">{{ config_usage.time_expire|dh }} day</h4>
+                        <h4 class="expire_text green">{{ config_usage.expire_time|floatformat:0 }} day</h4>
                     </div>
-                {% elif config_usage.exp_time_sta is False and config_usage.time_expire > 0 %}
+                {% elif config_usage.expire_time > 3 %}
                     <div class="time">
-                        <h4 class="expire_text orange">{{ config_usage.time_expire|dh }} day</h4>
+                        <h4 class="expire_text blue">{{ config_usage.expire_time|dh }} day</h4>
                     </div>
-                {% elif config_usage.time_expire < 0 and config_usage.exp_time_sta is False %}
+                {% elif config_usage.expire_time > 0 %}
                     <div class="time">
-                        <h4 class="expire_text green">{% widthratio config_usage.time_expire 1 -1 %} day</h4>
+                        <h4 class="expire_text orange">{{ config_usage.expire_time|dh }} day</h4>
                     </div>
+
                 {% else %}
                     <div class="time">
-                        <h4 class="expire_text red">{{ config_usage.time_expire|dh }} day ago</h4>
+                        <h4 class="expire_text red">{{ config_usage.expire_time|dh }} day ago</h4>
                     </div>
                 {% endif %}
             </div>
@@ -128,8 +129,12 @@
             <div class="conf_btnsbox">
                 <a class="conf_btnss tamdid_btn" href=""><img class="restart" src="{% static "img/icons8-restart-512.png" %}" alt=""> تمدید </a>
                 <a class="conf_btnss change_btn" href=""><img class="enable" src="{% static "img/setting.png" %}" alt=""> ویرایش </a>
-                <a class="conf_btnss disable_btn" href=""><img class="enable" src="{% static "img/enable.png" %}" alt=""> غیرفعال </a>
-                <a class="conf_btnss delete_btn" href=""><img class="del_img" src="{% static 'img/icons8-delete-64.png' %}" alt=""> حذف </a>
+                {% if config_usage.enable %}
+                    <a class="conf_btnss disable_btn" href="{% url "servers:disable_config" config_info.server.server_id config_usage.uuid config_usage.inbound_id config_name 1 config_usage.ip_limit %}"><img class="enable" src="{% static "img/disable.png" %}" alt=""> غیرفعال </a>
+                {% else %}
+                    <a class="conf_btnss disable_btn" href="{% url "servers:disable_config" config_info.server.server_id config_usage.uuid config_usage.inbound_id config_name 0 config_usage.ip_limit %}"><img class="disable" src="{% static "img/enable.png" %}" alt=""> فعال کردن </a>
+                {% endif %}
+                <a class="conf_btnss delete_btn" href="{% url "servers:delete_config" config_info.server.server_id config_info.config_uuid config_info.config_name config_info.server.inbound_id %}"><img class="del_img" src="{% static 'img/icons8-delete-64.png' %}" alt=""> حذف </a>
             </div>
             </div>
 

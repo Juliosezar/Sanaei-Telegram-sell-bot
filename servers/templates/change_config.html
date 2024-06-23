@@ -1,0 +1,63 @@
+{% load compress %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'servers/create_config.css' %}">
+</head>
+<body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let type = document.querySelector('#id_type');
+        let usage = document.querySelector('#usage');
+        let time_limit = document.querySelector("#time_limit")
+        let ip_limit = document.querySelector('#ip_limit')
+        function toggleexpireField() {
+            if (type.value === "limited") {
+                time_limit.style.display = "block"
+                usage.style.display = "block"
+                ip_limit.style.display = "none"
+            }
+            else if (type.value === 'time_unlimit') {
+                time_limit.style.display = "none"
+                usage.style.display = "block"
+                ip_limit.style.display = "none"
+            }
+            else if (type.value === 'usage_unlimit'){
+                time_limit.style.display = "block"
+                usage.style.display = "none"
+                ip_limit.style.display = "block"
+            }
+        }
+
+        type.addEventListener('change', toggleexpireField);
+        toggleexpireField();
+    });
+</script>
+{% include "navbar.html" %}
+{% include 'messages.html' %}
+<div id="main">
+        <form novalidate action="" method="post" dir="rtl">
+            {% for field_errors in form.errors.values %}
+              {% for error in field_errors %}
+                  <p dir="rtl" class="errors">{{ error }}</p>
+              {% endfor %}
+            {% endfor %}
+            <h3 id="title">تغییر سرویس</h3>
+            <a href="{% url "servers:conf_page" config.server.server_id config.config_uuid config.config_name %}" id="title" class="tamdid_conf">{{ config.config_name }}</a>
+            {% csrf_token %}
+            <div id="time_limit" class="textinput item"><h3 class="item_text">مدت زمان کانفیگ : </h3>{{ form.days_limit }}</div>
+            <p dir="rtl" style="text-align: right">0 = زمان نامحدود</p>
+            <div id="usage" class="textinput item"><h3 class="item_text">حجم کانفیگ : </h3>{{ form.usage_limit }}</div>
+            <p dir="rtl" style="text-align: right">0 = حجم نامحدود</p>
+            <div id="ip_limit" class="textinput item"><h3 class="item_text">تعداد کاربر : </h3>{{ form.ip_limit }}</div>
+            <p dir="rtl" style="text-align: right">0 = کاربر نامحدود</p>
+            <input id="create" type="submit" value="Change">
+        </form>
+    </div>
+{% include "loading.html" %}
+</body>
+</html>

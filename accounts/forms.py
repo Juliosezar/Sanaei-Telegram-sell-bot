@@ -1,3 +1,5 @@
+import json
+
 from django import forms
 from .models import Users
 from django.core.exceptions import ValidationError
@@ -49,3 +51,30 @@ class SearchUserForm(forms.Form):
 
 class SearchConfigForm(forms.Form):
     search_config = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'placeholder': 'Search Config Name or UUID'}))
+
+
+class ChangeSettingForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        with open("settings.json", "r", encoding="utf-8") as f:
+            j = json.load(f)
+        self.fields["card_number"].initial = j["pay_card_number"]
+        self.fields["card_name"].initial = j["pay_card_name"]
+        self.fields["prices_msg_id"].initial = j["prices_msg_id"]
+        self.fields["one_usage_limit"].initial = j["one_usage_limit"]
+        self.fields["two_usage_limit"].initial = j["two_usage_limit"]
+        self.fields["three_usage_limit"].initial = j["three_usage_limit"]
+
+
+    card_number = forms.IntegerField()
+    card_name = forms.CharField(max_length=25)
+    prices_msg_id = forms.IntegerField()
+    one_usage_limit = forms.IntegerField()
+    two_usage_limit = forms.IntegerField()
+    three_usage_limit = forms.IntegerField()
+
+    def clean_card_number(self):
+        card_number = self.cleaned_data["card_number"]
+        if len(str(card_number)) != 16:
+            raise ValidationError("شماره کارت باید 16 رقمی باشد.")
+        return card_number

@@ -554,6 +554,7 @@ class CommandRunner:
             service = ConfigsInfo.objects.get(config_uuid=conf_uuid)
             text = '🔰 نام سرویس: ' + f'{service.config_name}' '\n\n' '🌐 سرور: ' f"{service.server.server_name}"
             api = ServerApi.get_config(service.server.server_id, service.config_name)
+            print(11)
             if api:
                 usage = round(api['usage'], 2)
                 usage_limit = api['usage_limit']
@@ -561,7 +562,7 @@ class CommandRunner:
                 if usage_limit == 0:
                     kind = "حجم نامحدود"
                     usage_limit = "♾"
-                elif api['expire_time'] == 0:
+                elif api['time_expire'] == 0:
                     usage_limit = str(usage_limit)+"GB"
                     kind = "حجمی / زمان نامحدود"
                 expire_days = api['time_expire']
@@ -582,7 +583,7 @@ class CommandRunner:
                 text += '\n\n' "📥 حجم مصرفی: " f'{usage}GB از {usage_limit}' '\n\n' '⏳ روز های باقی مانده: ' f'{expire_days}' '\n\n' '📶 وضعیت: ' f'{status}' '\n\n' f'⚙️ نوع: ' f'{kind}'
                 text += "\n\n" " برای آپدیت اطلاعات بالا بر روی دکمه (Refresh) کلیک کنید 👇"
             else:
-                text +=  "\n\n" + f"اتصال به سرور {service.server.server_name}🔃 برقرار نشد، دقایقی دیگر با زدن بر روی دکمه (Refresh) دوباره امتحان کنید 👇🏻"
+                text += "\n\n" + f"اتصال به سرور {service.server.server_name}🔃 برقرار نشد، دقایقی دیگر با زدن بر روی دکمه (Refresh) دوباره امتحان کنید 👇🏻"
         else:
             text = '❌ این سرویس دیگر فعال نیست.'
         text = text.replace('_', "\\_")
@@ -754,6 +755,13 @@ class CommandRunner:
                 },
             }
             cls.send_api("editMessageText", data)
+        else:
+            data3 = {
+                'chat_id': chat_id,
+                "text": "این سرویس حذف شده است و قابل تمدید نیست.",
+                'message_id': msg_id,
+            }
+            cls.send_api("editMessageText", data3)
 
     @classmethod
     def tamdid_select_config_usage(cls, chat_id, *args):
@@ -787,7 +795,13 @@ class CommandRunner:
             }
             print(6354655)
             cls.send_api("editMessageText", data)
-
+        else:
+            data3 = {
+                'chat_id': chat_id,
+                "text": "این سرویس حذف شده است و قابل تمدید نیست.",
+                'message_id': msg_id,
+            }
+            cls.send_api("editMessageText", data3)
 
     @classmethod
     def tamdid_confirm_config_buying(cls, chat_id, *args):
@@ -858,7 +872,13 @@ class CommandRunner:
                     },
                 }
             cls.send_api("editMessageText", data)
-
+        else:
+            data3 = {
+                'chat_id': chat_id,
+                "text": "این سرویس حذف شده است و قابل تمدید نیست.",
+                'message_id': msg_id,
+            }
+            cls.send_api("editMessageText", data3)
 
     @classmethod
     def tamdid_pay_for_config(cls, chat_id, *args):
@@ -896,6 +916,14 @@ class CommandRunner:
             # expire limit * 30
             cls.send_api("sendMessage", data2)
             cls.send_api("editMessageText", data)
+        else:
+            data3 = {
+                'chat_id': chat_id,
+                "text": "این سرویس حذف شده است و قابل تمدید نیست.",
+                'message_id': msg_id,
+            }
+            cls.send_api("editMessageText", data3)
+
 
     @classmethod
     def tamdid_config_from_wallet(cls, chat_id, *args):

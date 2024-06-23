@@ -181,3 +181,15 @@ form{
     height: 1.2rem;
     margin: 0;
 }
+
+
+
+#id_server_name, #id_server_url, #id_username, #id_password, #id_server_fake_domain, #id_inbound_id, #id_inbound_port, #id_active, #id_server_id{
+    width: 100%;
+    text-align: center;
+}
+
+#id_active {
+    width: 1.2rem;
+    height: 1.2rem;
+}

@@ -244,7 +244,7 @@
                                 </td>
                                 {% endif %}
                                 <td>
-                                    <a class="tamdid" href="{% url 'servers:disable_config' server_id value.uuid value.inbound_id key 0 value.ip_limit %}">
+                                    <a class="tamdid" href="{% url 'servers:change_config_page' value.uuid key server_id %}">
                                         <img class="enable" src="{% static "img/setting.png" %}" alt="">
                                     </a>
                                 </td>
