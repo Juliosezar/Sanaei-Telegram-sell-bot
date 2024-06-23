@@ -150,7 +150,7 @@ class SecondConfirmPayment(LoginRequiredMixin, View):
         # ToDO
         else:
             messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
-        return redirect('finance:confirm_payments', 1)
+        return redirect('finance:confirm_payments', 2)
 
 
 class FirstTamdidConfirmPayment(LoginRequiredMixin, View):
@@ -198,7 +198,7 @@ class SecondTamdidConfirmPayment(LoginRequiredMixin, View):
         # ToDO
         else:
             messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
-        return redirect('finance:confirm_payments', 1)
+        return redirect('finance:confirm_payments', 2)
 
 
 
@@ -244,6 +244,89 @@ class DenyPaymentPage(LoginRequiredMixin, View):
             else:
                 messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
                 return redirect('finance:confirm_payments', 1)
+
+
+
+class DenyPaymentAfterFirsConfirmPage(LoginRequiredMixin, View):
+    def get(self, request, obj_id):
+        model_obj = PaymentQueueModel.objects.get(id=obj_id)
+        if model_obj.status != 2:
+            messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
+            return redirect('finance:confirm_payments', 2)
+        form = DenyForm()
+        return render(request, 'deny_payment.html', {'obj': model_obj, 'form': form})
+
+    def post(self, request, obj_id):
+        from connection.command_runer import CommandRunner
+        model_obj = PaymentQueueModel.objects.get(id=obj_id)
+        form = DenyForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            if model_obj.status == 2:
+                msg = "🔴 درخواست پرداخت شما رد شد." '\n' "✍🏻 علت : " f'{cd['reason']}' '\n\n'
+
+                if cd['delete_all_configs']:
+                    msg = msg + "🚫 به دلیل تخلف کانفیگ های شما حذف شده است."
+                else:
+                    if cd['disable_all_configs']:
+                        msg = msg + '\n' "🚫 به دلیل تخلف کانفیگ های شما غیرفعال شده است."
+                    # TODO
+                # TODO
+
+                if cd['ban_user']:
+                    msg = msg + '\n' "🚫 به دلیل تخلف شما بن شده و از استفاده از بات محروم میشوید."
+                # TODO
+                CommandRunner.send_msg_to_user(model_obj.custumer.userid, msg)
+                model_obj.status = 10
+                model_obj.save()
+                messages.success(request, "پرداخت با موفقیت رد تایید شد.")
+                return redirect('finance:confirm_payments', 2)
+
+
+            else:
+                messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
+                return redirect('finance:confirm_payments', 2)
+
+
+class DenyTamdidPaymentAfterFirsConfirmPage(LoginRequiredMixin, View):
+    def get(self, request, obj_id):
+        model_obj = PaymentQueueModel.objects.get(id=obj_id)
+        if model_obj.status != 2:
+            messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
+            return redirect('finance:confirm_payments', 2)
+        form = DenyForm()
+        return render(request, 'deny_payment.html', {'obj': model_obj, 'form': form})
+
+    def post(self, request, obj_id):
+        from connection.command_runer import CommandRunner
+        model_obj = PaymentQueueModel.objects.get(id=obj_id)
+        form = DenyForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            if model_obj.status == 2:
+                msg = "🔴 درخواست پرداخت شما رد شد." '\n' "✍🏻 علت : " f'{cd['reason']}' '\n\n'
+
+                if cd['delete_all_configs']:
+                    msg = msg + "🚫 به دلیل تخلف کانفیگ های شما حذف شده است."
+                else:
+                    if cd['disable_all_configs']:
+                        msg = msg + '\n' "🚫 به دلیل تخلف کانفیگ های شما غیرفعال شده است."
+                    # TODO
+                # TODO
+
+                if cd['ban_user']:
+                    msg = msg + '\n' "🚫 به دلیل تخلف شما بن شده و از استفاده از بات محروم میشوید."
+                # TODO
+                CommandRunner.send_msg_to_user(model_obj.custumer.userid, msg)
+                model_obj.status = 10
+                model_obj.save()
+                messages.success(request, "پرداخت با موفقیت رد تایید شد.")
+                return redirect('finance:confirm_payments', 2)
+
+
+            else:
+                messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
+                return redirect('finance:confirm_payments', 2)
 
 
 class EditPricePayment(LoginRequiredMixin, View):

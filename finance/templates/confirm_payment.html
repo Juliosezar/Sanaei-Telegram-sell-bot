@@ -155,7 +155,7 @@
                                 <a href="{% url 'finance:second_confirm' i.id %}" class="sec_confirm c_btnd">تایید نهایی</a>
                             </div>
                             <div class="confirmbtn">
-                                <a href="{% url 'finance:deny_payments' i.id %}" class="deny c_btnd">عدم تایید</a>
+                                <a href="{% url 'finance:deny_payments_after_first_confirm' i.id %}" class="deny c_btnd">عدم تایید</a>
                             </div>
                         </div>
                     </div>
@@ -175,7 +175,7 @@
                                 <a href="{% url 'finance:second_tamdid_confirm' i.id %}" class="sec_confirm c_btnd">تایید نهایی</a>
                             </div>
                             <div class="confirmbtn">
-                                <a href="{% url 'finance:deny_payments' i.id %}" class="deny c_btnd">عدم تایید</a>
+                                <a href="{% url 'finance:deny_tamdid_payments_after_first_confirm' i.id %}" class="deny c_btnd">عدم تایید</a>
                             </div>
                         </div>
                     </div>

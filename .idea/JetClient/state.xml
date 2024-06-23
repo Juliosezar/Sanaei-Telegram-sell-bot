@@ -12,18 +12,18 @@
               <option name="queryParams">
                 <list>
                   <queryParamState>
+                    <option name="disabled" value="true" />
                     <option name="key" value="url" />
                     <option name="value" value="https://admin-napsv.ir/webhook/" />
                   </queryParamState>
                   <queryParamState>
-                    <option name="disabled" value="true" />
                     <option name="key" value="url" />
-                    <option name="value" value="https://dd6d-2a02-4540-60-f56e-2b1-d033-ab4b-cf4d.ngrok-free.app/webhook/" />
+                    <option name="value" value="https://fd1f-45-8-21-223.ngrok-free.app/webhook/" />
                   </queryParamState>
                 </list>
               </option>
               <option name="sortWeight" value="1000000" />
-              <option name="url" value="https://api.telegram.org/bot6972765226:AAEjUlP_isF823i3jsYBN8p6EmOZLHZGMyU/setWebhook?url=https://admin-napsv.ir/webhook/" />
+              <option name="url" value="https://api.telegram.org/bot6972765226:AAEjUlP_isF823i3jsYBN8p6EmOZLHZGMyU/setWebhook?url=https://fd1f-45-8-21-223.ngrok-free.app/webhook/" />
             </requestState>
             <requestState>
               <option name="auth">
