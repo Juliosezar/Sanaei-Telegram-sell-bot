@@ -109,7 +109,6 @@ def webhook(request):
                         CommandRunner.download_photo(file_id, chat_id, True, True)
                         CommandRunner.send_msg_to_user(chat_id, "تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید کانفیگ شما به صورت خودکار تمدید میگردد و به شما اطلاع رسانی میشود.")
 
-
                     else:
                         CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                     COMMANDS["/start"](chat_id)

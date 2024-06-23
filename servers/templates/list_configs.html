@@ -96,10 +96,6 @@
                                 <th>انقضا (روز)</th>
                                 <th>محدودیت کاربر</th>
                                 <th>نوع</th>
-                                <th>تمدید</th>
-                                <th>حذف</th>
-                                <th>غیرفعال</th>
-                                <th>ویرایش</th>
 		    				</tr>
 		    			</thead>
 		    			<tbody>
@@ -204,49 +200,12 @@
                                     <td class="ipbox" dir="rtl"><p class="iplimit">{{ value.ip_limit }}</p></td>
                                 {% endif %}
 
-                                {#  #}
                                 {% if value.usage_limit == 0 %}
                                     <td class="type">نامحدود</td>
                                 {% else %}
                                     <td class="type"> حجمی</td>
                                 {% endif %}
 
-
-
-
-                                <td>
-                                    {% if value.uuid|config_seved %}
-                                    <a class="tamdid" href="{% url "servers:renew_page" value.uuid 'auto' %}">
-                                        <img class="restart" src="{% static "img/icons8-restart-512.png" %}" alt="">
-                                    </a>
-                                    {% else %}
-                                        <p>----</p>
-                                    {% endif %}
-                                </td>
-
-                                <td>
-                                    <p onclick=confirmDelete('{{ value.uuid }}',"{{ key }}","{{ value.inbound_id }}") class="delete">
-                                        <img class="del_img" src="{% static 'img/icons8-delete-64.png' %}" alt="">
-                                    </p>
-                                </td>
-                                {% if value.enable %}
-                                <td>
-                                    <a class="tamdid" href="{% url 'servers:disable_config' server_id value.uuid value.inbound_id key 1 value.ip_limit %}">
-                                        <img class="enable" src="{% static "img/enable.png" %}" alt="">
-                                    </a>
-                                </td>
-                                {% else %}
-                                <td>
-                                    <a class="tamdid" href="{% url 'servers:disable_config' server_id value.uuid value.inbound_id key 0 value.ip_limit %}">
-                                        <img class="enable" src="{% static "img/disable.png" %}" alt="">
-                                    </a>
-                                </td>
-                                {% endif %}
-                                <td>
-                                    <a class="tamdid" href="{% url 'servers:change_config_page' value.uuid key server_id %}">
-                                        <img class="enable" src="{% static "img/setting.png" %}" alt="">
-                                    </a>
-                                </td>
                             </tr>
 
                         {% endif %}
