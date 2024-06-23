@@ -249,6 +249,59 @@ td {
     text-align: center;
 }
 
+#list_action {
+    background-color: #000d3f;
+    margin: 1rem 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: #000f35 2px 2px 10px 2px;
+
+}
+.btn_boxx {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+.link_btns {
+    background-color: white;
+    color: #000d3f;
+    padding: 0.25rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+    max-width: 20rem;
+    margin: 0.5rem 0;
+    border-radius: 15px;
+    box-shadow: white 2px 2px 10px 2px;
+}
+.ttt {
+    padding: 0;
+    margin: 0;
+}
+.imgg {
+    width: 3rem;
+}
+.link_btns:hover {
+    text-decoration: none;
+}
+#cooonf_name {
+    color: white;
+    margin: 1rem;
+}
+.closebox {
+    display: flex;
+    align-items: start;
+}
+.close_btn {
+    border-radius: 5px;
+    border: black 1px solid;
+    padding: 0.3rem 0.3rem 0.2rem;
+    margin: 0.5rem;
+    background-color: #ffffff;
+}
 
 @media (max-width: 640px) {
     .messages_red , .messages_green {
@@ -346,7 +399,7 @@ td {
     #point {
         margin-right: 1rem;
     }
-    .restart {
+.imgg {
     width: 2rem;
 }
 

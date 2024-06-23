@@ -130,11 +130,11 @@
                 <a class="conf_btnss tamdid_btn" href=""><img class="restart" src="{% static "img/icons8-restart-512.png" %}" alt=""> تمدید </a>
                 <a class="conf_btnss change_btn" href=""><img class="enable" src="{% static "img/setting.png" %}" alt=""> ویرایش </a>
                 {% if config_usage.enable %}
-                    <a class="conf_btnss disable_btn" href="{% url "servers:disable_config" config_info.server.server_id config_usage.uuid config_usage.inbound_id config_name 1 config_usage.ip_limit %}"><img class="enable" src="{% static "img/disable.png" %}" alt=""> غیرفعال </a>
+                    <a class="conf_btnss disable_btn" href="{% url "servers:disable_config" server_id config_usage.uuid config_usage.inbound_id config_name 1 config_usage.ip_limit %}"><img class="enable" src="{% static "img/disable.png" %}" alt=""> غیرفعال </a>
                 {% else %}
-                    <a class="conf_btnss disable_btn" href="{% url "servers:disable_config" config_info.server.server_id config_usage.uuid config_usage.inbound_id config_name 0 config_usage.ip_limit %}"><img class="disable" src="{% static "img/enable.png" %}" alt=""> فعال کردن </a>
+                    <a class="conf_btnss disable_btn" href="{% url "servers:disable_config" server_id config_usage.uuid config_usage.inbound_id config_name 0 config_usage.ip_limit %}"><img class="disable" src="{% static "img/enable.png" %}" alt=""> فعال کردن </a>
                 {% endif %}
-                <a class="conf_btnss delete_btn" href="{% url "servers:delete_config" config_info.server.server_id config_info.config_uuid config_info.config_name config_info.server.inbound_id %}"><img class="del_img" src="{% static 'img/icons8-delete-64.png' %}" alt=""> حذف </a>
+                <a class="conf_btnss delete_btn" href="{% url "servers:delete_config" server_id config_usage.uuid config_name config_usage.inbound_id %}"><img class="del_img" src="{% static 'img/icons8-delete-64.png' %}" alt=""> حذف </a>
             </div>
             </div>
 

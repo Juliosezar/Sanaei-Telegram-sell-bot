@@ -29,13 +29,6 @@ def is_valid_uuid(uuid_to_test):
 TOKEN = environ.get('TELEGRAM_TOKEN')
 TELEGRAM_SERVER_URL = f"https://api.telegram.org/bot{TOKEN}/"
 
-"""
-    class CommandRunner:
-    
-    all respons commands in this class
-
-"""
-
 
 def args_spliter(args):
     return args.split("<%>")

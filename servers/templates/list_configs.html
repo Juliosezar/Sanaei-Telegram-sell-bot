@@ -115,13 +115,12 @@
                                 {% endif %}
 
 
-
-                                {% if not value.ended %}
-		    					    <th class="fix_col name_red"><a class="c_name" style="color: red" href="{% url 'servers:conf_page' server_id value.uuid key %}">{{ key|break_name }}</a></th>
-                                {% elif not value.enable %}
-		    					    <th style="background-color: #888888" class="fix_col name_red"><a class="c_name" style="color: #000e47" href="{% url 'servers:conf_page' server_id value.uuid key  %}">🚫 {{ key|break_name }} 🚫</a></th>
+                                {% if not value.enable %}
+		    					    <th style="background-color: #888888" class="fix_col name_red"><p onclick="hidden_page(`{{ key }}`, `{{ value.uuid }}`, {{ server_id }}, {{ value.inbound_id }},{% if value.uuid|config_seved %}true{% else %}false{% endif %},false, {{ value.ip_limit }})" class="c_name" style="color: #000e47" href="{% url 'servers:conf_page' server_id value.uuid key  %}">🚫 {{ key|break_name }} 🚫</p></th>
+                                {% elif not value.ended %}
+		    					    <th class="fix_col name_red"><p onclick="hidden_page(`{{ key }}`, `{{ value.uuid }}`, {{ server_id }}, {{ value.inbound_id }},{% if value.uuid|config_seved %}true{% else %}false{% endif %},true, {{ value.ip_limit }})" class="c_name" style="color: red" href="{% url 'servers:conf_page' server_id value.uuid key %}">{{ key|break_name }}</p></th>
                                 {% else %}
-		    					    <th class="fix_col"><a class="c_name" href="{% url 'servers:conf_page' server_id value.uuid key  %}">{{ key|break_name }}</a></th>
+		    					    <th class="fix_col"><p onclick="hidden_page(`{{ key }}`, `{{ value.uuid }}`, {{ server_id }}, {{ value.inbound_id }},{% if value.uuid|config_seved %}true{% else %}false{% endif %},true, {{ value.ip_limit }})" class="c_name">{{ key|break_name }}</p></th>
                                 {% endif %}
                                 <td>
                                     {% if value.usage_limit == 0  %}
@@ -258,7 +257,69 @@
 
 
         </div>
+        <div id="list_action">
+            <div class="closebox" dir="rtl"><button onclick="show_main()" class="close_btn">✖️</button></div>
+            <h3 id="cooonf_name"></h3>
+            <div class="btn_boxx">
+                <a class="link_btns" id="info_link" href="">
+                    <img class="imgg" src="{% static "img/info.png" %}" alt="">
+                    <p class="ttt"> صفحه اطلاعات</p>
+                </a>
+                <a class="link_btns" id="tamdid_link" href="">
+                    <img class="imgg" src="{% static "img/icons8-restart-512.png" %}" alt="">
+                    <p class="ttt">تمدید</p>
+                </a>
+                <a class="link_btns" id="delete_link">
+                    <img class="imgg" src="{% static 'img/icons8-delete-64.png' %}" alt="">
+                    <p class="ttt">حذف</p>
+                </a>
+                <a class="link_btns" id="enable_link" href="">
+                    <img class="imgg" src="{% static "img/enable.png" %}" alt="">
+                    <p class="ttt">فعال کردن</p>
+                </a>
+                <a class="link_btns" id="disable_link" href="">
+                    <img class="imgg" src="{% static "img/disable.png" %}" alt="">
+                    <p class="ttt">غیرفعال کردن</p>
+                </a>
+                <a class="link_btns" id="change_link" href="">
+                    <img class="imgg" src="{% static "img/setting.png" %}" alt="">
+                    <p class="ttt">تغییر کانفیگ</p>
+                </a>
+        </div>
+            <script>
+                function hidden_page(name, uuid, server_id, inbound_id, renew, enable, ip_limit) {
+                    document.getElementById("main").style.display = "none";
+                    document.getElementById("list_action").style.display = "block";
+                    document.getElementById("cooonf_name").innerHTML = `${name}`;
+                    document.getElementById("info_link").href = `/servers/config_page/${server_id}/${uuid}/${name}/`
+                    document.getElementById("delete_link").href = `/servers/delete_config/${server_id}/${uuid}/${name}/${inbound_id}/`
+                    document.getElementById("change_link").href = `/servers/change_config_page/${uuid}/${name}/${server_id}/`
 
+                    if (renew === true){
+                        document.getElementById("tamdid_link").style.display = "block";
+                        document.getElementById("tamdid_link").href=`/servers/renew_page/${uuid}/auto/`;
+                    } else {
+                        document.getElementById("tamdid_link").style.display = "none";
+                    }
+                    if (enable) {
+                        document.getElementById("disable_link").style.display = "block";
+                        document.getElementById("disable_link").href =`/servers/disable_config/${server_id}/${uuid}/${inbound_id}/${name}/1/${ip_limit}/`;
+                        document.getElementById("enable_link").style.display = "none";
+                    } else {
+                        document.getElementById("enable_link").style.display = "block";
+                        document.getElementById("enable_link").href =`/servers/disable_config/${server_id}/${uuid}/${inbound_id}/${name}/0/${ip_limit}/`;
+                        document.getElementById("disable_link").style.display = "none";
+                    }
+                }
+            </script>
+            <script>
+                $(document).ready(show_main)
+                function show_main() {
+                    document.getElementById("main").style.display = "block";
+                    document.getElementById("list_action").style.display = "none";
+                }
+            </script>
+    </div>
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>

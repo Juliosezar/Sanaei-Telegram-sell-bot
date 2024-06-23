@@ -508,7 +508,7 @@ class ConfigPage(LoginRequiredMixin, View):
         vless = Configs.create_vless_text(config_uuid, ServerModel.objects.get(server_id=server_id), config_name)
         return render(request, 'config_page.html', {'config_info': config_info, 'vless': vless,
                                                     'config_usage': config_usage, 'config_name': config_name,
-                                                    "get_config_link": get_config_link})
+                                                    "get_config_link": get_config_link, "server_id":server_id})
 
 
 class CreateConfigPage(LoginRequiredMixin, View):
@@ -765,14 +765,14 @@ class RenewPage(LoginRequiredMixin, View):
 
 class ChangeConfigPage(LoginRequiredMixin, View):
     def get(self, request, config_uuid, config_name, server_id):
-        conf = ConfigsInfo.objects.get(config_uuid=config_uuid)
+        # conf = ConfigsInfo.objects.get(config_uuid=config_uuid)
         api = ServerApi.get_list_configs(server_id)[config_name]
         form = ChangeConfigSettingForm(
             config_data={"usage": api["usage_limit"], "expire_time": api["expire_time"], "ip_limit": api["ip_limit"]})
-        return render(request, "change_config.html", {"config": conf, "form": form})
+        return render(request, "change_config.html", {"config": api, "form": form, 'server_id':server_id, 'config_name':config_name})
 
     def post(self, request, config_uuid, config_name, server_id):
-        conf = ConfigsInfo.objects.get(config_uuid=config_uuid)
+        # conf = ConfigsInfo.objects.get(config_uuid=config_uuid)
         form = ChangeConfigSettingForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
@@ -790,4 +790,4 @@ class ChangeConfigPage(LoginRequiredMixin, View):
         form = ChangeConfigSettingForm(request.POST,
                                        config_data={"usage": api["usage_limit"], "expire_time": api["expire_time"],
                                                     "ip_limit": api["ip_limit"]})
-        return render(request, "change_config.html", {"config": conf, "form": form})
+        return render(request, "change_config.html", {"config": api, "form": form, 'server_id':server_id, 'config_name':config_name})
