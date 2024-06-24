@@ -12,7 +12,7 @@ class UserCreationFormAdminPanel(forms.ModelForm):
 
     class Meta:
         model = Users
-        fields = ("username", "password", "password2")
+        fields = ("username", "password1", "password2")
 
     def clean_password2(self):
         cd = self.cleaned_data
@@ -32,6 +32,13 @@ class UserEditFormAdminPanel(forms.ModelForm):
         model = Users
         fields = ("username", "password")
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        print(65466)
+        user.set_password(self.cleaned_data["password"])
+        if commit:
+            user.save()
+        return user
 
 class LoginForm(forms.Form):
     username = forms.CharField(label="یوزرنیم:")

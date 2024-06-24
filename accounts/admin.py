@@ -9,6 +9,7 @@ class UserAdmin(BaseUserAdmin):
     form = UserEditFormAdminPanel
     add_form = UserCreationFormAdminPanel
 
+
     list_display = ("username",)
     fieldsets = (
         (None, {"fields": ("username", "password")}),

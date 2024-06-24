@@ -6,24 +6,47 @@
 {% include "base_head.html" %}
     <meta charset="UTF-8">
     <title>Title</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'home_page.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'custumers/send_msg.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'messages.css' %}">
     <script>
 
     </script>
 
 </head>
 
-<body dir="rtl">
+<script type="text/javascript">
+    $(document).ready(function () {
 
+        $(".servers").hide()
+    })
+    function valueChanged()
+    {
+        if($('#id_all_user').is(":checked"))
+
+            $(".servers").hide();
+        else {
+            $(".servers").show();
+        }
+
+    }
+</script>
+<body dir="rtl">
     {% include "navbar.html" %}
     {% include 'messages.html' %}
     <div id="main">
+
         <form action="" method="post" novalidate dir="rtl">
+            {% for field_errors in form.errors.values %}
+              {% for error in field_errors %}
+                  <p dir="rtl" style="background-color: #ff6b6b ; width: 90%; text-align: center; margin-top: 0.5rem" class="errors">{{ error }}</p>
+              {% endfor %}
+            {% endfor %}
             {% csrf_token %}
-            <div>{{ form.all_user }}</div>
-            <div>{{ form.server }}</div>
+            <div onchange="valueChanged()" id="Allusers">{{ form.all_user }} All Users</div>
+            <hr>
+            <div class="servers">{{ form.server }}</div>
             <div>{{ form.message }}</div>
-            <input type="submit" value="Send">
+            <input type="submit" value="Send" id="send">
         </form>
     </div>
 {% include "loading.html" %}

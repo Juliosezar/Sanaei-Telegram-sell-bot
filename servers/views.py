@@ -40,16 +40,19 @@ class ServerApi:
         login_payload = {"username": server_obj.username, "password": server_obj.password}
         login_url = server_url + "login/"
         header = {"Accept": "application/json"}
+        print(server_obj.server_url)
         try:
             session = requests.Session()
             login_response = session.post(login_url, headers=header, json=login_payload, timeout=15)
+            print(login_response)
             if login_response.status_code == 200:
                 if login_response.json()["success"]:
                     print("connnect session")
                     return session
             else:
                 return False
-        except:
+        except Exception as e:
+            print(e)
             return False
 
     @classmethod
@@ -63,40 +66,42 @@ class ServerApi:
             if list_configs.status_code != 200:
                 return False
             joined_data = {}
+            print(list_configs.json())
             for respons in list_configs.json()["obj"]:
-                for i in respons["clientStats"]:
-                    expired = False
-                    started = True
-                    presentDate = datetime.datetime.now()
-                    unix_timestamp = datetime.datetime.timestamp(presentDate) * 1000
-                    time_expire = i["expiryTime"]
-                    if time_expire > 0:
-                        time_expire = (time_expire - unix_timestamp) / 86400000
-                        if time_expire < 0:
-                            expired = True
+                if respons["id"] == server_obj.inbound_id:
+                    for i in respons["clientStats"]:
+                        expired = False
+                        started = True
+                        presentDate = datetime.datetime.now()
+                        unix_timestamp = datetime.datetime.timestamp(presentDate) * 1000
+                        time_expire = i["expiryTime"]
+                        if time_expire > 0:
+                            time_expire = (time_expire - unix_timestamp) / 86400000
+                            if time_expire < 0:
+                                expired = True
 
-                    elif time_expire == 0:
-                        if i['down'] + i["up"] == 0:
+                        elif time_expire == 0:
+                            if i['down'] + i["up"] == 0:
+                                started = False
+                        else:
+                            time_expire = abs(int(time_expire / 86400000))
                             started = False
-                    else:
-                        time_expire = abs(int(time_expire / 86400000))
-                        started = False
 
-                    usage = round(convert_units(i["up"] + i["down"], BinaryUnits.BYTE, BinaryUnits.GB)[0], 2)
-                    total_usage = int(convert_units(i['total'], BinaryUnits.BYTE, BinaryUnits.GB)[0])
-                    joined_data[i["email"]] = {
-                        'ended': i["enable"],
-                        'usage': usage,
-                        'started': started,
-                        'expire_time': time_expire,
-                        'usage_limit': total_usage,
-                        'inbound_id': i["inboundId"],
-                        "expired": expired
-                    }
-                for i in json.loads(respons["settings"])["clients"]:
-                    joined_data[i["email"]]['uuid'] = i["id"]
-                    joined_data[i["email"]]['ip_limit'] = i["limitIp"]
-                    joined_data[i["email"]]['enable'] = i["enable"]
+                        usage = round(convert_units(i["up"] + i["down"], BinaryUnits.BYTE, BinaryUnits.GB)[0], 2)
+                        total_usage = int(convert_units(i['total'], BinaryUnits.BYTE, BinaryUnits.GB)[0])
+                        joined_data[i["email"]] = {
+                            'ended': i["enable"],
+                            'usage': usage,
+                            'started': started,
+                            'expire_time': time_expire,
+                            'usage_limit': total_usage,
+                            'inbound_id': i["inboundId"],
+                            "expired": expired
+                        }
+                    for i in json.loads(respons["settings"])["clients"]:
+                        joined_data[i["email"]]['uuid'] = i["id"]
+                        joined_data[i["email"]]['ip_limit'] = i["limitIp"]
+                        joined_data[i["email"]]['enable'] = i["enable"]
             return joined_data
         except Exception as e:
             return False
@@ -314,7 +319,7 @@ class Configs:
             usage_limit=usage_limit,
             expire_time=expire_time,
             user_limit=user_limit,
-            price=price
+            price=price,
         ).save()
 
     @classmethod

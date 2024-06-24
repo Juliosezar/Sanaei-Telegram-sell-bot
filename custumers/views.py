@@ -112,13 +112,27 @@ class SendMsgToAll(LoginRequiredMixin, View):
     def post(self, request):
         form = SendMessageToAllForm(request.POST)
         customer_model = CustomerModel.objects.all()
+        print(form)
         if form.is_valid():
             cd = form.cleaned_data
+            print(cd)
             if cd['all_user']:
                 for i in customer_model:
                     SendMessage.objects.create(customer=i, message=cd['message']).save()
-        return redirect('accounts:home')
-
+                    return redirect('accounts:home')
+            else:
+                res = [eval(i) for i in cd["server"]]
+                users_list = set()
+                for conf in ConfigsInfo.objects.all():
+                    if conf.chat_id:
+                        if conf.server.server_id in res:
+                            users_list.add(conf.chat_id.userid)
+                print(users_list)
+                for i in users_list:
+                    SendMessage.objects.create(customer=CustomerModel.objects.get(userid=i), message=cd['message']).save()
+                messages.success(request, "پیام شما در لیست ارسال قرار گرفت.")
+                return redirect('accounts:home')
+        return render(request, 'send_msg_to_all.html', {"form": form})
 class SendMsgToUser(LoginRequiredMixin, View):
     def get(self, request, userid):
         form = SendMessageToCustomerForm

@@ -6,7 +6,8 @@
 {% include "base_head.html" %}
     <meta charset="UTF-8">
     <title>Title</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'home_page.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'custumers/send_msg.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'messages.css' %}">
     <script>
 
     </script>
@@ -18,7 +19,13 @@
     {% include "navbar.html" %}
     {% include 'messages.html' %}
     <div id="main">
+
         <form action="" method="post" novalidate dir="rtl">
+            {% for field_errors in form.errors.values %}
+                  {% for error in field_errors %}
+                  <p dir="rtl" style="background-color: #ff6b6b ; width: 90%; text-align: center; margin-top: 0.5rem" class="errors">{{ error }}</p>
+                  {% endfor %}
+                {% endfor %}
             {% csrf_token %}
             <div>{{ form.message }}</div>
             <input type="submit" value="Send">

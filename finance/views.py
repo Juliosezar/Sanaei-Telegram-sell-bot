@@ -48,7 +48,7 @@ class Paying:
         PaymentQueueModel.objects.create(
             custumer=user_obj,
             config_price=price,
-            pay_price=price,
+            pay_price=price - user_obj.wallet,
             status=0,
             config_in_queue=True,
             config_uuid=uuid,
@@ -75,7 +75,7 @@ class Paying:
         TamdidPaymentQueueModel.objects.create(
             config=config,
             config_price=price,
-            pay_price=price,
+            pay_price=price - user_obj.wallet,
             status=0,
         ).save()
 
@@ -133,7 +133,7 @@ class SecondConfirmPayment(LoginRequiredMixin, View):
                     Configs.create_config_from_queue(config_uuid=model_obj.config_uuid)
                 else:
                     CommandRunner.send_msg_to_user(model_obj.custumer.userid,
-                                                   f'کابر گرامی مبلغ {model_obj.config_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای خرید کانفیک مورد نظر کافی نیست. ')
+                                                   f'کابر گرامی مبلغ {model_obj.pay_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای خرید کانفیک مورد نظر کافی نیست. ')
             else:
                 Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.pay_price)
                 msg = 'پرداخت شما تایید و به کیف پول شما اضافه شد.'
@@ -184,7 +184,7 @@ class SecondTamdidConfirmPayment(LoginRequiredMixin, View):
                 Configs.tamdid_config_from_queue(config_uuid=model_obj.config.config_uuid)
             else:
                 CommandRunner.send_msg_to_user(model_obj.config.chat_id.userid,
-                                               f'کابر گرامی مبلغ {model_obj.config_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای تمدید سرویس مورد نظر کافی نیست. ')
+                                               f'کابر گرامی مبلغ {model_obj.pay_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای تمدید سرویس مورد نظر کافی نیست. ')
 
             model_obj.status = 3
             model_obj.save()

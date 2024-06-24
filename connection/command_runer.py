@@ -401,6 +401,7 @@ class CommandRunner:
         usage_limit = int(arg_splited[2])
         user_limit = int(arg_splited[3])
         price = PricesModel.objects.get(usage_limit=usage_limit, expire_limit=expire_limit, user_limit=user_limit).price
+        wallet = CustumerModel.objects.get(userid=chat_id).wallet
         with open(settings.BASE_DIR / 'settings.json', 'r') as f:
             data = json.load(f)
             card_num = data["pay_card_number"]
@@ -408,7 +409,7 @@ class CommandRunner:
         data = {
             'message_id': msg_id,
             'chat_id': chat_id,
-            'text': f" مبلغ {price}تومان را به شماره کارت زیر انتقال دهید، سپس عکس آنرا بعد از همین پیام ارسال نمایید : " + f'\n\n`{card_num}`\n {card_name}',
+            'text': f" مبلغ {price - wallet} تومان را به شماره کارت زیر انتقال دهید، سپس عکس آنرا بعد از همین پیام ارسال نمایید : " + f'\n\n`{card_num}`\n {card_name}',
             'parse_mode': 'Markdown',
         }
         data2 = {

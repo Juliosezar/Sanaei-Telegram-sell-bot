@@ -20,7 +20,7 @@
             {% endfor %}
             <h3 id="title">Add Server</h3>
             {% csrf_token %}
-            {% if edit %}
+            {% if not edit %}
                 <div id="time_limit" class="textinput item"><h3 class="item_text">server ID: </h3>{{ form.server_id }}</div>
             {% endif %}
             <div id="time_limit" class="textinput item"><h3 class="item_text">server name: </h3>{{ form.server_name }}</div>

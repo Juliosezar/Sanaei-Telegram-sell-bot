@@ -126,8 +126,10 @@
                     <p hidden id="bot_link" style="white-space: pre-line;">{{ get_config_link }}</p>
                 <hr style="width: 100%; background-color: #d8d8d8">
                 <hr style="width: 100%; background-color: #d6d6d6">
-            <div class="conf_btnsbox">
-                <a class="conf_btnss tamdid_btn" href="{% url "servers:renew_page" config_usage.uuid "auto" %}"><img class="restart" src="{% static "img/icons8-restart-512.png" %}" alt=""> تمدید </a>
+                <div class="conf_btnsbox">
+                {% if config_info %}
+                    <a class="conf_btnss tamdid_btn" href="{% url "servers:renew_page" config_usage.uuid "auto" %}"><img class="restart" src="{% static "img/icons8-restart-512.png" %}" alt=""> تمدید </a>
+                {% endif %}
                 <a class="conf_btnss change_btn" href="{% url "servers:change_config_page" config_usage.uuid config_name server_id %}"><img class="enable" src="{% static "img/setting.png" %}" alt=""> ویرایش </a>
                 {% if config_usage.enable %}
                     <a class="conf_btnss disable_btn" href="{% url "servers:disable_config" server_id config_usage.uuid config_usage.inbound_id config_name 1 config_usage.ip_limit %}"><img class="enable" src="{% static "img/disable.png" %}" alt=""> غیرفعال </a>
