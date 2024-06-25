@@ -2,6 +2,9 @@ from celery import shared_task
 from .models import SendMessage, EndOfConfigCounter
 from servers.models import CreateConfigQueue, ConfigsInfo, MsgEndOfConfig, Server, TamdidConfigQueue
 from servers.views import Configs, ServerApi
+from persiantools import jdatetime
+import datetime, pytz
+
 @shared_task
 def send_msg_to_bot():
     from connection.command_runer import CommandRunner
@@ -65,4 +68,9 @@ def tamdid_config():
 
 
 
-
+@shared_task
+def clear_ended_record():
+    for obj in EndOfConfigCounter.objects.all():
+        delta = int(jdatetime.JalaliDateTime.now().timestamp()) - obj.timestamp
+        if delta > 86400:
+            obj.delete()

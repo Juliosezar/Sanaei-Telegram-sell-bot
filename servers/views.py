@@ -40,14 +40,11 @@ class ServerApi:
         login_payload = {"username": server_obj.username, "password": server_obj.password}
         login_url = server_url + "login/"
         header = {"Accept": "application/json"}
-        print(server_obj.server_url)
         try:
             session = requests.Session()
             login_response = session.post(login_url, headers=header, json=login_payload, timeout=15)
-            print(login_response)
             if login_response.status_code == 200:
                 if login_response.json()["success"]:
-                    print("connnect session")
                     return session
             else:
                 return False
@@ -66,7 +63,6 @@ class ServerApi:
             if list_configs.status_code != 200:
                 return False
             joined_data = {}
-            print(list_configs.json())
             for respons in list_configs.json()["obj"]:
                 if respons["id"] == server_obj.inbound_id:
                     for i in respons["clientStats"]:
@@ -139,7 +135,6 @@ class ServerApi:
 
     @classmethod
     def renew_config(cls, server_id, config_uuid, config_name, expire_time, total_usage, ip_limit, reset=True):
-        print("start")
         server_obj = ServerModel.objects.get(server_id=server_id)
         url = server_obj.server_url + "panel/api/inbounds"
         expire_time = (int(expire_time) * 24 * 60 * 60 * 1000 * -1)
@@ -156,7 +151,6 @@ class ServerApi:
             "id": int(server_obj.inbound_id),
             "settings": json.dumps(setting)
         }
-        print(data1)
         header = {"Accept": "application/json"}
 
         try:
@@ -226,7 +220,6 @@ class ServerApi:
         if not session:
             return False
         respons = session.post(url)
-        print(respons.json())
         if respons.status_code == 200:
             if respons.json()['success']:
                 return True
@@ -583,7 +576,6 @@ class ApiGetConfigUsageChoices(APIView):
     def get(self, request):
         type = request.GET.get('type')
         time = int(request.GET.get('time'))
-        print(time)
         choices = []
         if type == 'limited':
             time = time
@@ -630,9 +622,7 @@ class ApiGetConfigPriceChoices(APIView):
         time = int(request.GET.get('time'))
         iplimit = int(request.GET.get('iplimit'))
         usage = int(request.GET.get('usage'))
-        print(time, iplimit, usage)
         obj = PricesModel.objects.get(usage_limit=usage, expire_limit=time, user_limit=iplimit).price
-        print(obj)
         return Response({'price': f'{obj:,}'})
 
 
@@ -759,7 +749,6 @@ class RenewPage(LoginRequiredMixin, View):
             paid = cd["paid"]
             create_config = Configs.tamdid_config_by_admins(uuid, time_limit, usage, ip_limit, price, paid,
                                                             request.user.username)
-            print(create_config)
             if create_config:
                 messages.success(request, f"سرویس {conf.config_name} با موفقیت تمدید شد.")
                 return redirect('servers:conf_page', conf.server.server_id, create_config["config_uuid"],

@@ -69,7 +69,6 @@ class ManualCreateConfigForm(forms.Form):
         usage_limit = self.cleaned_data.get('usage_limit')
         days_limit = self.cleaned_data.get('days_limit')
         if type == "limited":
-            print("working")
             if usage_limit is None:
                 raise ValidationError('حجم کانفیگ را وارد کنید.')
             elif not 1 < usage_limit < 1000:

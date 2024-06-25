@@ -34,7 +34,6 @@ class UserEditFormAdminPanel(forms.ModelForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        print(65466)
         user.set_password(self.cleaned_data["password"])
         if commit:
             user.save()

@@ -44,7 +44,7 @@ class CommandRunner:
         url = TELEGRAM_SERVER_URL + api_method
         try:
             response = requests.post(url, json=data, timeout=2)
-            print(response.json())
+
             return response
         except requests.exceptions.RequestException as e:
             print(e)
@@ -95,8 +95,8 @@ class CommandRunner:
         try:
             url = TELEGRAM_SERVER_URL + 'sendMessage'
             response = requests.post(url, json=data, timeout=2)
-            print('connecting')
-            print(response.json())
+
+
             if response.status_code == 200:
                 return 'Succes'
             elif response.status_code == 403:
@@ -548,7 +548,6 @@ class CommandRunner:
             service = ConfigsInfo.objects.get(config_uuid=conf_uuid)
             text = '🔰 نام سرویس: ' + f'{service.config_name}' '\n\n' '🌐 سرور: ' f"{service.server.server_name}"
             api = ServerApi.get_config(service.server.server_id, service.config_name)
-            print(11)
             if api:
                 usage = round(api['usage'], 2)
                 usage_limit = api['usage_limit']
@@ -787,7 +786,6 @@ class CommandRunner:
                     'inline_keyboard': usage_list
                 },
             }
-            print(6354655)
             cls.send_api("editMessageText", data)
         else:
             data3 = {

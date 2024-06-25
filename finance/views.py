@@ -369,9 +369,7 @@ class ShowPrices(LoginRequiredMixin, View):
 class DeleteOrEditPrice(LoginRequiredMixin, View):
     def get(self, request, obj_id, action):
         model_obj = PriceModel.objects.get(id=obj_id)
-        print(action)
         if action == "delete":
-            print(1111)
             model_obj.delete()
             messages.success(request, "تعرفه با موفقیت حذف شد.")
             return redirect('finance:show_prices')

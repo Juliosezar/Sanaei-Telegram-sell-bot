@@ -22,7 +22,7 @@ class Customer:
             first_name=first_name,
             username=username,
         ).save()
-        print("created")
+
 
     @classmethod
     def reload_custumer_info(cls, user_id, first_name, username):
@@ -30,7 +30,6 @@ class Customer:
         custumer.first_name = first_name
         custumer.username = username
         custumer.save()
-        print("edited")
 # TODO
 
     @classmethod
@@ -85,10 +84,8 @@ class CustomerDetail(LoginRequiredMixin, View):
 
 class GetCustumersConfigsAPI(APIView):
     def get(self, request , config_uuid):
-        print(6546654)
         config_model = ConfigsInfo.objects.get(config_uuid=config_uuid)
         config = ServerApi.get_config(config_model.server.server_id, config_model.config_name)
-        print(config)
         if not config:
             return Response(status=400)
         total_usage = config["usage_limit"]
@@ -100,7 +97,6 @@ class GetCustumersConfigsAPI(APIView):
         if not config["ended"]:
             status = "🔴 اتمام حجم یا زمان"
         data = {"usage": config['usage'], "total_usage": total_usage, "time_expire": config['time_expire'], 'status': status}
-        print(data)
         return Response(data=data)
 
 
@@ -112,10 +108,8 @@ class SendMsgToAll(LoginRequiredMixin, View):
     def post(self, request):
         form = SendMessageToAllForm(request.POST)
         customer_model = CustomerModel.objects.all()
-        print(form)
         if form.is_valid():
             cd = form.cleaned_data
-            print(cd)
             if cd['all_user']:
                 for i in customer_model:
                     SendMessage.objects.create(customer=i, message=cd['message']).save()
@@ -127,12 +121,13 @@ class SendMsgToAll(LoginRequiredMixin, View):
                     if conf.chat_id:
                         if conf.server.server_id in res:
                             users_list.add(conf.chat_id.userid)
-                print(users_list)
                 for i in users_list:
                     SendMessage.objects.create(customer=CustomerModel.objects.get(userid=i), message=cd['message']).save()
                 messages.success(request, "پیام شما در لیست ارسال قرار گرفت.")
                 return redirect('accounts:home')
         return render(request, 'send_msg_to_all.html', {"form": form})
+
+
 class SendMsgToUser(LoginRequiredMixin, View):
     def get(self, request, userid):
         form = SendMessageToCustomerForm
@@ -144,5 +139,5 @@ class SendMsgToUser(LoginRequiredMixin, View):
         if form.is_valid():
             msg = form.cleaned_data['message']
             SendMessage.objects.create(customer=customer_model, message=msg).save()
-            messages.success(request , "پیام شما در صف ارسال قرارا گرفت.")
+            messages.success(request, "پیام شما در صف ارسال قرارا گرفت.")
             return redirect('customers:custumer_detail', userid)

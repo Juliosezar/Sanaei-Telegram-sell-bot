@@ -62,7 +62,6 @@ def webhook(request):
                     CommandRunner.main_menu(chat_id)
                 if "text" in update["message"]:
                     text = update['message']['text']
-                    print(text )
                     if text.split("<~>")[0] in COMMANDS.keys():
                         command = text.split("<~>")[0]
                         if "<~>" in text:
@@ -90,21 +89,18 @@ def webhook(request):
                 elif "photo" in update["message"]:
                     if CustumerModel.objects.get(userid=chat_id).temp_status == "get_paid_picture":
                         photo = (update["message"]["photo"][-1])
-                        print(photo)
                         file_id = photo["file_id"]
                         CommandRunner.download_photo(file_id, chat_id, False)
                         CommandRunner.send_msg_to_user(chat_id, "تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید مبلغ مورد نظر به کیف پولتان اضافه خواهد شد.")
 
                     elif CustumerModel.objects.get(userid=chat_id).temp_status == "get_paid_picture_for_config":
                         photo = (update["message"]["photo"][-1])
-                        print(photo)
                         file_id = photo["file_id"]
                         CommandRunner.download_photo(file_id, chat_id, True)
                         CommandRunner.send_msg_to_user(chat_id, "تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید کانفیگ شما به صورت خودکار برایتان ارسال میگردد.")
 
                     elif CustumerModel.objects.get(userid=chat_id).temp_status == "get_paid_picture_for_tamdid":
                         photo = (update["message"]["photo"][-1])
-                        print(photo)
                         file_id = photo["file_id"]
                         CommandRunner.download_photo(file_id, chat_id, True, True)
                         CommandRunner.send_msg_to_user(chat_id, "تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید کانفیگ شما به صورت خودکار تمدید میگردد و به شما اطلاع رسانی میشود.")
@@ -115,7 +111,6 @@ def webhook(request):
 
             elif 'callback_query' in update:
                 msg_id = update["callback_query"]["message"]["message_id"]
-                print(update)
                 query_data = update['callback_query']['data']
                 chat_id = update['callback_query']['message']['chat']['id']
                 if query_data.split("<~>")[0] in COMMANDS.keys():
