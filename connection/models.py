@@ -19,3 +19,9 @@ class SendMessage(models.Model):
 
     def __str__(self):
         return self.status + " / " + self.message[:40]
+
+
+class EndOfConfigCounter(models.Model):
+    uuid = models.UUIDField()
+    type = models.CharField(max_length=20, choices=[(0,"ended"),(1,"end_of_usage"),(2,"end_of_time")])
+    data_time = models.DateTimeField(auto_now_add=True)
