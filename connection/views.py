@@ -29,7 +29,6 @@ COMMANDS = {
     '❌ لغو پرداخت 💳': CommandRunner.abort,
     'server_buy': CommandRunner.select_config_expire_time,
     'expire_time': CommandRunner.select_config_usage,
-    'back_to_select_expire_time': CommandRunner.select_config_expire_time,
     'usage_limit': CommandRunner.confirm_config_buying,
     'pay_for_config': CommandRunner.pay_for_config,
     'buy_config_from_wallet': CommandRunner.buy_config_from_wallet,

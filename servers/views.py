@@ -9,17 +9,15 @@ from .models import Server as ServerModel, ConfigsInfo
 import requests
 import json
 from servers.models import CreateConfigQueue, TamdidConfigQueue
-import random
-import string
 from custumers.models import Customer as CustomerModel
 from .forms import SearchForm, CreateConfigForm, ManualCreateConfigForm, ChangeConfigSettingForm, AddServerForm, \
-    EditServerForm
+    EditServerForm, ChangeConfigLocForm
 from django.contrib import messages
 from accounts.forms import SearchConfigForm
 from finance.models import Prices as PricesModel
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from time import sleep, time
+from time import sleep
 from os import environ
 
 BOT_USERNAME = environ.get('BOT_USERNAME')
@@ -47,9 +45,9 @@ class ServerApi:
                 if login_response.json()["success"]:
                     return session
             else:
+                session.close()
                 return False
         except Exception as e:
-            print(e)
             return False
 
     @classmethod
@@ -61,6 +59,7 @@ class ServerApi:
                 return False
             list_configs = session.get(server_obj.server_url + "panel/api/inbounds/list/", timeout=15)
             if list_configs.status_code != 200:
+                session.close()
                 return False
             joined_data = {}
             for respons in list_configs.json()["obj"]:
@@ -98,6 +97,7 @@ class ServerApi:
                         joined_data[i["email"]]['uuid'] = i["id"]
                         joined_data[i["email"]]['ip_limit'] = i["limitIp"]
                         joined_data[i["email"]]['enable'] = i["enable"]
+            session.close()
             return joined_data
         except Exception as e:
             return False
@@ -128,7 +128,9 @@ class ServerApi:
             respons = session.post(url, headers=header, json=data1, timeout=6)
             if respons.status_code == 200:
                 if respons.json()['success']:
+                    session.close()
                     return True
+            session.close()
             return False
         except Exception as e:
             return False
@@ -162,10 +164,13 @@ class ServerApi:
                 respons2 = session.post(url + f"/{server_obj.inbound_id}/resetClientTraffic/{config_name}/", headers={},
                                         data={}, timeout=6)
                 if not respons2.status_code == 200:
+                    session.close()
                     return False
             if respons.status_code == 200:
                 if respons.json()['success']:
+                    session.close()
                     return True
+            session.close()
             return False
         except Exception as e:
             return False
@@ -199,6 +204,7 @@ class ServerApi:
                         started = False
                     usage = round(convert_units(obj["up"] + obj["down"], BinaryUnits.BYTE, BinaryUnits.GB)[0], 2)
                     total_usage = int(convert_units(obj['total'], BinaryUnits.BYTE, BinaryUnits.GB)[0])
+                    session.close()
                     return {
                         'ended': obj["enable"],
                         'time_expire': time_expire,
@@ -209,8 +215,72 @@ class ServerApi:
                         'inbound_id': int(obj["inboundId"]),
                         "expired": expired
                     }
-
+        session.close()
         return False
+
+    @classmethod
+    def change_location(cls, from_server_id, to_server_id, config_uuid):
+        config_obj = ConfigsInfo.objects.get(config_uuid=config_uuid)
+        from_server_obj = ServerModel.objects.get(server_id=from_server_id)
+        from_session = cls.create_session(from_server_id)
+
+        to_server_obj = ServerModel.objects.get(server_id=to_server_id)
+        to_session = cls.create_session(to_server_id)
+
+        if not from_session or not to_session:
+            return False
+        list_configs = from_session.get(from_server_obj.server_url + "panel/api/inbounds/list/", timeout=15)
+        if list_configs.status_code != 200:
+            from_session.close()
+            return False
+        joined_data = {}
+        for i in list_configs.json()["obj"]:
+            for ii in i["clientStats"]:
+                if ii["email"] == config_obj.config_name:
+                    joined_data["total_usage"] = ii["total"]
+                    joined_data["usage"] = ii["up"] + ii["down"]
+                    joined_data["time_expire"] = ii["expiryTime"]
+                    break
+            for ii in json.loads(i["settings"])["clients"]:
+                if ii["email"] == config_obj.config_name:
+                    joined_data["enable"] = ii["enable"]
+                    joined_data["ip_limit"] = ii["limitIp"]
+                    break
+        url = to_server_obj.server_url + "panel/api/inbounds/addClient"
+        setting = {
+            'clients': [{
+                'id': str(config_obj.config_uuid), 'alterId': 0, 'email': config_obj.config_name,
+                'limitIp': joined_data["ip_limit"], 'totalGB': joined_data["total_usage"] - joined_data["usage"],
+                'expiryTime': joined_data["time_expire"], 'enable': joined_data["enable"],
+                "tgId": '', 'subId': ''
+            }]
+        }
+        data1 = {
+            "id": int(to_server_obj.inbound_id),
+            "settings": json.dumps(setting)
+        }
+        header = {"Accept": "application/json"}
+        try:
+            respons2 = to_session.post(url, headers=header, json=data1, timeout=6)
+            print(respons2.json())
+            if respons2.status_code == 200:
+                if respons2.json()['success']:
+                    url = from_server_obj.server_url + f"panel/api/inbounds/{from_server_obj.inbound_id}/delClient/{config_uuid}"
+                    respons3 = from_session.post(url)
+                    print(respons3.json())
+                    if respons3.status_code == 200:
+                        if respons3.json()['success']:
+                            print("fbg")
+                            from_session.close()
+                            return True
+                    to_session.close()
+                    return False
+            to_session.close()
+            return False
+        except Exception as e:
+            return False
+
+
 
     @classmethod
     def delete_config(cls, server_id, config_uuid, inbound_id):
@@ -218,11 +288,15 @@ class ServerApi:
         url = server_obj.server_url + f"panel/api/inbounds/{inbound_id}/delClient/{config_uuid}"
         session = cls.create_session(server_id)
         if not session:
+            session.close()
             return False
         respons = session.post(url)
+        print(respons.json())
         if respons.status_code == 200:
             if respons.json()['success']:
+                session.close()
                 return True
+        session.close()
         return False
 
     @classmethod
@@ -552,7 +626,7 @@ class CreateConfigPage(LoginRequiredMixin, View):
 
 class ApiGetConfigTimeChoices(APIView):
     def get(self, request):
-        sleep(0.5)
+        sleep(0.25)
         type = request.GET.get('type')
         choices = []
         if type == 'limited':
@@ -785,3 +859,23 @@ class ChangeConfigPage(LoginRequiredMixin, View):
                                        config_data={"usage": api["usage_limit"], "expire_time": api["expire_time"],
                                                     "ip_limit": api["ip_limit"]})
         return render(request, "change_config.html", {"config": api, "form": form, 'server_id':server_id, 'config_name':config_name})
+
+
+class ChangeConfigLocationPage(LoginRequiredMixin, View):
+    def get(self, request, config_uuid, server_id):
+        config = ConfigsInfo.objects.get(config_uuid=config_uuid)
+        form = ChangeConfigLocForm
+        return render(request, "change_conf_location.html", {"form": form, 'server_id':server_id, "config":config})
+
+    def post(self, request, config_uuid, server_id):
+        config = ConfigsInfo.objects.get(config_uuid=config_uuid)
+        form = ChangeConfigLocForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            change = ServerApi.change_location(server_id, cd["server"], config_uuid)
+            if change:
+                config.server = ServerModel.objects.get(server_id=cd["server"])
+                config.save()
+                # delete = ServerApi.delete_config(server_id, config_uuid, config.server.inbound_id)
+            return redirect("servers:conf_page", cd["server"], config_uuid, config.config_name)
+        return render(request, "change_conf_location.html", {"form": form, 'server_id':server_id, "config":config})

@@ -67,7 +67,6 @@ def tamdid_config():
             Configs.tamdid_config_from_queue(config_uuid=conf.config.config_uuid, by_celery=True)
 
 
-
 @shared_task
 def clear_ended_record():
     for obj in EndOfConfigCounter.objects.all():

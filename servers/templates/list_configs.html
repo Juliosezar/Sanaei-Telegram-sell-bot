@@ -228,10 +228,6 @@
                     <img class="imgg" src="{% static "img/icons8-restart-512.png" %}" alt="">
                     <p class="ttt">تمدید</p>
                 </a>
-                <a class="link_btns" id="delete_link">
-                    <img class="imgg" src="{% static 'img/icons8-delete-64.png' %}" alt="">
-                    <p class="ttt">حذف</p>
-                </a>
                 <a class="link_btns" id="enable_link" href="">
                     <img class="imgg" src="{% static "img/enable.png" %}" alt="">
                     <p class="ttt">فعال کردن</p>
@@ -243,6 +239,14 @@
                 <a class="link_btns" id="change_link" href="">
                     <img class="imgg" src="{% static "img/setting.png" %}" alt="">
                     <p class="ttt">تغییر کانفیگ</p>
+                </a>
+                <a class="link_btns" id="location_link">
+                    <img class="imgg" src="{% static 'img/location.png' %}" alt="">
+                    <p class="ttt">تغییر لوکیشن</p>
+                </a>
+                <a class="link_btns" id="delete_link">
+                    <img class="imgg" src="{% static 'img/icons8-delete-64.png' %}" alt="">
+                    <p class="ttt">حذف</p>
                 </a>
         </div>
             <script>
@@ -257,7 +261,11 @@
                     if (renew === true){
                         document.getElementById("tamdid_link").style.display = "block";
                         document.getElementById("tamdid_link").href=`/servers/renew_page/${uuid}/auto/`;
+                        document.getElementById("location_link").style.display = "block";
+                        document.getElementById("location_link").href = `/servers/change_location/${uuid}/${server_id}/`
+
                     } else {
+                        document.getElementById("location_link").style.display = "none"
                         document.getElementById("tamdid_link").style.display = "none";
                     }
                     if (enable) {

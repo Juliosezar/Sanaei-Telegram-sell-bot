@@ -228,7 +228,7 @@ class CommandRunner:
     def contact_us(cls, chat_id, *args):
         data = {
             'chat_id': chat_id,
-            'text': f' با سلام خدمت شما کاربر گرامی \n\n' + "🟢 پشتیبانی ۲۴ ساعته با آی دی زیر    👇\n" + "🆔 @NapsV_supp"
+            'text': f' با سلام خدمت شما کاربر گرامی \n\n' + "🟢 پشتیبانی از 8 صبح تا 12 شب 👇\n" + "🆔 @NapsV_supp"
         }
         cls.send_api("sendMessage", data)
 
@@ -306,7 +306,7 @@ class CommandRunner:
                 u_text = " 🔘 " + f"{u.usage_limit} گیگ" + " - " + f"{u.price} تومان "
             usage_list.append([{'text': u_text,
                                 'callback_data': f"usage_limit<~>{server_id}<%>{expire_month}<%>{u.usage_limit}<%>{u.user_limit}"}])
-        usage_list.append([{'text': '🔙 بازگشت', 'callback_data': f"back_to_select_expire_time<~>{server_id}"}])
+        usage_list.append([{'text': '🔙 بازگشت', 'callback_data': f"server_buy<~>{server_id}"}])
         server_name = ServerModel.objects.get(server_id=server_id).server_name
 
         if expire_month == 0:

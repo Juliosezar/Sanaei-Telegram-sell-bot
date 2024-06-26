@@ -240,11 +240,10 @@ class DenyPaymentPage(LoginRequiredMixin, View):
                 messages.success(request, "پرداخت با موفقیت رد تایید شد.")
                 return redirect('finance:confirm_payments', 1)
 
-
             else:
                 messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
                 return redirect('finance:confirm_payments', 1)
-
+        return render(request, 'deny_payment.html', {'obj': model_obj, 'form': form})
 
 
 class DenyPaymentAfterFirsConfirmPage(LoginRequiredMixin, View):
@@ -282,10 +281,10 @@ class DenyPaymentAfterFirsConfirmPage(LoginRequiredMixin, View):
                 messages.success(request, "پرداخت با موفقیت رد تایید شد.")
                 return redirect('finance:confirm_payments', 2)
 
-
             else:
                 messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
                 return redirect('finance:confirm_payments', 2)
+        return render(request, 'deny_payment.html', {'obj': model_obj, 'form': form})
 
 
 class DenyTamdidPaymentAfterFirsConfirmPage(LoginRequiredMixin, View):

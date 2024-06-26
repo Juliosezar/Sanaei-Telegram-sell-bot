@@ -18,12 +18,12 @@
                   <queryParamState>
                     <option name="disabled" value="true" />
                     <option name="key" value="url" />
-                    <option name="value" value="https://f0de-204-18-144-97.ngrok-free.app/webhook/" />
+                    <option name="value" value="https://e98d-2a01-4f9-c011-5150-00-1.ngrok-free.app/webhook/" />
                   </queryParamState>
                 </list>
               </option>
               <option name="sortWeight" value="1000000" />
-              <option name="url" value="https://api.telegram.org/bot6972765226:AAEjUlP_isF823i3jsYBN8p6EmOZLHZGMyU/setWebhook?url=https://admin-napsv.ir/webhook/" />
+              <option name="url" value="https://api.telegram.org/bot6467663597:AAGzfOsbulBVC4Ada08xjQr46XR0YfvJlbs/setWebhook?url=https://admin-napsv.ir/webhook/" />
             </requestState>
             <requestState>
               <option name="auth">

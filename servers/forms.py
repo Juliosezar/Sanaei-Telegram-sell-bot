@@ -25,7 +25,7 @@ class CreateConfigForm(forms.Form):
     usage_limit = forms.CharField(required=False, widget=forms.Select(choices=[]))
     days_limit = forms.CharField(required=False, widget=forms.Select(choices=[]))
     ip_limit = forms.CharField(required=False, widget=forms.Select(choices=[]))
-    paid = forms.BooleanField(required=False, initial=False)
+    paid = forms.BooleanField(required=False, initial=True)
     def clean_usage_limit(self):
         return self.cleaned_data.get('usage_limit')
     def clean_days_limit(self):
@@ -54,7 +54,7 @@ class ManualCreateConfigForm(forms.Form):
     days_limit = forms.IntegerField(required=False)
     ip_limit = forms.ChoiceField(required=False, choices=[(1,'1 کاربره'),(2,'2 کاربره'),(3,'3 کاربره')])
     price = forms.IntegerField(required=False)
-    paid = forms.BooleanField(required=False, initial=False)
+    paid = forms.BooleanField(required=False, initial=True)
 
     def clean_price(self):
         price = self.cleaned_data['price']
@@ -165,3 +165,13 @@ class EditServerForm(forms.Form):
         if not url.startswith('http://') or not url.endswith("/") or "panel" in url:
             raise ValidationError("url اشتباه است.")
         return url
+
+
+class ChangeConfigLocForm(forms.Form):
+    server = forms.ChoiceField(choices=[(i.server_id, i.server_name) for i in Server.objects.all()])
+
+    def clean_server(self):
+        server = self.cleaned_data['server']
+        return int(server)
+
+
