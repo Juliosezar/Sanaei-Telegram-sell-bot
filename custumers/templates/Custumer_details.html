@@ -73,7 +73,7 @@
                                  url:"/customers/custumer_configs_api/{{ conf.config_uuid }}/",
                                  success: function(data){
                                 $('#usage-{{ conf.config_name }}').html(data["usage"] + " GB  /  " + data["total_usage"] + ' GB' )
-                                 $('#time-{{ conf.config_name }}').html(data["time_expire"] + ' day' )
+                                 $('#time-{{ conf.config_name }}').html(data["time_expire"])
                                  $('#status-{{ conf.config_name }}').html(data["status"] )
                                 $(".conf_infos").show()
                                 $(".loader-{{ conf.config_name }}").hide()

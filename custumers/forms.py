@@ -5,7 +5,7 @@ def server_list():
     return [(s.server_id, s.server_name) for s in Server.objects.all()]
 class SendMessageToAllForm(forms.Form):
     message = forms.CharField(widget=forms.Textarea, required=True)
-    all_user = forms.BooleanField(initial=True, required=False, label="All users")
+    all_user = forms.BooleanField(initial=True, required=False)
     server = forms.MultipleChoiceField(required=False,widget=forms.CheckboxSelectMultiple, choices=server_list())
 
     def clean_message(self):

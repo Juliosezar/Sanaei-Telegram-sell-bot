@@ -96,7 +96,10 @@ class GetCustumersConfigsAPI(APIView):
             status = "🔵 استارت نخورده"
         if not config["ended"]:
             status = "🔴 اتمام حجم یا زمان"
-        data = {"usage": config['usage'], "total_usage": total_usage, "time_expire": config['time_expire'], 'status': status}
+        hour = int((abs(config['time_expire']) % 1) * 24)
+        day = abs(int(config['time_expire']))
+        time_expire = f"{day}d  {hour}h"
+        data = {"usage": config['usage'], "total_usage": total_usage, "time_expire": time_expire, 'status': status}
         return Response(data=data)
 
 
@@ -111,9 +114,11 @@ class SendMsgToAll(LoginRequiredMixin, View):
         if form.is_valid():
             cd = form.cleaned_data
             if cd['all_user']:
+                print(cd["all_user"])
                 for i in customer_model:
-                    SendMessage.objects.create(customer=i, message=cd['message']).save()
-                    return redirect('accounts:home')
+                    print(i.userid)
+                    SendMessage.objects.create(customer=i, message=cd['message'])
+                return redirect('accounts:home')
             else:
                 res = [eval(i) for i in cd["server"]]
                 users_list = set()

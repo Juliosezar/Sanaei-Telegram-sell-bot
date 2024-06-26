@@ -8,9 +8,6 @@ from .command_runer import CommandRunner
 from custumers.models import Customer as CustumerModel
 from servers.views import ServerApi
 COMMANDS = {
-    "/test": ServerApi.create_config,
-
-    #########################
     '/start': CommandRunner.main_menu,
     'خرید سرویس 🛍': CommandRunner.select_server,
     'back_to_servers': CommandRunner.back_to_select_server,
@@ -39,7 +36,8 @@ COMMANDS = {
     'tamdid_expire_time': CommandRunner.tamdid_select_config_usage,
     'tam_usage': CommandRunner.tamdid_confirm_config_buying,
     'tam_wallet' : CommandRunner.tamdid_config_from_wallet,
-    "tam_pay": CommandRunner.tamdid_pay_for_config
+    "tam_pay": CommandRunner.tamdid_pay_for_config,
+    # "banned_user": CommandRunner.banned_user,
 }
 
 '''

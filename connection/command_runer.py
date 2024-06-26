@@ -36,10 +36,6 @@ def args_spliter(args):
 
 class CommandRunner:
     @classmethod
-    def test(cls, chat_id):
-        Prices.get_expire_times()
-
-    @classmethod
     def send_api(cls, api_method, data):
         url = TELEGRAM_SERVER_URL + api_method
         try:
