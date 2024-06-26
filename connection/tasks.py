@@ -4,6 +4,9 @@ from servers.models import CreateConfigQueue, ConfigsInfo, MsgEndOfConfig, Serve
 from servers.views import Configs, ServerApi
 from persiantools import jdatetime
 import datetime, pytz
+from django.conf import settings
+from finance.models import ConfirmPaymentQueue, ConfirmTamdidPaymentQueue
+import json
 
 @shared_task
 def send_msg_to_bot():
@@ -73,3 +76,16 @@ def clear_ended_record():
         delta = int(jdatetime.JalaliDateTime.now().timestamp()) - obj.timestamp
         if delta > 86400:
             obj.delete()
+
+@shared_task
+def send_notif_to_admins():
+    from connection.command_runer import CommandRunner
+    count1 = ConfirmPaymentQueue.objects.filter(status=1).count()
+    count2 = ConfirmTamdidPaymentQueue.objects.filter(status=1).count()
+    if (count1 + count2) != 0:
+        with open(settings.BASE_DIR / 'settings.json', 'r') as f:
+            data = json.load(f)
+            admins = data["admins_id"]
+            for admin in admins:
+                CommandRunner.send_msg_to_user(admin,
+                    msg=f"{count1 + count2} پرداخت تایید نشده")
