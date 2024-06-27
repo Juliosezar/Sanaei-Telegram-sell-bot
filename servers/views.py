@@ -467,7 +467,7 @@ class Configs:
     def create_config_by_admins(cls, server_id, expire_limit, usage_limit, user_limit, price, paid, created_by):
         conf_uuid = uuid.uuid4()
         config_name = Configs.generate_unique_name()
-        create_config = ServerApi.create_config(server_id, config_name, conf_uuid, usage_limit, expire_limit * 30,
+        create_config = ServerApi.create_config(server_id, config_name, conf_uuid, usage_limit, expire_limit,
                                                 user_limit, True)
         if create_config:
             cls.save_config_info(config_name, conf_uuid, server_id, None, price, paid, created_by)
@@ -612,6 +612,8 @@ class CreateConfigPage(LoginRequiredMixin, View):
             else:
                 price = cd['price']
             paid = cd["paid"]
+            if form_type == 'auto':
+                time_limit = time_limit * 30
             create_config = Configs.create_config_by_admins(server_id, time_limit, usage, ip_limit, price, paid,
                                                             request.user.username),
 

@@ -56,8 +56,8 @@
             <h3 id="title">ساخت کانفیگ جدید</h3>
             {% csrf_token %}
             <div class="textinput item"><h3 class="item_text">نوع کانفیگ : </h3>{{ form.type }}</div>
-            <div id="time_limit" class="textinput item"><h3 class="item_text">مدت زمان کانفیگ : </h3>{{ form.days_limit }}</div>
-            <div id="usage" class="textinput item"><h3 class="item_text">حجم کانفیگ : </h3>{{ form.usage_limit }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text">مدت زمان کانفیگ : </h3>{{ form.days_limit }}{% if form_type == 'manual' %}روز{% endif %}</div>
+            <div id="usage" class="textinput item"><h3 class="item_text">حجم کانفیگ : </h3>{{ form.usage_limit }}{% if form_type == 'manual' %}GB{% endif %}</div>
             <div id="ip_limit" class="textinput item"><h3 class="item_text">تعداد کاربر : </h3>{{ form.ip_limit }}</div>
             {% if form_type == 'auto' %}
             <h3 class="item_text" dir="ltr" style="display:inline-block; ">: قیمت<div class="loader2" dir="ltr" id="price_loading"></div><h4 id="pricespan"> </h4></h3>
