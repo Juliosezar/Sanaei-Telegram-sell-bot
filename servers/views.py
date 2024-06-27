@@ -575,12 +575,16 @@ class ConfigPage(LoginRequiredMixin, View):
             config_info = ConfigsInfo.objects.get(config_uuid=config_uuid)
         else:
             config_info = False
-        config_usage = ServerApi.get_list_configs(server_id)[config_name]
-        get_config_link = f'tg://resolve?domain={BOT_USERNAME}&start=register_{config_uuid}'
-        vless = Configs.create_vless_text(config_uuid, ServerModel.objects.get(server_id=server_id), config_name)
-        return render(request, 'config_page.html', {'config_info': config_info, 'vless': vless,
-                                                    'config_usage': config_usage, 'config_name': config_name,
+        config_usage = ServerApi.get_list_configs(server_id)
+        if config_usage:
+            config_usage = config_usage[config_name]
+            get_config_link = f'tg://resolve?domain={BOT_USERNAME}&start=register_{config_uuid}'
+            vless = Configs.create_vless_text(config_uuid, ServerModel.objects.get(server_id=server_id), config_name)
+            return render(request, 'config_page.html', {'config_info': config_info, 'vless': vless,
+                                                        'config_usage': config_usage, 'config_name': config_name,
                                                     "get_config_link": get_config_link, "server_id":server_id})
+        messages.error(request,"کانفیگ در دیتابیس پیدا نشد یا اتصال به سرور برقرار نشد.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
 class CreateConfigPage(LoginRequiredMixin, View):

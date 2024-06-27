@@ -1,7 +1,15 @@
 from django import template
-from servers.models import ConfigsInfo
+from servers.models import ConfigsInfo, InfinitCongisLimit
+from django.conf import settings
+import json
+
 register = template.Library()
 
+with open(settings.BASE_DIR / "settings.json", "r") as f:
+    data = json.load(f)
+    IP1 = data["one_usage_limit"]
+    IP2 = data["two_usage_limit"]
+    IP3 = data["three_usage_limit"]
 
 @register.filter
 def price(amount):
@@ -34,3 +42,26 @@ def config_seved(value):
     if ConfigsInfo.objects.filter(config_uuid=value).exists():
         return True
     return False
+
+
+@register.filter(name="infinit_limit")
+def infinit_limit(value, ip_limit):
+    config_info = ConfigsInfo.objects.filter(config_uuid=value)
+    if config_info.exists():
+        if InfinitCongisLimit.objects.filter(config__config_uuid=value).exists():
+            return InfinitCongisLimit.objects.get(config_name=value).limit
+        else:
+            if ip_limit == 1:
+                return IP1
+            elif ip_limit == 2:
+                return IP2
+            elif ip_limit == 3:
+                return IP3
+            else:
+                return 0
+    return None
+
+
+
+
+

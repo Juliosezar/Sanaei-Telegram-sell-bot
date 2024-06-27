@@ -303,7 +303,26 @@ td {
     background-color: #ffffff;
 }
 
+a:hover {
+    text-decoration: none;
+}
+
+.sys_limit {
+    background-color: #0048d5;
+    color: white;
+    padding: 0.3rem 1rem 0.1rem;
+    border-radius: 15px;
+    margin-top: 0.25rem;
+    font-size: large;
+    justify-content: center;
+}
+
 @media (max-width: 640px) {
+    .sys_limit {
+    font-size: small;
+}
+
+
     .messages_red , .messages_green {
         font-size: large;
     }

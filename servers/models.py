@@ -75,4 +75,6 @@ class MsgEndOfConfig(models.Model):
 
 
 
-
+class InfinitCongisLimit(models.Model):
+    config = models.OneToOneField(ConfigsInfo, on_delete=models.CASCADE)
+    limit = models.IntegerField()

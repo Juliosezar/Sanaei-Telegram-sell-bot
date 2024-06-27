@@ -89,3 +89,8 @@ def send_notif_to_admins():
             for admin in admins:
                 CommandRunner.send_msg_to_user(admin,
                     msg=f"{count1 + count2} پرداخت تایید نشده")
+
+
+@shared_task
+def disable_infinit_configs():
+    pass

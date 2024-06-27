@@ -129,6 +129,11 @@
                                                     <div class="progressـusage progress-bar bg-success" role="progressbar" style="width:100%"  aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">Not Started</div>
                                                 {% endif %}
                                             </div>
+                                            {% if value.uuid|infinit_limit:value.ip_limit %}
+                                                <h3 class="sys_limit">⛔ {{ value.uuid|infinit_limit:value.ip_limit }} GB ⛔</h3>
+                                            {% elif value.uuid|infinit_limit:value.ip_limit == 0 %}
+                                                <h3 class="sys_limit">No Limit</h3>
+                                            {% endif %}
                                         </div>
                                     {% else %}
                                         {% if value.usage|percent:value.usage_limit > 99 %}
@@ -165,6 +170,7 @@
                                         </div>
                                         {% endif %}
                                     {% endif %}
+
                                 </td>
 
 

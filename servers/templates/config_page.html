@@ -81,30 +81,46 @@
                         </div>
                     {% endif %}
                 {% endif %}
+                <div class="kdfj">
+                    {% if config_usage.uuid|infinit_limit:config_usage.ip_limit %}
+                        <h3 class="sys_limit">⛔ {{ config_usage.uuid|infinit_limit:config_usage.ip_limit }} GB ⛔</h3>
+                    {% elif config_usage.uuid|infinit_limit:config_usage.ip_limit == 0 %}
+                        <h3 class="sys_limit">No Limit</h3>
+                    {% endif %}
+                </div>
             </div>
-            <div class="show_usage">
+            <div class="show_time">
                 {% if config_usage.expire_time == 0 %}
                     <div class="time">
-                        <h4 class="expire_text blue_infinite">∞ day</h4>
+                        <h4 class="expire_text blue_infinite">⏳ ∞ day</h4>
                     </div>
                 {% elif config_usage.expire_time > 0 and not config_usage.started %}
                     <div class="time">
-                        <h4 class="expire_text green">{{ config_usage.expire_time|floatformat:0 }} day</h4>
+                        <h4 class="expire_text green">⏳ {{ config_usage.expire_time|floatformat:0 }} day</h4>
                     </div>
                 {% elif config_usage.expire_time > 3 %}
                     <div class="time">
-                        <h4 class="expire_text blue">{{ config_usage.expire_time|dh }} day</h4>
+                        <h4 class="expire_text blue">⏳ {{ config_usage.expire_time|dh }} day</h4>
                     </div>
                 {% elif config_usage.expire_time > 0 %}
                     <div class="time">
-                        <h4 class="expire_text orange">{{ config_usage.expire_time|dh }} day</h4>
+                        <h4 class="expire_text orange">⏳ {{ config_usage.expire_time|dh }} day</h4>
                     </div>
 
                 {% else %}
                     <div class="time">
-                        <h4 class="expire_text red">{{ config_usage.expire_time|dh }} day ago</h4>
+                        <h4 class="expire_text red">⏳ {{ config_usage.expire_time|dh }} day ago</h4>
                     </div>
                 {% endif %}
+
+
+                <div class="time">
+                    {% if config_usage.ip_limit == 0 %}
+                        <h4 class="expire_text blue">👤 ∞ user</h4>
+                    {% else %}
+                        <h4 class="expire_text blue">👤 {{ config_usage.ip_limit }} user</h4>
+                    {% endif %}
+            </div>
             </div>
         {% else %}
             <h3 class="text_error">❗ Connection Error ❗</h3>

@@ -89,7 +89,7 @@
                             {% else %}
                                 <h4 class="info">Add To Wallet</h4>
                             {% endif %}
-                            <h3 class="info" href="">userid: <a style="color: #98e2ff">{{ i.custumer.userid }}</a></h3>
+                            <h3 class="info" href="{% url "customers:custumer_detail" i.custumer.userid %}">userid: <a style="color: #98e2ff">{{ i.custumer.userid }}</a></h3>
                             <h3 class="info">price : <span class="nspan">{{ i.pay_price|price }} T</span></h3>
 
                         </div>
@@ -117,7 +117,7 @@
                     <div class="pay_info">
                         <div class="infobox">
                             <h4 class="info">Renew: <a style="color: #98e2ff" href="">{{ i.config.config_name }}</a></h4>
-                            <h3 class="info" href="">userid: <a style="color: #98e2ff">{{ i.config.chat_id.userid }}</a></h3>
+                            <h3 class="info" href="{% url "customers:custumer_detail" i.config.chat_id.userid %}">userid: <a style="color: #98e2ff">{{ i.config.chat_id.userid }}</a></h3>
                             <h3 class="info">price : <span class="nspan">{{ i.pay_price|price }} T</span></h3>
 
                         </div>
@@ -146,7 +146,7 @@
                 <div class="paybox" >
                     <div class="pay_info">
                         <div class="infobox">
-                            <h3 class="info">userid:<a style="color: #98e2ff" href=""> {{ i.custumer.userid }}</a></h3>
+                            <h3 class="info">userid:<a style="color: #98e2ff" href="{% url "customers:custumer_detail" i.custumer.userid %}"> {{ i.custumer.userid }}</a></h3>
                             <h3 class="info">price : <span class="nspan">{{ i.pay_price|price }} T</span></h3>
 
                         </div>
@@ -166,7 +166,7 @@
                 <div class="paybox" >
                     <div class="pay_info">
                         <div class="infobox">
-                            <h3 class="info">userid:<a style="color: #98e2ff" href=""> {{ i.config.chat_id.userid }}</a></h3>
+                            <h3 class="info">userid:<a style="color: #98e2ff" href="{% url "customers:custumer_detail" i.config.chat_id.userid %}"> {{ i.config.chat_id.userid }}</a></h3>
                             <h3 class="info">price : <span class="nspan">{{ i.pay_price|price }} T</span></h3>
 
                         </div>
