@@ -3,7 +3,6 @@ from .models import SendMessage, EndOfConfigCounter
 from servers.models import CreateConfigQueue, ConfigsInfo, MsgEndOfConfig, Server, TamdidConfigQueue
 from servers.views import Configs, ServerApi
 from persiantools import jdatetime
-import datetime, pytz
 from django.conf import settings
 from finance.models import ConfirmPaymentQueue, ConfirmTamdidPaymentQueue
 import json

@@ -24,4 +24,3 @@ class SendMessage(models.Model):
 class EndOfConfigCounter(models.Model):
     uuid = models.UUIDField()
     type = models.CharField(max_length=20, choices=[(0,"ended"),(1,"end_of_usage"),(2,"end_of_time")])
-    timestamp = models.IntegerField(default=int(datetime.now().timestamp()))

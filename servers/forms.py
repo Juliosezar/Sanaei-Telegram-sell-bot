@@ -75,13 +75,13 @@ class ManualCreateConfigForm(forms.Form):
                 raise ValidationError('حجم کانفیگ باید بین 1 تا 1000 گیگ باشد.')
             if days_limit is None:
                 raise ValidationError('مدت زمان کانفیگ را وارد کنید.')
-            elif not 0 < days_limit < 13:
-                raise ValidationError('مدت زمان کانفیگ باید بین 1 تا 12 ماه باشد.')
+            elif not 0 < days_limit < 365:
+                raise ValidationError('مدت زمان کانفیگ باید بین 1 روز تا 365 روز باشد.')
         elif type == 'usage_unlimit':
             if days_limit is None:
                 raise ValidationError('مدت زمان کانفیگ را وارد کنید.')
-            elif not 0 < days_limit < 13:
-                raise ValidationError('مدت زمان کانفیگ باید بین 1 تا 12 ماه باشد.')
+            elif not 0 < days_limit < 365:
+                raise ValidationError('مدت زمان کانفیگ باید بین 1 روز تا 365 روز باشد.')
         elif type == 'time_unlimit':
             if usage_limit is None:
                 raise ValidationError('حجم کانفیگ را وارد کنید.')
@@ -128,7 +128,7 @@ class AddServerForm(forms.Form):
     server_fake_domain = forms.CharField(max_length=40, required=True)
     inbound_id = forms.IntegerField(required=True)
     inbound_port = forms.IntegerField(required=True)
-    active = forms.BooleanField(initial=True)
+    active = forms.BooleanField(initial=True, required=False)
 
     def clean_server_url(self):
         url = self.cleaned_data['server_url']
@@ -158,7 +158,7 @@ class EditServerForm(forms.Form):
     server_fake_domain = forms.CharField(max_length=40, required=True)
     inbound_id = forms.IntegerField(required=True)
     inbound_port = forms.IntegerField(required=True)
-    active = forms.BooleanField(initial=True)
+    active = forms.BooleanField(initial=True, required=False)
 
     def clean_server_url(self):
         url = self.cleaned_data['server_url']

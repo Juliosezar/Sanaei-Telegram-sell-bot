@@ -62,9 +62,6 @@ class TamdidConfigQueue(models.Model):
         return self.config.config_name
 
 
-
-
-
 class MsgEndOfConfig(models.Model):
     config = models.OneToOneField(ConfigsInfo, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now=True)
@@ -74,7 +71,8 @@ class MsgEndOfConfig(models.Model):
     ended_usage = models.BooleanField(default=False)
 
 
-
 class InfinitCongisLimit(models.Model):
     config = models.OneToOneField(ConfigsInfo, on_delete=models.CASCADE)
     limit = models.IntegerField()
+
+

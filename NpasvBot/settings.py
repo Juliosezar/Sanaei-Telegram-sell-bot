@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "servers.apps.ServersConfig",
     'finance.apps.FinanceConfig',
     'custumers.apps.CustumersConfig',
+    'reports.apps.ReportsConfig',
     'compressor',
     'rest_framework',
     'django_celery_beat'
@@ -76,6 +77,7 @@ TEMPLATES = [
                  BASE_DIR / 'accounts/templates',
                  BASE_DIR / 'finance/templates',
                  BASE_DIR / 'servers/templates',
+                 BASE_DIR / 'reports/templates',
         ]
         ,
         'APP_DIRS': True,

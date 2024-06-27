@@ -46,6 +46,13 @@
                             {% endif %}
                         </div>
                     </div>
+                    <div class="kdfj">
+                    {% if config_usage.uuid|infinit_limit:config_usage.ip_limit %}
+                        <h3 class="sys_limit">⛔ {{ config_usage.uuid|infinit_limit:config_usage.ip_limit }} GB ⛔</h3>
+                    {% elif config_usage.uuid|infinit_limit:config_usage.ip_limit == 0 %}
+                        <h3 class="sys_limit">No Limit</h3>
+                    {% endif %}
+                </div>
                 {% else %}
                     {% if config_usage.usage|percent:config_usage.usage_limit > 99 %}
                         <div class="centering">
@@ -81,13 +88,6 @@
                         </div>
                     {% endif %}
                 {% endif %}
-                <div class="kdfj">
-                    {% if config_usage.uuid|infinit_limit:config_usage.ip_limit %}
-                        <h3 class="sys_limit">⛔ {{ config_usage.uuid|infinit_limit:config_usage.ip_limit }} GB ⛔</h3>
-                    {% elif config_usage.uuid|infinit_limit:config_usage.ip_limit == 0 %}
-                        <h3 class="sys_limit">No Limit</h3>
-                    {% endif %}
-                </div>
             </div>
             <div class="show_time">
                 {% if config_usage.expire_time == 0 %}
@@ -147,7 +147,7 @@
                 <div class="conf_btnsbox">
                 {% if config_info %}
                     <a class="conf_btnss tamdid_btn" href="{% url "servers:renew_page" config_usage.uuid "auto" %}"><img class="restart" src="{% static "img/icons8-restart-512.png" %}" alt=""> تمدید </a>
-                    <a class="conf_btnss tamdid_btn" href="{% url "servers:change_location" config_usage.uuid server_id %}"><img class="restart" src="{% static "img/location.png" %}" alt=""> تغییر لوکیشن </a>
+                    <a style="text-wrap: avoid" class="conf_btnss tamdid_btn" href="{% url "servers:change_location" config_usage.uuid server_id %}"><img class="restart" src="{% static "img/location.png" %}" alt="">لوکیشن</a>
                 {% endif %}
                 <a class="conf_btnss change_btn" href="{% url "servers:change_config_page" config_usage.uuid config_name server_id %}"><img class="enable" src="{% static "img/setting.png" %}" alt=""> ویرایش </a>
                 {% if config_usage.enable %}
