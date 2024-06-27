@@ -142,3 +142,8 @@ form{
 @keyframes l21{
   100%{background-position: left}
 }
+
+#id_wallet {
+    width: 50%;
+    text-align: center;
+}

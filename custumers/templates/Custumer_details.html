@@ -36,7 +36,7 @@
                 <h3 class="info_item"> یوزرنیم : {{ customer_obj.username }}@</h3>
             {% endif %}
             <h3 class="info_item">نام : {{ customer_obj.first_name }}</h3>
-            <h3 class="info_item">موجودی کیف پول : {{ customer_obj.wallet|price }} T</h3>
+            <h3 class="info_item">موجودی کیف پول : {{ customer_obj.wallet|price }} T  <a href="{% url "customers:change_wallet" customer_obj.userid %}"><img style="width: 2rem" src="{% static 'img/edit.png' %}" alt=""></a></h3>
             <h3 class="info_item">تعداد خرید ها : {{ customer_obj.purchase_number }}</h3>
             <h3 class="info_item">مجموع پرداخت ها : {{ sum_pays|price }} T</h3>
             {% if customer_obj.active %}
@@ -45,7 +45,7 @@
                 <h3 class="info_item">وضعیت : غیر فعال 🔴</h3>
             {% endif %}
             <a class="info_item" href=""><img style="width: 3rem" src="{% static 'img/icons8-restart-512.png' %}" alt=""></a>
-            <a class="info_item refresh" href="{% url 'customers:send_msg_to_user' customer_obj.userid %}">ارسال پیام</a>
+            <a class="info_item refresh" href="{% url 'customers:send_msg_to_user' customer_obj.userid %}"> ارسال پیام 📨</a>
 
         </div>
         {% if not sum_configs %}

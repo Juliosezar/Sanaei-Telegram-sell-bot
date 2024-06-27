@@ -11,7 +11,7 @@ from servers.views import ServerApi
 from rest_framework.views import APIView
 from accounts.forms import SearchUserForm
 from django.contrib import messages
-from .forms import SendMessageToAllForm, SendMessageToCustomerForm
+from .forms import SendMessageToAllForm, SendMessageToCustomerForm, ChangeWalletForm
 from connection.models import SendMessage
 
 class Customer:
@@ -146,3 +146,21 @@ class SendMsgToUser(LoginRequiredMixin, View):
             SendMessage.objects.create(customer=customer_model, message=msg).save()
             messages.success(request, "پیام شما در صف ارسال قرارا گرفت.")
             return redirect('customers:custumer_detail', userid)
+
+
+class ChangeWalletAmount(LoginRequiredMixin, View):
+    def get(self, request, userid):
+        customer_model = CustomerModel.objects.get(userid=userid)
+        form = ChangeWalletForm
+        return render(request, "change_wallet.html", {"form": form})
+
+    def post(self, request, userid):
+        customer_model = CustomerModel.objects.get(userid=userid)
+        form = ChangeWalletForm(request.POST)
+        if form.is_valid():
+            wallet = form.cleaned_data['wallet']
+            customer_model.wallet = wallet * 1000
+            customer_model.save()
+            return redirect('customers:custumer_detail', userid)
+        return render(request, 'change_wallet.html', {"form": form})
+

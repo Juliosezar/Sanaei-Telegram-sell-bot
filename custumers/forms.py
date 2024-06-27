@@ -18,3 +18,6 @@ class SendMessageToCustomerForm(forms.Form):
     message = forms.CharField(widget=forms.Textarea, required=True)
 
 
+class ChangeWalletForm(forms.Form):
+    wallet = forms.IntegerField(max_value=999,min_value=0)
+
