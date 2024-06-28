@@ -1,0 +1,49 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="fa" class="no-js">
+	<head>
+		<title>List Configs</title>
+        {% include "base_head.html" %}
+        <link rel="stylesheet" type="text/css" href="{% static 'custumers/component.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'reports/logs.css' %}"/>
+    </head>
+	<body dir="ltr">
+        {% include "navbar.html" %}
+        {% include 'messages.html' %}
+        <div id="main">
+            <h3 id="counter">َAdmin Logs</h3>
+		    <div class="xcontainer">
+		    		<table class="overflow-y">
+		    			<thead>
+		    				<tr>
+                                <th>َAdmin</th>
+                                <th>Data/Time</th>
+                                <th>Action</th>
+                            </tr>
+		    			</thead>
+		    			<tbody>
+                        {% for row in logs %}
+
+		    				<tr>
+                                <td>{{ row.admin }}</td>
+                                <td>{{ row.timestamp|timestamp }}</td>
+                                <td>{{ row.action }}</td>
+                            </tr>
+
+                        {% endfor %}
+		    			</tbody>
+		    		</table>
+            </div>
+
+
+        </div>
+
+
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
+		<script src={% static "js/list.js" %}></script>
+	</body>
+
+{% include "loading.html" %}
+</html>

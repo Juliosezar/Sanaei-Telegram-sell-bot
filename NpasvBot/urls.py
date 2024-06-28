@@ -13,4 +13,5 @@ urlpatterns = [
     path('finance/', include('finance.urls', namespace='finance')),
     path('customers/', include('custumers.urls', namespace='customers')),
     path('servers/', include('servers.urls', namespace='servers')),
+    path('reports/', include('reports.urls', namespace='reports')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

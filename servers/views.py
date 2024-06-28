@@ -19,8 +19,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from time import sleep
 from os import environ
-
-
+from reports.views import Log
+from reports.models import ConfigLog
 
 
 BOT_USERNAME = environ.get('BOT_USERNAME')
@@ -299,7 +299,6 @@ class ServerApi:
             if respons.json()['success']:
                 session.close()
                 return True
-        session.close()
         return False
 
     @classmethod
@@ -349,12 +348,12 @@ class Configs:
         ).save()
 
     @classmethod
-    def change_config_info(cls, config_uuid, price, ):
+    def change_config_info(cls, config_uuid, price, paid):
         if ConfigsInfo.objects.filter(config_uuid=config_uuid).exists():
             config_info = ConfigsInfo.objects.get(config_uuid=config_uuid)
             config_info.renew_count += 1
             config_info.price = price
-            paid = True
+            config_info.paid = paid
             config_info.save()
 
     @classmethod
@@ -443,6 +442,9 @@ class Configs:
                                  config_queue_obj.price)
             cls.send_config_to_user(config_queue_obj.custumer.userid, config_uuid,
                                     config_queue_obj.server.server_id, config_queue_obj.config_name)
+            Log.create_config_log(ConfigsInfo.objects.get(config_uuid=config_uuid), f"➕ Create by \"Bot\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price/1000)}T)")
+            Log.create_admin_log("Bot", f"➕ Create \"{config_queue_obj.config_name}\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price/1000)}T)")
+            Log.create_customer_log(CustomerModel.objects.get(userid=config_queue_obj.custumer.userid), f"➕ Create \"{config_queue_obj.config_name}\" by \"Bot\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price/1000)}T)")
         else:
             config_queue_obj.sent_to_user = 5
             config_queue_obj.save()
@@ -463,6 +465,9 @@ class Configs:
             CommandRunner.send_msg_to_user(chat_id, vless)
             change_wallet_amount(chat_id, -1 * price)
             cls.save_config_info(config_name, conf_uuid, server_id, chat_id, price)
+            Log.create_config_log(ConfigsInfo.objects.get(config_uuid=conf_uuid), f"➕ Create by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}user - {int(price/1000)}HT)")
+            Log.create_admin_log("Bot", f"➕ Create \"{config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}user - {price}T)")
+            Log.create_customer_log(CustomerModel.objects.get(userid=chat_id), f"➕ Create \"{config_name}\" by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}user - {int(price/1000)}HT)")
             return True
         return False
 
@@ -474,6 +479,9 @@ class Configs:
                                                 user_limit, True)
         if create_config:
             cls.save_config_info(config_name, conf_uuid, server_id, None, price, paid, created_by)
+            Log.create_config_log(ConfigsInfo.objects.get(config_uuid=conf_uuid),f"➕ Create by \"{created_by}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price/1000)}HT)")
+            Log.create_admin_log(created_by, f"➕ Create \"{config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price/1000)}HT)")
+
             return {'config_name': config_name, 'config_uuid': conf_uuid}
         return None
 
@@ -494,11 +502,14 @@ class Configs:
             ip_limit=config_queue_obj.user_limit,
         )
         if respons:
-            change_wallet_amount(config_queue_obj.custumer.userid, -1 * config_queue_obj.price)
+            change_wallet_amount(config_queue_obj.config.chat_id.userid, -1 * config_queue_obj.price)
             config_queue_obj.sent_to_user = 3
-            cls.change_config_info(config_queue_obj.config.config_uuid, config_queue_obj.price)
+            cls.change_config_info(config_queue_obj.config.config_uuid, config_queue_obj.price, True)
             CommandRunner.send_msg_to_user(config_queue_obj.config.chat_id.userid,
                                            f"✅ سرویس {config_queue_obj.config.config_name} تمدید شد. از بخش (سرویس های من) در منوی اصلی میتوانید وضعیت سرویس خود را مشاهده کنید.")
+            Log.create_config_log(config_queue_obj.config, f"🔃 Renew by \"Bot\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price/1000)}HT)")
+            Log.create_admin_log("Bot", f"🔃 Renew \"{config_queue_obj.config.config_name}\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.pric/1000)}HT)")
+            Log.create_customer_log(config_queue_obj.config.chat_id, f"🔃 Renew \"{config_queue_obj.config.config_name}\" by \"Bot\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.pric/1000)}HT)")
         else:
             config_queue_obj.sent_to_user = 5
             config_queue_obj.save()
@@ -516,6 +527,10 @@ class Configs:
             CommandRunner.send_msg_to_user(config_obj.chat_id.userid,
                                            f"✅ سرویس {config_obj.config_name} تمدید شد. از بخش (سرویس های من) در منوی اصلی میتوانید وضعیت سرویس خود را مشاهده کنید.")
 
+            Log.create_config_log(config_obj, f"🔃 Renew by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price/1000)}HT)")
+            Log.create_admin_log("Bot", f"🔃 Renew \"{config_obj.config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price/1000)}HT)")
+            Log.create_customer_log(config_obj.chat_id, f"🔃 Renew \"{config_obj.config_name}\" by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price/1000)}HT)")
+            cls.change_config_info(config_uuid, price, True)
             change_wallet_amount(config_obj.chat_id.userid, -1 * price)
             config_obj.renew_count += 1
             config_obj.price = True
@@ -526,10 +541,16 @@ class Configs:
     @classmethod
     def tamdid_config_by_admins(cls, config_uuid, expire_limit, usage_limit, user_limit, price, paid, by_admin):
         conf = ConfigsInfo.objects.get(config_uuid=config_uuid)
-        create_config = ServerApi.renew_config(conf.server.server_id, config_uuid, conf.config_name, expire_limit * 30,
+        create_config = ServerApi.renew_config(conf.server.server_id, config_uuid, conf.config_name, expire_limit,
                                                usage_limit, user_limit)
+
         if create_config:
-            cls.change_config_info(config_uuid, price)
+            cls.change_config_info(config_uuid, price, paid)
+            Log.create_config_log(conf, f"🔃 Renew \"{conf.config_name}\" by \"{by_admin}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price/1000)}HT)")
+            Log.create_admin_log(by_admin, f"🔃 Renew \"{conf.config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price/1000)}HT)")
+            if conf.chat_id:
+                Log.create_customer_log(conf.chat_id, f"🔃 Renew \"{conf.config_name}\" by \"{by_admin}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price/1000)}HT)")
+
             return {'config_name': conf.config_name, 'config_uuid': config_uuid}
         return None
 
@@ -568,7 +589,7 @@ class ListConfigsSearched(LoginRequiredMixin, View):
             model_obj = ConfigsInfo.objects.filter(Q(config_name__icontains=word) | Q(config_uuid__icontains=word))
             if not model_obj.exists():
                 messages.error(request, 'کانفیگی با این مشخصات یافت نشد.')
-            return render(request, "list_configs_searched.html", {"configs_model": model_obj, "search_config": form})
+            return render(request, "list_configs_searched.html", {"configs_model": reversed(model_obj), "search_config": form})
         return redirect('accounts:home')
 
 
@@ -576,16 +597,19 @@ class ConfigPage(LoginRequiredMixin, View):
     def get(self, request, server_id, config_uuid, config_name):
         if ConfigsInfo.objects.filter(config_uuid=config_uuid).exists():
             config_info = ConfigsInfo.objects.get(config_uuid=config_uuid)
+            conf_log = reversed(ConfigLog.objects.filter(config=config_info))
         else:
+            conf_log = None
             config_info = False
         config_usage = ServerApi.get_list_configs(server_id)
         if config_usage:
             config_usage = config_usage[config_name]
-            get_config_link = f'tg://resolve?domain={BOT_USERNAME}&start=register_{config_uuid}'
+            get_config_link =f"نام سرویس: {config_name}" "\n\n" "برای دریافت کانفیگ روی لینک زیر کلیک کنید 👇🏻" "\n"  f'tg://resolve?domain={BOT_USERNAME}&start=register_{config_uuid}'
             vless = Configs.create_vless_text(config_uuid, ServerModel.objects.get(server_id=server_id), config_name)
             return render(request, 'config_page.html', {'config_info': config_info, 'vless': vless,
                                                         'config_usage': config_usage, 'config_name': config_name,
-                                                    "get_config_link": get_config_link, "server_id":server_id})
+                                                    "get_config_link": get_config_link, "server_id":server_id,
+                                                        "conf_log": conf_log})
         messages.error(request,"کانفیگ در دیتابیس پیدا نشد یا اتصال به سرور برقرار نشد.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -717,6 +741,10 @@ class DeleteConfig(LoginRequiredMixin, View):
             if ConfigsInfo.objects.filter(config_uuid=config_uuid).exists():
                 obj = ConfigsInfo.objects.get(config_uuid=config_uuid)
                 obj.delete()
+                if obj.chat_id:
+                    Log.create_customer_log(obj.chat_id, f"❌ Delete \"{config_name}\" by \"{request.user.username}\"")
+            Log.create_admin_log(f"{request.user.username}", f"❌ Delete \"{config_name}\"")
+
 
         else:
             messages.error(request, "ارور در حذف کانفیگ")
@@ -738,12 +766,18 @@ class DisableConfig(LoginRequiredMixin, View):
                     ServerApi.disable_config(session, server_id, config_uuid, inbound_id, config_name, bool(enable),
                                              ip_limit, obj['expiryTime'], obj['total'])
                     messages.success(request, f"کانفیگ {config_name} با موفقیت فعال/غیرفعال شد.")
+                    action = "⛔ Disable" if enable == 1 else "✅ Enable"
+                    Log.create_admin_log(f"{request.user.username}",f"{action} \"{config_name}\"")
+                    if ConfigsInfo.objects.filter(config_uuid=config_uuid).exists():
+                        Log.create_config_log(ConfigsInfo.objects.get(config_uuid=config_uuid),f"{action} by \"{request.user.username}\" ")
+                        if ConfigsInfo.objects.get(config_uuid=config_uuid).chat_id:
+                            Log.create_customer_log(ConfigsInfo.objects.get(config_uuid=config_uuid).chat_id,f"{action} \"{config_name}\" by \"{request.user.username}\" ")
             else:
                 messages.error(request, f"ارور در اتصال یه سرور.")
         else:
             messages.error(request, f"ارور در اتصال یه سرور.")
-
-        return redirect('servers:list_configs', server_id)
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+        # return redirect('servers:list_configs', server_id)
 
 
 class ShowServers(LoginRequiredMixin, View):
@@ -830,6 +864,8 @@ class RenewPage(LoginRequiredMixin, View):
             else:
                 price = cd['price']
             paid = cd["paid"]
+            if form_type == "auto":
+                time_limit *= 30
             create_config = Configs.tamdid_config_by_admins(uuid, time_limit, usage, ip_limit, price, paid,
                                                             request.user.username)
             if create_config:
@@ -873,18 +909,24 @@ class ChangeConfigPage(LoginRequiredMixin, View):
 class ChangeConfigLocationPage(LoginRequiredMixin, View):
     def get(self, request, config_uuid, server_id):
         config = ConfigsInfo.objects.get(config_uuid=config_uuid)
-        form = ChangeConfigLocForm
+        form = ChangeConfigLocForm(server=server_id)
         return render(request, "change_conf_location.html", {"form": form, 'server_id':server_id, "config":config})
 
     def post(self, request, config_uuid, server_id):
         config = ConfigsInfo.objects.get(config_uuid=config_uuid)
         form = ChangeConfigLocForm(request.POST)
+        from_server = config.server.server_name
         if form.is_valid():
             cd = form.cleaned_data
             change = ServerApi.change_location(server_id, cd["server"], config_uuid)
             if change:
                 config.server = ServerModel.objects.get(server_id=cd["server"])
                 config.save()
-                # delete = ServerApi.delete_config(server_id, config_uuid, config.server.inbound_id)
+                Log.create_config_log(config,f"🌎 Change Location by \"{request.user.username}\" from \"{from_server}\" to \"{ServerModel.objects.get(server_id=cd["server"]).server_name}\"")
+                Log.create_admin_log(f"{request.user.username}",f"🌎 Change Location \"{config.config_name}\" from \"{from_server}\" to \"{ServerModel.objects.get(server_id=cd["server"]).server_name}\"")
+                if config.chat_id:
+                    Log.create_customer_log(config.chat_id,f"🌎 Change Location \"{config.config_name}\" by \"{request.user.username}\" from \"{from_server}\" to \"{ServerModel.objects.get(server_id=cd["server"]).server_name}\"")
+
             return redirect("servers:conf_page", cd["server"], config_uuid, config.config_name)
         return render(request, "change_conf_location.html", {"form": form, 'server_id':server_id, "config":config})
+

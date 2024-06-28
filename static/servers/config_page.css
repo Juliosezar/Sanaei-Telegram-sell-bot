@@ -15,10 +15,22 @@ body {
     align-items: center;
     width: 100%;
 }
+.progressـusage_box {
+    width: 100%;
+}
+.centering {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+
+}
 
 .progress{
     height: 1.5rem;
     font-size: large;
+    width: 100%;
 }
 .green {
     background-color: #4CAF50;
@@ -91,7 +103,10 @@ body {
     width: max-content;
 }
 
-
+#his {
+    font-size: xx-large;
+    margin-top: 1rem;
+}
 .show_time {
     display: flex;
     flex-direction: row;
@@ -125,7 +140,9 @@ body {
     justify-content: space-evenly;
     flex-wrap: wrap;
 }
-
+.progressـusage {
+    width: 100%;
+}
 .time{
     display: flex;
     flex-direction: column;
@@ -172,6 +189,12 @@ img {
 }
 
 @media (max-width: 650px) {
+    #dis {
+        font-size: larger;
+    }
+    #his {
+        font-size: x-large;
+    }
     .c_info {
     font-size: large;
 }
@@ -180,6 +203,7 @@ img {
 }
     .usage_text ,.expire_text {
         font-size:  large;
+        margin: 0.25rem 0;
 }
 #conf_name {
     margin: 1.5rem 0 0.5rem 0;

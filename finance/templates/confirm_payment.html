@@ -86,6 +86,8 @@
                         <div class="infobox">
                             {% if i.config_in_queue %}
                                 <h4 class="info">Buy Service</h4>
+                                <h3 class="info">server : <span class="nspan">{{ i.config_uuid|get_server }} </span></h3>
+
                             {% else %}
                                 <h4 class="info">Add To Wallet</h4>
                             {% endif %}
@@ -188,6 +190,11 @@
             {% for i in not_paid %}
                 <div class="xy">
                     <div class="fbox">
+                    {% if i.renew_count == 0 %}
+                        <h3 class="ttt">Buy Service</h3>
+                    {% else %}
+                        <h3 class="ttt">Renew Service</h3>
+                    {% endif %}
                         <a href="{% url "servers:conf_page" i.server.server_id i.config_uuid i.config_name %}" class="notpaid_text">Service: <span class="nspan" style="color: #98E2FFFF">{{ i.config_name }}</span> </a>
                         <h3 class="notpaid_text">price:  <span class="nspan">{{ i.price|price }} T</span></h3>
                         {% if i.chat_id == none %}

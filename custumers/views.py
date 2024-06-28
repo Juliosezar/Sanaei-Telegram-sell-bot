@@ -13,10 +13,12 @@ from accounts.forms import SearchUserForm
 from django.contrib import messages
 from .forms import SendMessageToAllForm, SendMessageToCustomerForm, ChangeWalletForm
 from connection.models import SendMessage
-
+from reports.models import CustomerLog
 class Customer:
     @classmethod
     def create_custumer(cls, user_id, first_name, username):
+        if len(first_name) > 20:
+            first_name = first_name[:20]
         CustomerModel.objects.create(
             userid=user_id,
             first_name=first_name,
@@ -26,6 +28,8 @@ class Customer:
 
     @classmethod
     def reload_custumer_info(cls, user_id, first_name, username):
+        if len(first_name) > 20:
+            first_name = first_name[:20]
         custumer = CustomerModel.objects.get(userid=user_id)
         custumer.first_name = first_name
         custumer.username = username
@@ -56,7 +60,7 @@ class CustomerList(LoginRequiredMixin, View):
     def get(self, request):
         customer_model = CustomerModel.objects.all()
         form = SearchUserForm()
-        return render(request, 'list_custumers.html', {"customer_model": customer_model, 'search_user':form})
+        return render(request, 'list_custumers.html', {"customer_model": reversed(customer_model), 'search_user':form})
 
     def post(self, request):
         form = SearchUserForm(request.POST)
@@ -65,7 +69,7 @@ class CustomerList(LoginRequiredMixin, View):
             customer_model = CustomerModel.objects.filter(Q(userid__icontains=word) | Q(first_name__icontains=word) | Q(username__icontains=word))
             if not customer_model.exists():
                 messages.error(request, "یوزری با این مشخصات یافت نشد.")
-            return render(request, 'list_custumers.html', {"customer_model": customer_model,'search_user':form})
+            return render(request, 'list_custumers.html', {"customer_model": reversed(customer_model),'search_user':form})
         return redirect('accounts:home')
 
 
@@ -79,8 +83,10 @@ class CustomerDetail(LoginRequiredMixin, View):
         pay_model = ConfirmPaymentQueue.objects.filter(custumer=customer_obj, status=3)
         sum_pays = sum(item.pay_price for item in pay_model)
         sum_configs = True if len(config_model) > 0 else False
+        
+        history = reversed(CustomerLog.objects.filter(customer=customer_obj))
         return render(request, "Custumer_details.html", {"customer_obj": customer_obj, "sum_pays":sum_pays,
-                                            "configs_model":config_model, "sum_configs":sum_configs})
+                            "history":history,"configs_model":config_model, "sum_configs":sum_configs})
 
 class GetCustumersConfigsAPI(APIView):
     def get(self, request , config_uuid):

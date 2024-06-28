@@ -1,5 +1,4 @@
 import json
-
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -8,9 +7,9 @@ from .forms import LoginForm, SearchConfigForm, SearchUserForm, ChangeSettingFor
 from django.contrib import messages
 from servers.models import Server
 
+
 class LogIn(View):
     formclass = LoginForm
-
     def get(self, request):
         form = self.formclass
         return render(request, "log_in.html", {"form": form})
@@ -46,6 +45,7 @@ class SettingsPage(LoginRequiredMixin, View):
     def get(self, request):
         form = ChangeSettingForm()
         return render(request, "settings.html", {"form": form})
+
     def post(self, request):
         form = ChangeSettingForm(request.POST)
         if form.is_valid():

@@ -2,6 +2,9 @@ from django import template
 from servers.models import ConfigsInfo, InfinitCongisLimit
 from django.conf import settings
 import json
+from persiantools.jdatetime import JalaliDateTime
+import datetime, pytz
+from servers.models import CreateConfigQueue
 
 register = template.Library()
 
@@ -63,5 +66,16 @@ def infinit_limit(value, ip_limit):
 
 
 
+@register.filter(name="timestamp")
+def timestamp(value):
+    return JalaliDateTime.fromtimestamp(value, pytz.timezone("Asia/Tehran")).strftime("%c")
+
+
+@register.filter(name="get_server")
+def get_server(value):
+    if CreateConfigQueue.objects.filter(config_uuid=value).exists():
+        return CreateConfigQueue.objects.get(config_uuid=value).server.server_name
+    else:
+        return "----"
 
 

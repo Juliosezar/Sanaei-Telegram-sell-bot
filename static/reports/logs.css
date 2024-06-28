@@ -1,0 +1,10 @@
+#counter {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+@media (max-width: 650px) {
+    #counter {
+    font-size: larger;
+}
+}

@@ -35,6 +35,7 @@ def send_end_conf_notif():
         if api:
             for name in api:
                 if ConfigsInfo.objects.filter(config_name=name).exists():
+                    print(name)
                     config_mdl = ConfigsInfo.objects.get(config_name=name)
                     if MsgEndOfConfig.objects.filter(config=config_mdl).exists():
                         if not api[name]["ended"]:
@@ -88,6 +89,7 @@ def send_notif_to_admins():
             for admin in admins:
                 CommandRunner.send_msg_to_user(admin,
                     msg=f"{count1 + count2} پرداخت تایید نشده")
+
 
 
 @shared_task

@@ -168,7 +168,15 @@ class EditServerForm(forms.Form):
 
 
 class ChangeConfigLocForm(forms.Form):
-    server = forms.ChoiceField(choices=[(i.server_id, i.server_name) for i in Server.objects.all()])
+    def __init__(self, *args, **kwargs):
+        self.server_id = kwargs.pop('server', None)
+        super().__init__(*args, **kwargs)
+        self.fields["server"].choices = self.ch()
+
+    def ch(self):
+        return [(i.server_id, i.server_name) for i in Server.objects.all() if not i.server_id == self.server_id]
+
+    server = forms.ChoiceField()
 
     def clean_server(self):
         server = self.cleaned_data['server']

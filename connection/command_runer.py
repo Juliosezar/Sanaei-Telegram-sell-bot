@@ -885,7 +885,7 @@ class CommandRunner:
             data = {
                 'message_id': msg_id,
                 'chat_id': chat_id,
-                'text': f" مبلغ {price}تومان را به شماره کارت زیر انتقال دهید، سپس عکس آنرا بعد از همین پیام ارسال نمایید : " + f'\n\n`{card_num}`\n {card_name}',
+                'text': f" مبلغ {price - config_info.chat_id.wallet}تومان را به شماره کارت زیر انتقال دهید، سپس عکس آنرا بعد از همین پیام ارسال نمایید : " + f'\n\n`{card_num}`\n {card_name}',
                 'parse_mode': 'Markdown',
             }
             data2 = {

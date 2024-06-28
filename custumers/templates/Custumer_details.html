@@ -7,6 +7,7 @@
 {% include "base_head.html" %}
     <meta charset="UTF-8">
     <title>Title</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'custumers/component.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'custumers/custumer_details.css' %}">
     <script>
         $(document).ready(function() {
@@ -91,6 +92,31 @@
                 {% endfor %}
             </div>
         {% endif %}
+        <hr style="background-color: #0a0000">
+                <h4 id="his">History</h4>
+            <div class="xcontainer">
+		    		<table class="overflow-y">
+		    			<thead>
+		    				<tr>
+                                <th>Data/Time</th>
+                                <th>َAction</th>
+		    				</tr>
+		    			</thead>
+		    			<tbody>
+                        {% for x in history %}
+                            <tr>
+                                <td>
+                                    {{ x.timestamp|timestamp }}
+                                </td>
+                                <td dir="ltr">
+                                    {{ x.action }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+		    			</tbody>
+		    		</table>
+            </div>
+
     </div>
 {% include "loading.html" %}
 </body>

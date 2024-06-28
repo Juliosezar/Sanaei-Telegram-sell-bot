@@ -7,6 +7,7 @@
 {% include "base_head.html" %}
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'custumers/component.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'servers/config_page.css' %}">
 </head>
 
@@ -28,10 +29,15 @@
             {% if config_info.paid %}
             <h3 class="c_info">پرداخت شده: ✅</h3> {% else %} <h3 class="c_info">پرداخت شده: ❌</h3>
             {% endif %}
+            <h3 class="c_info">تمدید: {{ config_info.renew_count }}</h3>
         {% else %}
             <h3 class="text_error">❗ کانفیگ در بات ثبت نشده است. ❗</h3>
         {% endif %}
         </div>
+
+        {% if not config_usage.enable %}
+            <h4 id="dis" dir="rtl">⛔ این کانفیگ غیرفعال است. ⛔</h4>
+        {% endif %}
         <div id="box1">
         {% if config_usage %}
             <div class="show_usage">
@@ -96,20 +102,20 @@
                     </div>
                 {% elif config_usage.expire_time > 0 and not config_usage.started %}
                     <div class="time">
-                        <h4 class="expire_text green">⏳ {{ config_usage.expire_time|floatformat:0 }} day</h4>
+                        <h4 class="expire_text green">⏳ {{ config_usage.expire_time|dh }}</h4>
                     </div>
                 {% elif config_usage.expire_time > 3 %}
                     <div class="time">
-                        <h4 class="expire_text blue">⏳ {{ config_usage.expire_time|dh }} day</h4>
+                        <h4 class="expire_text blue">⏳ {{ config_usage.expire_time|dh }}</h4>
                     </div>
                 {% elif config_usage.expire_time > 0 %}
                     <div class="time">
-                        <h4 class="expire_text orange">⏳ {{ config_usage.expire_time|dh }} day</h4>
+                        <h4 class="expire_text orange">⏳ {{ config_usage.expire_time|dh }}</h4>
                     </div>
 
                 {% else %}
                     <div class="time">
-                        <h4 class="expire_text red">⏳ {{ config_usage.expire_time|dh }} day ago</h4>
+                        <h4 class="expire_text red">⏳ {{ config_usage.expire_time|dh }} ago</h4>
                     </div>
                 {% endif %}
 
@@ -173,6 +179,33 @@
           alert("با موفقیت کپی شد.");
         }
         </script>
+{% if config_info %}
+            <h4 id="his">History</h4>
+            <div class="xcontainer">
+
+		    		<table class="overflow-y">
+		    			<thead>
+		    				<tr>
+                                <th>Data/Time</th>
+                                <th>َAction</th>
+		    				</tr>
+		    			</thead>
+		    			<tbody>
+                        {% for x in conf_log %}
+                            <tr>
+                                <td>
+                                    {{ x.timestamp|timestamp }}
+                                </td>
+                                <td dir="ltr">
+                                    {{ x.action }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+		    			</tbody>
+		    		</table>
+            </div>
+{% endif %}
+
 
     </div>
 {% include "loading.html" %}
