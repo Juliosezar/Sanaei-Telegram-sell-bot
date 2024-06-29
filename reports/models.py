@@ -19,3 +19,8 @@ class AdminLog(models.Model):
     admin = models.CharField(max_length=15)
     action = models.TextField()
     timestamp = models.IntegerField(default=1719482579)
+
+
+class ErrorLog(models.Model):
+    error = models.TextField()
+    timestamp = models.IntegerField()

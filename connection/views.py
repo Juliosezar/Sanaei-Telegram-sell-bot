@@ -1,12 +1,11 @@
-from os import environ
-from django.shortcuts import render
-from django.views import View
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .command_runer import CommandRunner
 from custumers.models import Customer as CustumerModel
-from servers.views import ServerApi
+from reports.models import ErrorLog
+from persiantools.jdatetime import JalaliDateTime
+
 COMMANDS = {
     '/start': CommandRunner.main_menu,
     'خرید سرویس 🛍': CommandRunner.select_server,
@@ -121,6 +120,6 @@ def webhook(request):
                     CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                     COMMANDS["/start"](chat_id)
             return JsonResponse({'status': 'ok'})
-        except Exception as e:
-            print(e)
+        except Exception as Argument:
+            ErrorLog.objects.create(error=str(Argument), timestamp=int(JalaliDateTime.now().timestamp())).save()
     return JsonResponse({'status': 'not a POST request'})

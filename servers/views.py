@@ -603,13 +603,16 @@ class ConfigPage(LoginRequiredMixin, View):
             config_info = False
         config_usage = ServerApi.get_list_configs(server_id)
         if config_usage:
-            config_usage = config_usage[config_name]
-            get_config_link =f"نام سرویس: {config_name}" "\n\n" "برای دریافت کانفیگ روی لینک زیر کلیک کنید 👇🏻" "\n"  f'tg://resolve?domain={BOT_USERNAME}&start=register_{config_uuid}'
-            vless = Configs.create_vless_text(config_uuid, ServerModel.objects.get(server_id=server_id), config_name)
-            return render(request, 'config_page.html', {'config_info': config_info, 'vless': vless,
-                                                        'config_usage': config_usage, 'config_name': config_name,
-                                                    "get_config_link": get_config_link, "server_id":server_id,
-                                                        "conf_log": conf_log})
+            if config_name in config_usage:
+                config_usage = config_usage[config_name]
+                get_config_link =f"نام سرویس: {config_name}" "\n\n" "برای دریافت کانفیگ روی لینک زیر کلیک کنید 👇🏻" "\n"  f'tg://resolve?domain={BOT_USERNAME}&start=register_{config_uuid}'
+                vless = Configs.create_vless_text(config_uuid, ServerModel.objects.get(server_id=server_id), config_name)
+                return render(request, 'config_page.html', {'config_info': config_info, 'vless': vless,
+                                                            'config_usage': config_usage, 'config_name': config_name,
+                                                        "get_config_link": get_config_link, "server_id":server_id,
+                                                            "conf_log": conf_log})
+            messages.error(request,"کانفیگ حذف شده است.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
         messages.error(request,"کانفیگ در دیتابیس پیدا نشد یا اتصال به سرور برقرار نشد.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -885,7 +888,6 @@ class ChangeConfigPage(LoginRequiredMixin, View):
         return render(request, "change_config.html", {"config": api, "form": form, 'server_id':server_id, 'config_name':config_name})
 
     def post(self, request, config_uuid, config_name, server_id):
-        # conf = ConfigsInfo.objects.get(config_uuid=config_uuid)
         form = ChangeConfigSettingForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
@@ -896,6 +898,13 @@ class ChangeConfigPage(LoginRequiredMixin, View):
                                           reset=False)
             if post:
                 messages.success(request, "کانفیگ با موفقیت آپدیت شد.")
+
+                Log.create_admin_log(f"{request.user.username}", f"⚙️ Edit \"{config_name}\" ({usage_limit}GB - {days_limit}day - {ip_limit}Ip)")
+                if ConfigsInfo.objects.filter(config_uuid=config_uuid):
+                    Log.create_config_log(ConfigsInfo.objects.get(config_uuid=config_uuid), f"⚙️ Edit by \"{request.user.username}\" ({usage_limit}GB - {days_limit}day - {ip_limit}Ip)")
+                    if cus := ConfigsInfo.objects.get(config_uuid=config_uuid).chat_id:
+                        Log.create_customer_log(cus, f"⚙️ Edit \"{config_name}\" by \"{request.user.username}\" ({usage_limit}GB - {days_limit}day - {ip_limit}Ip)")
+
                 return redirect("servers:conf_page", server_id, config_uuid, config_name)
             else:
                 messages.error(request, "ارور در اتصال به سرور.")
