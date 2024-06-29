@@ -42,9 +42,9 @@
 <div id="main">
     <div id="zx">
     {% if form_type == 'auto' %}
-        <a href="{% url 'servers:create_config_page' server_id 'manual' %}" class="change_form">کانفیگ دستی</a>
+        <a href="{% url 'servers:create_config_page' server.server_id 'manual' %}" class="change_form">کانفیگ دستی</a>
     {% else %}
-        <a href="{% url 'servers:create_config_page' server_id 'auto' %}" class="change_form">کانفیگ خودکار</a>
+        <a href="{% url 'servers:create_config_page' server.server_id 'auto' %}" class="change_form">کانفیگ خودکار</a>
     {% endif %}
     </div>
         <form novalidate action="" method="post" dir="rtl">
@@ -55,6 +55,7 @@
             {% endfor %}
             <h3 id="title">ساخت کانفیگ جدید</h3>
             {% csrf_token %}
+            <h3 id="title">{{ server.server_name }}</h3>
             <div class="textinput item"><h3 class="item_text">نوع کانفیگ : </h3>{{ form.type }}</div>
             <div id="time_limit" class="textinput item"><h3 class="item_text">مدت زمان کانفیگ : </h3>{{ form.days_limit }}{% if form_type == 'manual' %}🔺 روز{% endif %}</div>
             <div id="usage" class="textinput item"><h3 class="item_text">حجم کانفیگ : </h3>{{ form.usage_limit }}{% if form_type == 'manual' %}GB{% endif %}</div>
@@ -192,5 +193,7 @@
         </form>
     </div>
 {% include "loading.html" %}
+{% include "list_servers.html" %}
+
 </body>
 </html>

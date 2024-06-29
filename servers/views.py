@@ -508,8 +508,8 @@ class Configs:
             CommandRunner.send_msg_to_user(config_queue_obj.config.chat_id.userid,
                                            f"✅ سرویس {config_queue_obj.config.config_name} تمدید شد. از بخش (سرویس های من) در منوی اصلی میتوانید وضعیت سرویس خود را مشاهده کنید.")
             Log.create_config_log(config_queue_obj.config, f"🔃 Renew by \"Bot\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price/1000)}HT)")
-            Log.create_admin_log("Bot", f"🔃 Renew \"{config_queue_obj.config.config_name}\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.pric/1000)}HT)")
-            Log.create_customer_log(config_queue_obj.config.chat_id, f"🔃 Renew \"{config_queue_obj.config.config_name}\" by \"Bot\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.pric/1000)}HT)")
+            Log.create_admin_log("Bot", f"🔃 Renew \"{config_queue_obj.config.config_name}\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price/1000)}HT)")
+            Log.create_customer_log(config_queue_obj.config.chat_id, f"🔃 Renew \"{config_queue_obj.config.config_name}\" by \"Bot\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price/1000)}HT)")
         else:
             config_queue_obj.sent_to_user = 5
             config_queue_obj.save()
@@ -621,7 +621,7 @@ class CreateConfigPage(LoginRequiredMixin, View):
     def get(self, request, server_id, form_type):
         forms = {'auto': CreateConfigForm, 'manual': ManualCreateConfigForm}
         return render(request, 'create_config.html',
-                      {'server_id': server_id, 'form': forms[form_type], 'form_type': form_type})
+                      {'server': ServerModel.objects.get(server_id=server_id), 'form': forms[form_type], 'form_type': form_type})
 
     def post(self, request, server_id, form_type):
         forms = {'auto': CreateConfigForm, 'manual': ManualCreateConfigForm}
@@ -657,7 +657,7 @@ class CreateConfigPage(LoginRequiredMixin, View):
 
             messages.error(request, "اتصال به سرور برقرار نشد.")
 
-        return render(request, 'create_config.html', {'server_id': server_id, 'form': form, 'form_type': form_type})
+        return render(request, 'create_config.html', {'server': ServerModel.objects.get(server_id=server_id), 'form': form, 'form_type': form_type})
 
 
 class ApiGetConfigTimeChoices(APIView):
@@ -881,7 +881,6 @@ class RenewPage(LoginRequiredMixin, View):
 
 class ChangeConfigPage(LoginRequiredMixin, View):
     def get(self, request, config_uuid, config_name, server_id):
-        # conf = ConfigsInfo.objects.get(config_uuid=config_uuid)
         api = ServerApi.get_list_configs(server_id)[config_name]
         form = ChangeConfigSettingForm(
             config_data={"usage": api["usage_limit"], "expire_time": api["expire_time"], "ip_limit": api["ip_limit"]})

@@ -175,6 +175,33 @@ li {
 	flex-direction: row;
 	flex-wrap: nowrap;
 	}
+
+#action_create_config ,#action_list_config {
+	border: none;
+	margin: 0;
+	background-color: rgba(255, 255, 255, 0);
+	text-align: center;
+	color: #34495e;
+
+
+}
+
+#action_create_config:hover ,#action_list_config:hover {
+	background-color: #34495e;
+	color: white;
+	padding: 0.7rem 0.5rem;
+	border-radius: 10px;
+		margin: 0;
+}
+
+.hidephone {
+	display: flex;
+	flex-direction: column;
+	align-content: center;
+	align-items: center;
+	justify-items: center;
+	justify-content: center;
+}
 @media (max-width: 1000px) {
 	.header{
 		display: flex;
@@ -185,11 +212,7 @@ li {
         margin: 0;
     }
 
-	.main-nav{
-		flex-direction: column;
-		align-items: center;
-		margin-top: 3rem;
-	}
+
 	hr{
 		width: 100%;
 	}
@@ -203,7 +226,10 @@ li {
 		margin-left: 0;
 	}
 	.main-nav {
-
+		align-items: center;
+		margin-top: 3rem;
+		flex-basis: max-content;
+		flex-shrink: 1;
 		margin-right: 0;
 		display: flex;
 		flex-direction: row;
@@ -262,8 +288,94 @@ li {
 		flex-direction: column;
 		margin: 0.5rem 0;
 	}
+
+	#action_create_config ,#action_list_config {
+		width: 40%;
+		margin: 0.5rem 0;
+
+}
 }
 
 
 
+
+
+
+/*servers list and create*/
+
+
+
+.servers{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+.servers {
+    background-color: white;
+  box-shadow: 5px 10px 8px rgba(0, 8, 62, 0.46);
+    border-radius: 5px;
+    margin: 1rem;
+    padding: 1rem;
+}
+
+.server_name {
+    font-size: x-large;
+    background-color: #000d3f;
+    color: white;
+    padding: 1rem 2rem;
+    margin: 1rem;
+    min-width: 15rem;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.close_btn {
+    font-size: large;
+    color: #000d3f;
+    border-radius: 15px;
+    text-align: left;
+    padding: 0.5rem;
+    border: none;
+}
+.closebox {
+    display: flex;
+    width: 100%;
+    align-items: start;
+}
+.server_lists {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+}
+.link2 {
+    width: 30vw;
+}
+
+.sp {
+    font-size: small;
+    margin: 0 0 0 1rem;
+}
+@media (max-width: 650px) {
+    .server_name {
+    font-size: large;
+    padding: 1rem 2rem;
+    margin: 0.5rem;
+    min-width: 11rem;
+
+}
+
+.close_btn {
+    font-size: medium;
+
+}
+
+}
 
