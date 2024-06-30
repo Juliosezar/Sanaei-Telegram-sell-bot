@@ -129,6 +129,7 @@ class AddServerForm(forms.Form):
     inbound_id = forms.IntegerField(required=True)
     inbound_port = forms.IntegerField(required=True)
     active = forms.BooleanField(initial=True, required=False)
+    iphone = forms.BooleanField(required=False, initial=False)
 
     def clean_server_url(self):
         url = self.cleaned_data['server_url']
@@ -150,6 +151,7 @@ class EditServerForm(forms.Form):
         self.fields["inbound_id"].initial = server.inbound_id
         self.fields["inbound_port"].initial = server.inbound_port
         self.fields["active"].initial = server.active
+        self.fields["iphone"].initial = server.iphone
 
     server_name = forms.CharField(max_length=30, required=True)
     server_url = forms.CharField(max_length=60, required=True)
@@ -159,7 +161,7 @@ class EditServerForm(forms.Form):
     inbound_id = forms.IntegerField(required=True)
     inbound_port = forms.IntegerField(required=True)
     active = forms.BooleanField(initial=True, required=False)
-
+    iphone = forms.BooleanField(required=False)
     def clean_server_url(self):
         url = self.cleaned_data['server_url']
         if not url.startswith('http://') or not url.endswith("/") or "panel" in url:

@@ -17,8 +17,10 @@ from reports.models import CustomerLog
 class Customer:
     @classmethod
     def create_custumer(cls, user_id, first_name, username):
-        if len(first_name) > 20:
+        if first_name:
             first_name = first_name[:20]
+        else:
+            first_name = ''
         CustomerModel.objects.create(
             userid=user_id,
             first_name=first_name,
@@ -28,8 +30,10 @@ class Customer:
 
     @classmethod
     def reload_custumer_info(cls, user_id, first_name, username):
-        if len(first_name) > 20:
+        if first_name:
             first_name = first_name[:20]
+        else:
+            first_name = ''
         custumer = CustomerModel.objects.get(userid=user_id)
         custumer.first_name = first_name
         custumer.username = username

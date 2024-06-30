@@ -13,7 +13,6 @@ class Customer(models.Model):
     pay_temp_amount = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
     restrict = models.BooleanField(default=False)
-
     def __str__(self):
         return self.first_name + " / " + str(self.userid)
 

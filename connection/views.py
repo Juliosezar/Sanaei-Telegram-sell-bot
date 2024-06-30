@@ -37,6 +37,9 @@ COMMANDS = {
     'tam_wallet' : CommandRunner.tamdid_config_from_wallet,
     "tam_pay": CommandRunner.tamdid_pay_for_config,
     # "banned_user": CommandRunner.banned_user,
+    "choose_location": CommandRunner.choose_location,
+    "change_location": CommandRunner.change_location,
+    "confirm_change": CommandRunner.confirm_change,
 }
 
 '''
@@ -54,6 +57,7 @@ def webhook(request):
             update = json.loads(request.body)
             if 'message' in update:
                 chat_id = update['message']['chat']['id']
+                print(update)
                 if not CustumerModel.objects.filter(userid=chat_id).exists():
                     CommandRunner.main_menu(chat_id)
                 if "text" in update["message"]:

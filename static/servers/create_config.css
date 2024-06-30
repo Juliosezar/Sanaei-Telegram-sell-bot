@@ -189,7 +189,7 @@ form{
     text-align: center;
 }
 
-#id_active {
+#id_active , #id_iphone{
     width: 1.2rem;
     height: 1.2rem;
 }

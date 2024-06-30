@@ -17,6 +17,8 @@ from django.core.files.base import ContentFile
 from .models import SendMessage
 from uuid import UUID
 from servers.views import ServerApi
+from persiantools.jdatetime import JalaliDateTime
+
 
 def is_valid_uuid(uuid_to_test):
     try:
@@ -39,8 +41,8 @@ class CommandRunner:
     def send_api(cls, api_method, data):
         url = TELEGRAM_SERVER_URL + api_method
         try:
-            response = requests.post(url, json=data, timeout=2)
-
+            response = requests.post(url, json=data, timeout=3)
+            print(response.json())
             return response
         except requests.exceptions.RequestException as e:
             print(e)
@@ -73,10 +75,13 @@ class CommandRunner:
 
     @classmethod
     def send_msg_to_user(cls, chat_id, msg):
+        for i in ['_', '*', '[', ']', '(', ')', '~', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']:
+            msg = msg.replace(i, f"\\{i}")
         data = {'chat_id': chat_id,
                 'text': msg,
-                'parse_mode': 'Markdown',
+                'parse_mode': 'MarkdownV2',
                 }
+
         respons = cls.send_api("sendMessage", data)
         if not respons:
             SendMessage.objects.create(customer=CustumerModel.objects.get(userid=chat_id), message=msg)
@@ -84,15 +89,15 @@ class CommandRunner:
 
     @classmethod
     def celery_send_msg(cls, chat_id, msg):
+        for i in ['_', '*', '[', ']', '(', ')', '~', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']:
+            msg = msg.replace(i, f"\\{i}")
         data = {'chat_id': chat_id,
                 'text': msg,
-                'parse_mode': 'Markdown',
+                'parse_mode': 'MarkdownV2',
                 }
         try:
             url = TELEGRAM_SERVER_URL + 'sendMessage'
-            response = requests.post(url, json=data, timeout=2)
-
-
+            response = requests.post(url, json=data, timeout=3)
             if response.status_code == 200:
                 return 'Succes'
             elif response.status_code == 403:
@@ -121,6 +126,7 @@ class CommandRunner:
         data = {'chat_id': chat_id}
         info = CommandRunner.send_api("getChat", data)
         info = info.json()
+        print(info)
         if "username" in info["result"]:
             username = info["result"]["username"]
         else:
@@ -129,7 +135,7 @@ class CommandRunner:
         if "first_name" in info["result"]:
             first_name = info["result"]["first_name"]
         else:
-            first_name = None
+            first_name = ""
 
         return {"username": username, "first_name": first_name}
 
@@ -540,7 +546,9 @@ class CommandRunner:
         msg_id = int(args[0])
         arg_splited = args_spliter(args[1])
         conf_uuid = arg_splited[0]
+        keybord = []
         if ConfigsInfo.objects.filter(config_uuid=conf_uuid).exists():
+            keybord.append([{'text': '🔄 Refresh 🔄', 'callback_data': f'service_status<~>{conf_uuid}'}])
             service = ConfigsInfo.objects.get(config_uuid=conf_uuid)
             text = '🔰 نام سرویس: ' + f'{service.config_name}' '\n\n' '🌐 سرور: ' f"{service.server.server_name}"
             api = ServerApi.get_config(service.server.server_id, service.config_name)
@@ -565,30 +573,141 @@ class CommandRunner:
                     expire_days = f" {day} روز" f' و {hour} ساعت '
                 if usage == 0:
                     status = "استارت نشده 🔵"
+                    keybord.append([{'text': '🌐 تغییر لوکیشن سرور 🌐', 'callback_data': f'choose_location<~>{conf_uuid}'}])
                 elif api["ended"]:
                     status = "فعال 🟢"
+                    keybord.append([{'text': '🌐 تغییر لوکیشن سرور 🌐', 'callback_data': f'choose_location<~>{conf_uuid}'}])
                 else:
                     status = "تماما شده 🔴"
+                    keybord.append([{'text': '♻️ تمدید ♻️', 'callback_data': f'tamdid<~>{conf_uuid}'}])
                 text += '\n\n' "📥 حجم مصرفی: " f'{usage}GB از {usage_limit}' '\n\n' '⏳ روز های باقی مانده: ' f'{expire_days}' '\n\n' '📶 وضعیت: ' f'{status}' '\n\n' f'⚙️ نوع: ' f'{kind}'
                 text += "\n\n" " برای آپدیت اطلاعات بالا بر روی دکمه (Refresh) کلیک کنید 👇"
             else:
-                text += "\n\n" + f"اتصال به سرور {service.server.server_name}🔃 برقرار نشد، دقایقی دیگر با زدن بر روی دکمه (Refresh) دوباره امتحان کنید 👇🏻"
+                text += "\n\n" + f"اتصال به سرور {service.server.server_name} برقرار نشد، دقایقی دیگر با زدن بر روی دکمه (Refresh) دوباره امتحان کنید 👇🏻"
         else:
             text = '❌ این سرویس دیگر فعال نیست.'
         text = text.replace('_', "\\_")
+        keybord.append([{'text': '🔙 بازگشت', 'callback_data': f"سرویس های من 🧑‍💻"}])
         data = {
             'chat_id': chat_id,
             'message_id': msg_id,
             'text': text,
             'parse_mode': 'Markdown',
             'reply_markup': {
-                'inline_keyboard': [
-                    [{'text': '🔄 Refresh 🔄', 'callback_data': f'service_status<~>{conf_uuid}'}],
-                    [{'text': '🔙 بازگشت', 'callback_data': f"سرویس های من 🧑‍💻"}]]
+                'inline_keyboard': keybord
             },
         }
         cls.send_api("editMessageText", data)
 
+
+    @classmethod
+    def choose_location(cls, chat_id, *args):
+        msg_id = int(args[0])
+        arg_splited = args_spliter(args[1])
+        conf_uuid = arg_splited[0]
+        if ConfigsInfo.objects.filter(config_uuid=conf_uuid).exists():
+            service = ConfigsInfo.objects.get(config_uuid=conf_uuid)
+            keyboard = []
+            for i in ServerModel.objects.filter(active=True, iphone=service.server.iphone):
+                if i.server_id != service.server.server_id:
+                    keyboard.append([{'text': f'{i.server_name}', 'callback_data': f'change_location<~>{conf_uuid}<%>{i.server_id}'}])
+
+            keyboard.append([{'text': '🔙 بازگشت', 'callback_data': f'service_status<~>{conf_uuid}'}])
+            print(keyboard)
+            data = {
+                'chat_id': chat_id,
+                'message_id': msg_id,
+                'text': f"سرویس: {service.config_name}" "\n\n" f"🌐 سرور فعلی : {service.server.server_name}" "\n\n" "سرور مورد نظر را برای انتقال انتخاب کنید 👇🏻",
+                'reply_markup': {
+                    'inline_keyboard': keyboard
+                },
+            }
+        else:
+            data = {
+                'chat_id': chat_id,
+                'message_id': msg_id,
+                'text': f"سرویس پیدا نشد.",
+                'reply_markup': {
+                    'inline_keyboard': [
+                        [{'text': '🔙 بازگشت', 'callback_data': f'service_status<~>{conf_uuid}'}]
+                    ]
+                },
+            }
+        cls.send_api("editMessageText", data)
+
+
+    @classmethod
+    def change_location(cls, chat_id, *args):
+        msg_id = int(args[0])
+        arg_splited = args_spliter(args[1])
+        conf_uuid = arg_splited[0]
+        server_to = arg_splited[1]
+        if ConfigsInfo.objects.filter(config_uuid=conf_uuid).exists():
+            service = ConfigsInfo.objects.get(config_uuid=conf_uuid)
+            server_to = ServerModel.objects.get(server_id=server_to)
+            data = {
+                'chat_id': chat_id,
+                'message_id': msg_id,
+                'text': f"آیا از انتقال سرویس {service.config_name} از سرور {service.server.server_name} به {server_to.server_name} مطمئنید؟",
+                'reply_markup': {
+                    'inline_keyboard': [
+                        [{'text': '🛰 تایید انتقال ✅', 'callback_data': f'confirm_change<~>{conf_uuid}<%>{server_to.server_id}'}],
+                        [{'text': '🔙 بازگشت', 'callback_data': f'service_status<~>{conf_uuid}'}]
+                    ]
+                },
+            }
+        else:
+            data = {
+                'chat_id': chat_id,
+                'message_id': msg_id,
+                'text': f"سرویس پیدا نشد.",
+                'reply_markup': {
+                    'inline_keyboard': [
+                        [{'text': '🔙 بازگشت', 'callback_data': f'service_status<~>{conf_uuid}'}]
+                    ]
+                },
+            }
+        cls.send_api("editMessageText", data)
+
+    @classmethod
+    def confirm_change(cls, chat_id, *args):
+        msg_id = int(args[0])
+        arg_splited = args_spliter(args[1])
+        conf_uuid = arg_splited[0]
+        server_to = int(arg_splited[1])
+        if ConfigsInfo.objects.filter(config_uuid=conf_uuid).exists():
+            service = ConfigsInfo.objects.get(config_uuid=conf_uuid)
+            data = {
+                'chat_id': chat_id,
+                'message_id': msg_id,
+                'text': f"🟢 درخواست انتقال شما ثبت شد و تا لحظاتی دیگر نتیجه اعلام میشود.",
+            }
+            cls.send_api("editMessageText", data)
+            if (int(JalaliDateTime.now().timestamp()) - service.change_location_time) > 604800:
+                api = ServerApi.change_location(service.server.server_id, server_to, conf_uuid)
+                print(4634)
+                if api:
+                    cls.send_msg_to_user(chat_id, f" ✅ سرویس {service.config_name} با موفقیت انتقال پیدا کرد و برای شما ارسال میشود.")
+                    Configs.send_config_to_user(chat_id, conf_uuid, server_to, service.config_name)
+                    service.change_location_time = int(JalaliDateTime.now().timestamp())
+                    service.server = ServerModel.objects.get(server_id=server_to)
+                    service.save()
+                else:
+                    cls.send_msg_to_user(chat_id, f" 🔴 انتقال سرویس {service.config_name} با ارور مواجه شد، سرور دیگری برای انتقال انتخاب کنید یا دقایقی دیگر دوباره امتحان کنید.")
+            else:
+                cls.send_msg_to_user(chat_id, "🔴 مشتری گرامی، هر سرویس محدودیت انتقال هفته ای یکبار دارد و شما در یک هفته اخیر این سرویس را انتقال داده اید; میتوانید در این مورد به ادمین پیام دهید.")
+        else:
+            data = {
+                'chat_id': chat_id,
+                'message_id': msg_id,
+                'text': f"سرویس پیدا نشد.",
+                'reply_markup': {
+                    'inline_keyboard': [
+                        [{'text': '🔙 بازگشت', 'callback_data': f'service_status<~>{conf_uuid}'}]
+                    ]
+                },
+            }
+        cls.send_api("editMessageText", data)
 
     @classmethod
     def download_apps(cls, chat_id, *args):

@@ -44,8 +44,10 @@ class ServerApi:
         try:
             session = requests.Session()
             login_response = session.post(login_url, headers=header, json=login_payload, timeout=15)
+            print(login_response.json())
             if login_response.status_code == 200:
                 if login_response.json()["success"]:
+                    print("session created")
                     return session
             else:
                 session.close()
@@ -223,6 +225,7 @@ class ServerApi:
 
     @classmethod
     def change_location(cls, from_server_id, to_server_id, config_uuid):
+        print(from_server_id, to_server_id, config_uuid)
         config_obj = ConfigsInfo.objects.get(config_uuid=config_uuid)
         from_server_obj = ServerModel.objects.get(server_id=from_server_id)
         from_session = cls.create_session(from_server_id)
@@ -231,7 +234,9 @@ class ServerApi:
         to_session = cls.create_session(to_server_id)
 
         if not from_session or not to_session:
+            print("not connect")
             return False
+        print("connect")
         list_configs = from_session.get(from_server_obj.server_url + "panel/api/inbounds/list/", timeout=15)
         if list_configs.status_code != 200:
             from_session.close()
@@ -807,7 +812,8 @@ class AddServer(LoginRequiredMixin, View):
                 server_fake_domain=cd["server_fake_domain"],
                 inbound_id=cd["inbound_id"],
                 inbound_port=cd["inbound_port"],
-                active=cd["active"]
+                active=cd["active"],
+                iphone = cd["iphone"]
             ).save()
             return redirect('servers:show_servers')
         return render(request, "add_server.html", {'form': form})
@@ -831,6 +837,7 @@ class EditServer(LoginRequiredMixin, View):
             obj.inbound_id = cd["inbound_id"]
             obj.inbound_port = cd["inbound_port"]
             obj.active = cd["active"]
+            obj.iphone = cd["iphone"]
             obj.save()
             return redirect('servers:show_servers')
         return render(request, "add_server.html", {'form': form, "edit":True})

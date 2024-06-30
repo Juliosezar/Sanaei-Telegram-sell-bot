@@ -12,6 +12,7 @@ class Server(models.Model):
     inbound_id = models.IntegerField()
     inbound_port = models.IntegerField()
     active = models.BooleanField(default=True)
+    iphone = models.BooleanField(default=False)
 
     def __str__(self):
         return self.server_name
@@ -25,6 +26,8 @@ class ConfigsInfo(models.Model):
     paid = models.BooleanField(default=True)
     created_by = models.CharField(max_length=20, default="BOT")
     renew_count = models.IntegerField(default=0)
+    change_location_time = models.IntegerField(default=0)
+
 
     def __str__(self):
         return self.config_name
