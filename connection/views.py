@@ -40,6 +40,7 @@ COMMANDS = {
     "choose_location": CommandRunner.choose_location,
     "change_location": CommandRunner.change_location,
     "confirm_change": CommandRunner.confirm_change,
+    "QRcode": CommandRunner.Qrcode
 }
 
 '''
@@ -54,9 +55,9 @@ def webhook(request):
     if request.method == 'POST':
         # try:
             update = json.loads(request.body)
+            print(update)
             if 'message' in update:
                 chat_id = update['message']['chat']['id']
-                print(update)
                 if not CustumerModel.objects.filter(userid=chat_id).exists():
                     CommandRunner.main_menu(chat_id)
                 if "text" in update["message"]:
@@ -121,6 +122,7 @@ def webhook(request):
                     else:
                         COMMANDS[command](chat_id, msg_id)
                 else:
+                    print(query_data.split("<~>")[0])
                     CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                     COMMANDS["/start"](chat_id)
             return JsonResponse({'status': 'ok'})

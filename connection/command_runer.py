@@ -18,6 +18,7 @@ from .models import SendMessage
 from uuid import UUID
 from servers.views import ServerApi
 from persiantools.jdatetime import JalaliDateTime
+import qrcode
 
 
 def is_valid_uuid(uuid_to_test):
@@ -42,6 +43,7 @@ class CommandRunner:
         url = TELEGRAM_SERVER_URL + api_method
         try:
             response = requests.post(url, json=data, timeout=3)
+            print(response.json())
             return response
         except requests.exceptions.RequestException as e:
             print(e)
@@ -496,6 +498,29 @@ class CommandRunner:
                 cls.send_msg_to_user(chat_id, "کانفیگی با این مشخصات ثبت نشده است.")
         else:
             cls.send_msg_to_user(chat_id, 'لینک نامعتبر است.')
+
+    @classmethod
+    def Qrcode(cls, chat_id, *args):
+        conf_uuid = args[1]
+        print(args)
+        if ConfigsInfo.objects.filter(config_uuid=conf_uuid).exists():
+            obj = ConfigsInfo.objects.get(config_uuid=conf_uuid)
+            vless = (f"vless://{obj.config_uuid}@{obj.server.server_fake_domain}:{obj.server.inbound_port}?"
+                     f"security=none&encryption=none&host=speedtest.net&headerType=http&type=tcp#{obj.config_name}"
+                     )
+            qr = qrcode.QRCode(version=3, box_size=30, border=10, error_correction=qrcode.constants.ERROR_CORRECT_H)
+            qr.add_data(vless)
+            qr.make(fit=True)
+            img = qr.make_image(fill_color="black", back_color="white")
+            filename = conf_uuid
+            img.save(str(settings.MEDIA_ROOT) + f"/{filename}.jpg")
+            data = {'chat_id': chat_id,
+                    'photo': f"https://admin-napsv.ir/media/{filename}.jpg",
+                    "caption" : f" 💠 سرویس: {obj.config_name}"}
+            cls.send_api("sendPhoto", data)
+
+        else:
+            cls.send_msg_to_user(chat_id, "سرویس ثبت نشده است.")
 
     @classmethod
     def myid(cls, chat_id, *args):

@@ -178,6 +178,5 @@ class UpdateCustumer(LoginRequiredMixin, View):
     def get(self, request, userid):
         from connection.command_runer import CommandRunner
         get = CommandRunner.get_user_info(userid)
-        print(get)
         Customer.check_custumer_info(userid, get["first_name"], get["username"])
         return redirect(request.META.get('HTTP_REFERER', '/'))
