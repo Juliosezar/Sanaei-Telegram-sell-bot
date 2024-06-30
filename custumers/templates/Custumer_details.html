@@ -45,7 +45,7 @@
             {% else %}
                 <h3 class="info_item">وضعیت : غیر فعال 🔴</h3>
             {% endif %}
-            <a class="info_item" href=""><img style="width: 3rem" src="{% static 'img/icons8-restart-512.png' %}" alt=""></a>
+            <a class="info_item" href="{% url "customers:update_customer" customer_obj.userid %}"><img style="width: 3rem" src="{% static 'img/icons8-restart-512.png' %}" alt=""></a>
             <a class="info_item refresh" href="{% url 'customers:send_msg_to_user' customer_obj.userid %}"> ارسال پیام 📨</a>
 
         </div>

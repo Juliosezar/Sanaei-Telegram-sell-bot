@@ -42,8 +42,7 @@ class Customer:
 
     @classmethod
     def check_custumer_info(cls, user_id, first_name, username):
-        user = CustomerModel.objects.filter(userid=user_id)
-        if user.exists():
+        if CustomerModel.objects.filter(userid=user_id).exists():
             user = CustomerModel.objects.get(userid=user_id)
             if not (user.first_name == first_name and user.username == username):
                 cls.reload_custumer_info(user_id, first_name, username)
@@ -174,3 +173,11 @@ class ChangeWalletAmount(LoginRequiredMixin, View):
             return redirect('customers:custumer_detail', userid)
         return render(request, 'change_wallet.html', {"form": form})
 
+
+class UpdateCustumer(LoginRequiredMixin, View):
+    def get(self, request, userid):
+        from connection.command_runer import CommandRunner
+        get = CommandRunner.get_user_info(userid)
+        print(get)
+        Customer.check_custumer_info(userid, get["first_name"], get["username"])
+        return redirect(request.META.get('HTTP_REFERER', '/'))

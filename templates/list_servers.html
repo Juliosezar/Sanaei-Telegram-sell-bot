@@ -4,7 +4,7 @@
         <h3>لیست کانفیگ ها</h3>
         <div class="server_lists" >
             {% for s in list_all_servers %}
-                <a class="server_name" href='{% url "servers:list_configs" s.server_id %}'>🌐 {{ s.server_name }}</a>
+                <a class="server_name" href='/servers/list_configs/{{ s.server_id }}/'>🌐 {{ s.server_name }}</a>
             {% endfor %}
         </div>
     </div>
@@ -14,7 +14,7 @@
         <h3>ساخت کانفیگ</h3>
         <div class="server_lists" >
             {% for s in list_all_servers %}
-                <a class="server_name" href="{% url 'servers:create_config_page' s.server_id 'auto' %}">🌐 {{ s.server_name }}</a>
+                <a class="server_name" href="/servers/create_config_page/{{ s.server_id }}/auto/">🌐 {{ s.server_name }}</a>
             {% endfor %}
         </div>
 

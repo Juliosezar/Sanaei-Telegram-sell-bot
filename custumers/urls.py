@@ -10,4 +10,5 @@ urlpatterns = [
    path("send_msg_to_all/", views.SendMsgToAll.as_view(), name="send_msg_to_all"),
    path("send_msg_to_Custumer/<int:userid>/", views.SendMsgToUser.as_view(), name="send_msg_to_user"),
    path("change_wallet/<int:userid>/", views.ChangeWalletAmount.as_view(), name="change_wallet"),
+   path("update_customer/<int:userid>/", views.UpdateCustumer.as_view(), name="update_customer"),
 ]
