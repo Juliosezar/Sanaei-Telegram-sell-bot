@@ -13,6 +13,7 @@ class ConfirmPaymentQueue(models.Model):
     image = models.ImageField(upload_to='payment_images/', blank=True, null=True)
     deny_reseon = models.CharField(max_length=100, blank=True, null=True)
     config_uuid = models.UUIDField(unique=True, blank=True, null=True)
+    timestamp = models.PositiveBigIntegerField(default=0)
 
     def __str__(self):
         return str(self.custumer.userid)
@@ -27,6 +28,7 @@ class ConfirmTamdidPaymentQueue(models.Model):
     # 0 => waiting for upload picture / 1 => waiting for confirmation / 2 => first confirme / 3 => second confirm / 10 => denied /
     image = models.ImageField(upload_to='payment_images/', blank=True, null=True)
     deny_reseon = models.CharField(max_length=100, blank=True, null=True)
+    timestamp = models.PositiveBigIntegerField(default=0)
 
     def __str__(self):
         return str(self.config.config_name)

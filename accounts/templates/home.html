@@ -54,13 +54,14 @@
             <a href="{% url 'finance:confirm_payments' 1 %}" class="links link2" id="pay_confirm">✅ تایید پرداخت 💳</a>
             <button class="links link2" id="create_config">➕ ساخت کانفیگ 🔗</button>
             <button class="links link2" id="list_config">📋 لیست کانفیگ ها 🔗</button>
-            <a href="{% url 'finance:show_prices' %}" class="links" id="tarefeh">💰 تعرفه ها 🛒</a>
-            <a href="{% url 'customers:custumers_list' %}" class="links" id="customers">👥 مشتری ها 🤖</a>
             <a href="{% url 'servers:show_servers' %}" class="links" id="servers">🌐 سرور ها 📶</a>
+            <a href="{% url 'customers:custumers_list' %}" class="links" id="customers">👥 مشتری ها 🤖</a>
+            <a href="{% url "reports:admin_logs" %}" class="links" id="setting">🗃️ Admins Log 👨🏻‍🔧</a>
+            <a href="{% url "reports:pay_logs" %}" class="links" id="setting">🗃️ Pays Log 💰</a>
             <a href="{% url 'customers:send_msg_to_all' %}" class="links" id="message">️📝 پیام همگانی 📨</a>
+            <a href="{% url 'finance:show_prices' %}" class="links" id="tarefeh">💰 تعرفه ها 🛒</a>
             <a href="" class="links" id="report">📊 گزارشات 📈</a>
             <a href="{% url "accounts:settings" %}" class="links" id="setting">⚙️ تنظیمات 🛠️</a>
-            <a href="{% url "reports:admin_logs" %}" class="links" id="setting">🗃️ Logs 📃</a>
             <a href="" class="links" id="setting">❗️ Errors ❗️</a>
         </div>
     </div>

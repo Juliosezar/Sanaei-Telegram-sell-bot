@@ -1,0 +1,55 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="fa" class="no-js">
+	<head>
+		<title>List Configs</title>
+        {% include "base_head.html" %}
+        <link rel="stylesheet" type="text/css" href="{% static 'custumers/component.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'reports/logs.css' %}"/>
+    </head>
+	<body dir="ltr">
+        {% include "navbar.html" %}
+        {% include 'messages.html' %}
+        <div id="main">
+            <h3 id="counter">تاریخچه پرداخت ها</h3>
+		    <div class="xcontainer">
+		    		<table class="overflow-y">
+		    			<thead>
+		    				<tr>
+                                <th>Data/Time</th>
+                                <th>UserID</th>
+                                <th>Action</th>
+                                <th>image</th>
+                            </tr>
+		    			</thead>
+		    			<tbody>
+                        {% for row in logs %}
+
+		    				<tr>
+                                <td>{{ row.time|timestamp }}</td>
+                                <td><a href="{% url "customers:custumer_detail" row|get_user %}">{{ row|get_user }}</a></td>
+                                <td>{{ row|paylog }}</td>
+                                <td><a href="/media/{{ row.image }}">image</a></td>
+                            </tr>
+
+                        {% endfor %}
+		    			</tbody>
+		    		</table>
+            </div>
+
+
+        </div>
+
+
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
+		<script src={% static "js/list.js" %}></script>
+
+{% include "list_servers.html" %}
+{% include "loading.html" %}
+	</body>
+
+
+
+</html>

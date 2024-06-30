@@ -507,11 +507,11 @@ class Configs:
             change_wallet_amount(chat_id, -1 * price)
             cls.save_config_info(config_name, conf_uuid, server_id, chat_id, price)
             Log.create_config_log(ConfigsInfo.objects.get(config_uuid=conf_uuid),
-                                  f"➕ Create by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}user - {int(price / 1000)}HT)")
+                                  f"➕ Create by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             Log.create_admin_log("Bot",
-                                 f"➕ Create \"{config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}user - {price}T)")
+                                 f"➕ Create \"{config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {price}T)")
             Log.create_customer_log(CustomerModel.objects.get(userid=chat_id),
-                                    f"➕ Create \"{config_name}\" by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}user - {int(price / 1000)}HT)")
+                                    f"➕ Create \"{config_name}\" by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             return True
         return False
 
@@ -524,9 +524,9 @@ class Configs:
         if create_config:
             cls.save_config_info(config_name, conf_uuid, server_id, None, price, paid, created_by)
             Log.create_config_log(ConfigsInfo.objects.get(config_uuid=conf_uuid),
-                                  f"➕ Create by \"{created_by}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}HT)")
+                                  f"➕ Create by \"{created_by}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             Log.create_admin_log(created_by,
-                                 f"➕ Create \"{config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}HT)")
+                                 f"➕ Create \"{config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
 
             return {'config_name': config_name, 'config_uuid': conf_uuid}
         return None
@@ -554,11 +554,11 @@ class Configs:
             CommandRunner.send_msg_to_user(config_queue_obj.config.chat_id.userid,
                                            f"✅ سرویس {config_queue_obj.config.config_name} تمدید شد. از بخش (سرویس های من) در منوی اصلی میتوانید وضعیت سرویس خود را مشاهده کنید.")
             Log.create_config_log(config_queue_obj.config,
-                                  f"🔃 Renew by \"Bot\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price / 1000)}HT)")
+                                  f"🔃 Renew by \"Bot\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price / 1000)}T)")
             Log.create_admin_log("Bot",
-                                 f"🔃 Renew \"{config_queue_obj.config.config_name}\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price / 1000)}HT)")
+                                 f"🔃 Renew \"{config_queue_obj.config.config_name}\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price / 1000)}T)")
             Log.create_customer_log(config_queue_obj.config.chat_id,
-                                    f"🔃 Renew \"{config_queue_obj.config.config_name}\" by \"Bot\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price / 1000)}HT)")
+                                    f"🔃 Renew \"{config_queue_obj.config.config_name}\" by \"Bot\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price / 1000)}T)")
         else:
             config_queue_obj.sent_to_user = 5
             config_queue_obj.save()
@@ -577,11 +577,11 @@ class Configs:
                                            f"✅ سرویس {config_obj.config_name} تمدید شد. از بخش (سرویس های من) در منوی اصلی میتوانید وضعیت سرویس خود را مشاهده کنید.")
 
             Log.create_config_log(config_obj,
-                                  f"🔃 Renew by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}HT)")
+                                  f"🔃 Renew by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             Log.create_admin_log("Bot",
-                                 f"🔃 Renew \"{config_obj.config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}HT)")
+                                 f"🔃 Renew \"{config_obj.config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             Log.create_customer_log(config_obj.chat_id,
-                                    f"🔃 Renew \"{config_obj.config_name}\" by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}HT)")
+                                    f"🔃 Renew \"{config_obj.config_name}\" by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             cls.change_config_info(config_uuid, price, True)
             change_wallet_amount(config_obj.chat_id.userid, -1 * price)
             config_obj.renew_count += 1
@@ -599,12 +599,12 @@ class Configs:
         if create_config:
             cls.change_config_info(config_uuid, price, paid)
             Log.create_config_log(conf,
-                                  f"🔃 Renew \"{conf.config_name}\" by \"{by_admin}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}HT)")
+                                  f"🔃 Renew \"{conf.config_name}\" by \"{by_admin}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             Log.create_admin_log(by_admin,
-                                 f"🔃 Renew \"{conf.config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}HT)")
+                                 f"🔃 Renew \"{conf.config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             if conf.chat_id:
                 Log.create_customer_log(conf.chat_id,
-                                        f"🔃 Renew \"{conf.config_name}\" by \"{by_admin}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}HT)")
+                                        f"🔃 Renew \"{conf.config_name}\" by \"{by_admin}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
 
             return {'config_name': conf.config_name, 'config_uuid': config_uuid}
         return None

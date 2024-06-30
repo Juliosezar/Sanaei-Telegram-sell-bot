@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from servers.views import ServerApi, Configs
 from django.contrib import messages
 from .forms import DenyForm, AddPriceForm, EditPriceForm
-
+from persiantools.jdatetime import JalaliDateTime
 
 class Wallet:
     @classmethod
@@ -115,6 +115,7 @@ class FirstConfirmPayment(LoginRequiredMixin, View):
                 msg = 'پرداخت شما تایید و به کیف پول شما اضافه شد.'
                 CommandRunner.send_msg_to_user(model_obj.custumer.userid, msg)
             model_obj.status = 2
+            model_obj.timestamp = int(JalaliDateTime.now().timestamp())
             model_obj.save()
             messages.success(request, 'پرداخت با موفقیت تایید و به کاربر ارسال شد.')
         else:
@@ -139,11 +140,13 @@ class SecondConfirmPayment(LoginRequiredMixin, View):
                 msg = 'پرداخت شما تایید و به کیف پول شما اضافه شد.'
                 CommandRunner.send_msg_to_user(model_obj.custumer.userid, msg)
             model_obj.status = 3
+            model_obj.timestamp = int(JalaliDateTime.now().timestamp())
             model_obj.save()
             messages.success(request, 'پرداخت با موفقیت تایید و به کاربر ارسال شد.')
 
         elif model_obj.status == 2:
             model_obj.status = 3
+            model_obj.timestamp = int(JalaliDateTime.now().timestamp())
             model_obj.save()
             messages.success(request, 'پرداخت با موفقیت تایید شد.')
             return redirect('finance:confirm_payments', 2)
@@ -167,6 +170,7 @@ class FirstTamdidConfirmPayment(LoginRequiredMixin, View):
                 CommandRunner.send_msg_to_user(model_obj.config.chat_id.userid,
                                                f'کابر گرامی مبلغ {model_obj.pay_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای تمدید سرویس مورد نظر کافی نیست. ')
             model_obj.status = 2
+            model_obj.timestamp = int(JalaliDateTime.now().timestamp())
             model_obj.save()
             messages.success(request, 'پرداخت با موفقیت تایید و به کاربر ارسال شد.')
         else:
@@ -187,11 +191,13 @@ class SecondTamdidConfirmPayment(LoginRequiredMixin, View):
                                                f'کابر گرامی مبلغ {model_obj.pay_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای تمدید سرویس مورد نظر کافی نیست. ')
 
             model_obj.status = 3
+            model_obj.timestamp = int(JalaliDateTime.now().timestamp())
             model_obj.save()
             messages.success(request, 'پرداخت با موفقیت تایید و به کاربر ارسال شد.')
 
         elif model_obj.status == 2:
             model_obj.status = 3
+            model_obj.timestamp = int(JalaliDateTime.now().timestamp())
             model_obj.save()
             messages.success(request, 'پرداخت با موفقیت تایید شد.')
             return redirect('finance:confirm_payments', 1)
@@ -232,6 +238,7 @@ class DenyPaymentPage(LoginRequiredMixin, View):
                 # TODO
                 CommandRunner.send_msg_to_user(model_obj.config.chat_id.userid, msg)
                 model_obj.status = 10
+                model_obj.timestamp = int(JalaliDateTime.now().timestamp())
                 model_obj.save()
                 messages.success(request, "پرداخت با موفقیت رد تایید شد.")
                 return redirect('finance:confirm_payments', 1)
@@ -273,6 +280,7 @@ class DenyPaymentAfterFirsConfirmPage(LoginRequiredMixin, View):
                 # TODO
                 CommandRunner.send_msg_to_user(model_obj.custumer.userid, msg)
                 model_obj.status = 10
+                model_obj.timestamp = int(JalaliDateTime.now().timestamp())
                 model_obj.save()
                 messages.success(request, "پرداخت با موفقیت رد تایید شد.")
                 return redirect('finance:confirm_payments', 2)
@@ -314,11 +322,10 @@ class DenyTamdidPaymentAfterFirsConfirmPage(LoginRequiredMixin, View):
                 # TODO
                 CommandRunner.send_msg_to_user(model_obj.config.chat_id.userid, msg)
                 model_obj.status = 10
+                model_obj.timestamp = int(JalaliDateTime.now().timestamp())
                 model_obj.save()
                 messages.success(request, "پرداخت با موفقیت رد تایید شد.")
                 return redirect('finance:confirm_payments', 2)
-
-
             else:
                 messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
                 return redirect('finance:confirm_payments', 2)
