@@ -75,14 +75,15 @@ class CommandRunner:
                 cq.save()
 
     @classmethod
-    def send_msg_to_user(cls, chat_id, msg):
+    def send_msg_to_user(cls, chat_id, msg, keyboard=False):
         for i in ['_', '*', '[', ']', '(', ')', '~', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']:
             msg = msg.replace(i, f"\\{i}")
         data = {'chat_id': chat_id,
                 'text': msg,
                 'parse_mode': 'MarkdownV2',
                 }
-
+        if keyboard:
+            data['reply_markup'] = {"inline_keyboard": [keyboard]}
         respons = cls.send_api("sendMessage", data)
         if not respons:
             SendMessage.objects.create(customer=CustumerModel.objects.get(userid=chat_id), message=msg)

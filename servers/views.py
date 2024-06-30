@@ -409,7 +409,7 @@ class Configs:
         from connection.command_runer import CommandRunner
         server_obj = ServerModel.objects.get(server_id=server)
         vless = cls.create_vless_text(config_uuid, server_obj, config_name)
-        CommandRunner.send_msg_to_user(user_id, vless)
+        CommandRunner.send_msg_to_user(user_id, vless, keyboard=[{'text': 'دریافت QRcode', 'callback_data': f'QRcode<~>{config_uuid}'}])
 
     @classmethod
     def add_configs_to_queue_before_confirm(cls, server_id, user_id, config_uuid, usage_limit, expire_time, user_limit,
@@ -495,7 +495,6 @@ class Configs:
 
     @classmethod
     def create_config_from_wallet(cls, chat_id, server_id, expire_limit, usage_limit, user_limit, price):
-        from connection.command_runer import CommandRunner
         server_obj = ServerModel.objects.get(server_id=server_id)
         conf_uuid = str(uuid.uuid4())
         config_name = Configs.generate_unique_name()
@@ -503,7 +502,7 @@ class Configs:
                                                 user_limit, True)
         if create_config:
             vless = cls.create_vless_text(conf_uuid, server_obj, config_name)
-            CommandRunner.send_msg_to_user(chat_id, vless)
+            cls.send_config_to_user(chat_id, conf_uuid, server_id, config_name)
             change_wallet_amount(chat_id, -1 * price)
             cls.save_config_info(config_name, conf_uuid, server_id, chat_id, price)
             Log.create_config_log(ConfigsInfo.objects.get(config_uuid=conf_uuid),
