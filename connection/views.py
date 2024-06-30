@@ -17,7 +17,7 @@ COMMANDS = {
     'تعرفه ها 💳': CommandRunner.send_prices,
     'ارتباط با ما 👤': CommandRunner.contact_us,
     'آیدی من 🆔': CommandRunner.myid,
-    'لینک دعوت 📥': None,
+    'لینک دعوت 📥': CommandRunner.invite_link,
     'راهنمای اتصال 💡': CommandRunner.help_connect,
     'دانلود اپلیکیشن 💻📱': CommandRunner.download_apps,
     'add_to_wallet': CommandRunner.set_pay_amount,

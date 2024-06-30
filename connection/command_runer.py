@@ -1099,3 +1099,8 @@ class CommandRunner:
                 cls.send_msg_to_user(chat_id, api)
             else:
                 cls.send_msg_to_user(chat_id, "در حال حاضر امکان دریافت کانفیگ تست نمی باشد، ساعاتی دیگر دوباره امتحان کنید.")
+
+
+    @classmethod
+    def invite_link(cls, chat_id, *args):
+        cls.send_msg_to_user(chat_id, "این بخش موقتا غیرفعال است.")
