@@ -44,10 +44,8 @@ class ServerApi:
         try:
             session = requests.Session()
             login_response = session.post(login_url, headers=header, json=login_payload, timeout=15)
-            print(login_response.json())
             if login_response.status_code == 200:
                 if login_response.json()["success"]:
-                    print("session created")
                     return session
             else:
                 session.close()
@@ -225,7 +223,6 @@ class ServerApi:
 
     @classmethod
     def change_location(cls, from_server_id, to_server_id, config_uuid):
-        print(from_server_id, to_server_id, config_uuid)
         config_obj = ConfigsInfo.objects.get(config_uuid=config_uuid)
         from_server_obj = ServerModel.objects.get(server_id=from_server_id)
         from_session = cls.create_session(from_server_id)
@@ -234,9 +231,7 @@ class ServerApi:
         to_session = cls.create_session(to_server_id)
 
         if not from_session or not to_session:
-            print("not connect")
             return False
-        print("connect")
         list_configs = from_session.get(from_server_obj.server_url + "panel/api/inbounds/list/", timeout=15)
         if list_configs.status_code != 200:
             from_session.close()
@@ -270,15 +265,12 @@ class ServerApi:
         header = {"Accept": "application/json"}
         try:
             respons2 = to_session.post(url, headers=header, json=data1, timeout=6)
-            print(respons2.json())
             if respons2.status_code == 200:
                 if respons2.json()['success']:
                     url = from_server_obj.server_url + f"panel/api/inbounds/{from_server_obj.inbound_id}/delClient/{config_uuid}"
                     respons3 = from_session.post(url)
-                    print(respons3.json())
                     if respons3.status_code == 200:
                         if respons3.json()['success']:
-                            print("fbg")
                             from_session.close()
                             return True
                     to_session.close()
@@ -297,7 +289,6 @@ class ServerApi:
             session.close()
             return False
         respons = session.post(url)
-        print(respons.json())
         if respons.status_code == 200:
             if respons.json()['success']:
                 session.close()

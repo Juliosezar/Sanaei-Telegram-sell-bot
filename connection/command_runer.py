@@ -42,7 +42,6 @@ class CommandRunner:
         url = TELEGRAM_SERVER_URL + api_method
         try:
             response = requests.post(url, json=data, timeout=3)
-            print(response.json())
             return response
         except requests.exceptions.RequestException as e:
             print(e)
@@ -105,11 +104,9 @@ class CommandRunner:
             else:
                 return 'Faild'
         except requests.exceptions.Timeout:
-            print('timeout')
             return 'Timeout'
         except requests.exceptions.SSLError or requests.exceptions.BaseHTTPError or requests.exceptions.ConnectionError \
                or requests.exceptions.RetryError or requests.exceptions.HTTPError or requests.exceptions.RequestException:
-            print('http error')
             return 'Faild'
         except Exception as e:
             return 'Error'
@@ -221,7 +218,6 @@ class CommandRunner:
                 Paying.pay_to_wallet_before_img(chat_id, amount)
                 cls.send_api("sendMessage", data)
             else:
-                print("not number")
                 cls.send_msg_to_user(chat_id, "حداقل مقدار پرداختی 2000 تومان است. دوباره وارد کنید :")
         else:
             cls.send_msg_to_user(chat_id, "مقدار را به صورت لاتین(انگلیسی) و به تومان وارد کنید :")
@@ -620,7 +616,6 @@ class CommandRunner:
                     keyboard.append([{'text': f'{i.server_name}', 'callback_data': f'change_location<~>{conf_uuid}<%>{i.server_id}'}])
 
             keyboard.append([{'text': '🔙 بازگشت', 'callback_data': f'service_status<~>{conf_uuid}'}])
-            print(keyboard)
             data = {
                 'chat_id': chat_id,
                 'message_id': msg_id,
@@ -692,7 +687,6 @@ class CommandRunner:
             cls.send_api("editMessageText", data)
             if (int(JalaliDateTime.now().timestamp()) - service.change_location_time) > 604800:
                 api = ServerApi.change_location(service.server.server_id, server_to, conf_uuid)
-                print(4634)
                 if api:
                     cls.send_msg_to_user(chat_id, f" ✅ سرویس {service.config_name} با موفقیت انتقال پیدا کرد و برای شما ارسال میشود.")
                     Configs.send_config_to_user(chat_id, conf_uuid, server_to, service.config_name)
