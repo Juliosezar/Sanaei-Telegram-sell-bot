@@ -4,7 +4,7 @@ import requests
 from custumers.views import Customer
 import json
 from custumers.models import Customer as CustumerModel
-from servers.models import Server as ServerModel, CreateConfigQueue, ConfigsInfo, TamdidConfigQueue
+from servers.models import Server as ServerModel, CreateConfigQueue, ConfigsInfo, TamdidConfigQueue, TestConfig
 from finance.views import Prices
 from finance.models import Prices as PricesModel
 from finance.models import ConfirmPaymentQueue as ConfirmPaymentQueueModel
@@ -534,6 +534,13 @@ class CommandRunner:
 
             },
         }
+        if services.count() == 0:
+            data = {
+                'chat_id': chat_id,
+                'text': 'شما سرویس ثبت شده ای ندارید.',
+                'parse_mode': 'Markdown',
+            }
+
         if args:
             msg_id = int(args[0])
             data["message_id"] = msg_id
@@ -1060,3 +1067,15 @@ class CommandRunner:
                     'parse_mode': 'Markdown',
                 }
                 cls.send_api("editMessageText", data)
+
+    @classmethod
+    def test_conf(cls, chat_id, *args):
+        customer = CustumerModel.objects.get(userid=chat_id)
+        if TestConfig.objects.filter(customer=customer).exists():
+            cls.send_msg_to_user(chat_id, "کابر گرامی، شما تنها یکبار میتوانید کانفیگ تست دریافت کنید.")
+        else:
+            api = ServerApi.create_test_config(chat_id)
+            if api:
+                cls.send_msg_to_user(chat_id, api)
+            else:
+                cls.send_msg_to_user(chat_id, "در حال حاضر امکان دریافت کانفیگ تست نمی باشد، ساعاتی دیگر دوباره امتحان کنید.")

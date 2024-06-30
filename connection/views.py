@@ -12,7 +12,7 @@ COMMANDS = {
     'back_to_servers': CommandRunner.back_to_select_server,
     'کیف پول 💰': CommandRunner.show_wallet_status,
     # 'ثبت لینک 🔗': None,
-    'تست رایگان 🔥': None,
+    'تست رایگان 🔥': CommandRunner.test_conf,
     'سرویس های من 🧑‍💻': CommandRunner.my_services,
     'تعرفه ها 💳': CommandRunner.send_prices,
     'ارتباط با ما 👤': CommandRunner.contact_us,
@@ -51,9 +51,8 @@ COMMANDS = {
 
 @csrf_exempt
 def webhook(request):
-
     if request.method == 'POST':
-        try:
+        # try:
             update = json.loads(request.body)
             if 'message' in update:
                 chat_id = update['message']['chat']['id']
@@ -125,6 +124,7 @@ def webhook(request):
                     CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                     COMMANDS["/start"](chat_id)
             return JsonResponse({'status': 'ok'})
-        except Exception as Argument:
-            ErrorLog.objects.create(error=str(Argument), timestamp=int(JalaliDateTime.now().timestamp())).save()
+        # except Exception as Argument:
+        #     ErrorLog.objects.create(error=str(Argument), timestamp=int(JalaliDateTime.now().timestamp())).save()
+        #     return JsonResponse({'status': 'Connection refused'})
     return JsonResponse({'status': 'not a POST request'})
