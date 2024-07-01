@@ -535,10 +535,10 @@ class CommandRunner:
 
         data = {
             'chat_id': chat_id,
-            'from_chat_id': '@Naps_V',
+            'from_chat_id': '@Napsv_info',
             'message_id': msg_id
         }
-        cls.send_api("forwardMessage", data)
+        cls.send_api("copyMessage", data)
 
     @classmethod
     def my_services(cls, chat_id, *args):

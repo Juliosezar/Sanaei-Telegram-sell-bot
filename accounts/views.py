@@ -59,7 +59,7 @@ class SettingsPage(LoginRequiredMixin, View):
                 data["two_usage_limit"] = cd["two_usage_limit"]
                 data["three_usage_limit"] = cd["three_usage_limit"]
                 f.seek(0)
-                json.dump(data, f)
+                json.dump(data, f, indent=4)
                 f.truncate()
             return redirect("accounts:home")
         return render(request, "settings.html", {"form": form})
