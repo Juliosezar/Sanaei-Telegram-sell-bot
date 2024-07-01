@@ -52,7 +52,7 @@ class ManualCreateConfigForm(forms.Form):
     type = forms.ChoiceField(required=False)
     usage_limit = forms.IntegerField(required=False)
     days_limit = forms.IntegerField(required=False)
-    ip_limit = forms.ChoiceField(required=False, choices=[(1,'1 کاربره'),(2,'2 کاربره'),(3,'3 کاربره')])
+    ip_limit = forms.ChoiceField(required=False, choices=[(1, '1 کاربره'), (2, '2 کاربره')])
     price = forms.IntegerField(required=False)
     paid = forms.BooleanField(required=False, initial=True)
 
@@ -115,8 +115,8 @@ class ChangeConfigSettingForm(forms.Form):
             raise ValidationError('مدت زمان کانفیگ را وارد کنید.')
         elif not 0 <= days_limit < 181:
             raise ValidationError('مدت زمان کانفیگ باید بین 1 تا 180 روز باشد.')
-        if not 0 <= ip_limit < 4:
-            raise ValidationError('محدودیت آی پی باید بین 0 تا 3 باشد.')
+        if not 0 <= ip_limit <= 4:
+            raise ValidationError('محدودیت آی پی باید بین 0 تا 4 باشد.')
 
 
 class AddServerForm(forms.Form):
@@ -183,5 +183,15 @@ class ChangeConfigLocForm(forms.Form):
     def clean_server(self):
         server = self.cleaned_data['server']
         return int(server)
+
+
+class ChangeUnlimitConfLimitForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.limit = kwargs.pop('limit', None)
+        super().__init__(*args, **kwargs)
+        if self.limit:
+            self.fields["limit"].initial = self.limit
+
+    limit = forms.IntegerField()
 
 

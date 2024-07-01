@@ -88,10 +88,23 @@ body {
 
 .kdfj {
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-content: space-around;
+    justify-items: center;
+    text-align: center;
+    width: max-content;
+}
+
+.safd {
+    display: flex;
     flex-direction: column;
     align-items: center;
+    align-content: space-around;
     width: 100%;
 }
+
+
 .sys_limit {
     background-color: #0048d5;
     color: white;

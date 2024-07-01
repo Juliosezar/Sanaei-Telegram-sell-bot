@@ -55,9 +55,13 @@ class SettingsPage(LoginRequiredMixin, View):
                 data["pay_card_number"] = cd["card_number"]
                 data["pay_card_name"] = cd["card_name"]
                 data["prices_msg_id"] = cd["prices_msg_id"]
-                data["one_usage_limit"] = cd["one_usage_limit"]
-                data["two_usage_limit"] = cd["two_usage_limit"]
-                data["three_usage_limit"] = cd["three_usage_limit"]
+                data["unlimit_limit"]["1u"]["1m"] = cd["U1_1M"]
+                data["unlimit_limit"]["1u"]["2m"] = cd["U1_2M"]
+                data["unlimit_limit"]["1u"]["3m"] = cd["U1_3M"]
+                data["unlimit_limit"]["2u"]["1m"] = cd["U2_1M"]
+                data["unlimit_limit"]["2u"]["2m"] = cd["U2_2M"]
+                data["unlimit_limit"]["2u"]["3m"] = cd["U2_3M"]
+                data["config_name_counter"] = cd["config_name_counter"]
                 f.seek(0)
                 json.dump(data, f, indent=4)
                 f.truncate()

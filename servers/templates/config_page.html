@@ -52,13 +52,13 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div class="kdfj">
-                    {% if config_usage.uuid|infinit_limit:config_usage.ip_limit %}
-                        <h3 class="sys_limit">⛔ {{ config_usage.uuid|infinit_limit:config_usage.ip_limit }} GB ⛔</h3>
-                    {% elif config_usage.uuid|infinit_limit:config_usage.ip_limit == 0 %}
-                        <h3 class="sys_limit">No Limit</h3>
-                    {% endif %}
-                </div>
+                    <div class="safd">
+                        <div class="kdfj" >
+                        {% if config_usage.uuid|infinit_limit %}
+                            <h3 class="sys_limit">⛔ {{ config_usage.uuid|infinit_limit }} GB ⛔ </h3><a style="font-size: x-large" href="{% url "servers:change_unlimit_limit" config_usage.uuid %}">🔏️</a>
+                        {% endif %}
+                         </div>
+                    </div>
                 {% else %}
                     {% if config_usage.usage|percent:config_usage.usage_limit > 99 %}
                         <div class="centering">

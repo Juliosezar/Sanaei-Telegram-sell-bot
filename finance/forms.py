@@ -16,7 +16,7 @@ class AddPriceForm(forms.Form):
     type_conf = forms.ChoiceField(choices=[("limited", "حجمی"), ("inf_usage", "حجم نامحدود"), ("inf_time", "زمان نامحدود")])
     usage = forms.IntegerField(initial=0)
     month = forms.ChoiceField(choices=[(1,"1 ماه"),(2,"2 ماه"),(3,"3 ماه"),(6,"6 ماه")])
-    ip_limit = forms.ChoiceField(choices=[(1,"1 کاربره"),(2,"2 کاربره"),(3,"3 کاربره")])
+    ip_limit = forms.ChoiceField(choices=[(1,"1 کاربره"),(2,"2 کاربره")])
     price = forms.IntegerField(required=True)
 
     def clean(self):

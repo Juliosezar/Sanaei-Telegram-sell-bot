@@ -22,10 +22,16 @@
             {% csrf_token %}
             <div id="time_limit" class="textinput item"><h3 class="item_text">شماره کارت : </h3>{{ form.card_number }}</div>
             <div id="time_limit" class="textinput item"><h3 class="item_text">اسم کارت : </h3>{{ form.card_name }}</div>
-            <div id="time_limit" class="textinput item"><h3 class="item_text"> محدودیت حجم 1 کاربره : </h3>{{ form.one_usage_limit }}</div>
-            <div id="time_limit" class="textinput item"><h3 class="item_text"> محدودیت حجم 2 کاربره : </h3>{{ form.two_usage_limit }}</div>
-            <div id="time_limit" class="textinput item"><h3 class="item_text"> محدودیت حجم 3 کاربره : </h3>{{ form.three_usage_limit }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text"> محدودیت حجم 1 کاربره 1 ماهه: </h3>{{ form.U1_1M }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text"> محدودیت حجم 1 کاربره 2 ماهه: </h3>{{ form.U1_2M }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text"> محدودیت حجم 1 کاربره 3 ماهه: </h3>{{ form.U1_3M }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text"> محدودیت حجم 2 کاربره 1 ماهه: </h3>{{ form.U2_1M }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text"> محدودیت حجم 2 کاربره 2 ماهه: </h3>{{ form.U2_2M }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text"> محدودیت حجم 2 کاربره 3 ماهه: </h3>{{ form.U2_3M }}</div>
             <div id="time_limit" class="textinput item"><h3 class="item_text">msg_id تعرقه ها : </h3>{{ form.prices_msg_id }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text"> شمارنده اسم کانفیگ : </h3>{{ form.config_name_counter }}</div>
+            <h4 style="font-size: large">👆🏻 دست به این نزنید. </h4>
+
 
             <input id="create" type="submit" value="Change">
         </form>

@@ -8,10 +8,10 @@ from django.db.models import Q
 from .models import Server as ServerModel, ConfigsInfo
 import requests
 import json
-from servers.models import CreateConfigQueue, TamdidConfigQueue, TestConfig
+from servers.models import CreateConfigQueue, TamdidConfigQueue, TestConfig, InfinitCongisLimit
 from custumers.models import Customer as CustomerModel
 from .forms import SearchForm, CreateConfigForm, ManualCreateConfigForm, ChangeConfigSettingForm, AddServerForm, \
-    EditServerForm, ChangeConfigLocForm
+    EditServerForm, ChangeConfigLocForm, ChangeUnlimitConfLimitForm
 from django.contrib import messages
 from accounts.forms import SearchConfigForm
 from finance.models import Prices as PricesModel
@@ -458,6 +458,24 @@ class Configs:
         return 'NapsV_' + str(counter)
 
     @classmethod
+    def set_unlimit_limit(cls, config_uuid, iplimit, month):
+        print(iplimit, month)
+        with open(settings.BASE_DIR / "settings.json", "r") as f:
+            data = json.load(f)["unlimit_limit"]
+        if (month in [1,2,3]) and (iplimit in [1, 2]):
+            limit = data[f"{iplimit}u"][f"{month}m"]
+        else:
+            iplimit = max(1, min(iplimit, 2))
+            month = max(1, min(month, 3))
+            limit = data[f"{iplimit}u"][f"{month}m"]
+        if InfinitCongisLimit.objects.filter(config__config_uuid=config_uuid).exists():
+            obj = InfinitCongisLimit.objects.get(config__config_uuid=config_uuid)
+            obj.limit = limit
+            obj.save()
+        else:
+            InfinitCongisLimit.objects.create(config=ConfigsInfo.objects.get(config_uuid=config_uuid), limit=limit).save()
+
+    @classmethod
     def create_config_from_queue(cls, config_uuid, by_celery=False):
         from connection.command_runer import CommandRunner
         config_queue_obj = CreateConfigQueue.objects.get(config_uuid=config_uuid)
@@ -478,6 +496,8 @@ class Configs:
             cls.save_config_info(config_queue_obj.config_name, config_queue_obj.config_uuid,
                                  config_queue_obj.server.server_id, config_queue_obj.custumer.userid,
                                  config_queue_obj.price)
+            if config_queue_obj.usage_limit == 0:
+                cls.set_unlimit_limit(config_uuid, config_queue_obj.user_limit, int(config_queue_obj.expire_time / 30))
             cls.send_config_to_user(config_queue_obj.custumer.userid, config_uuid,
                                     config_queue_obj.server.server_id, config_queue_obj.config_name)
             Log.create_config_log(ConfigsInfo.objects.get(config_uuid=config_uuid),
@@ -501,10 +521,11 @@ class Configs:
         create_config = ServerApi.create_config(server_id, config_name, conf_uuid, usage_limit, expire_limit * 30,
                                                 user_limit, True)
         if create_config:
-            vless = cls.create_vless_text(conf_uuid, server_obj, config_name)
-            cls.send_config_to_user(chat_id, conf_uuid, server_id, config_name)
-            change_wallet_amount(chat_id, -1 * price)
             cls.save_config_info(config_name, conf_uuid, server_id, chat_id, price)
+            change_wallet_amount(chat_id, -1 * price)
+            if usage_limit == 0:
+                cls.set_unlimit_limit(conf_uuid, user_limit, expire_limit)
+            cls.send_config_to_user(chat_id, conf_uuid, server_id, config_name)
             Log.create_config_log(ConfigsInfo.objects.get(config_uuid=conf_uuid),
                                   f"➕ Create by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             Log.create_admin_log("Bot",
@@ -522,6 +543,8 @@ class Configs:
                                                 user_limit, True)
         if create_config:
             cls.save_config_info(config_name, conf_uuid, server_id, None, price, paid, created_by)
+            if usage_limit == 0:
+                cls.set_unlimit_limit(conf_uuid, user_limit, int(expire_limit / 30))
             Log.create_config_log(ConfigsInfo.objects.get(config_uuid=conf_uuid),
                                   f"➕ Create by \"{created_by}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             Log.create_admin_log(created_by,
@@ -550,6 +573,8 @@ class Configs:
             change_wallet_amount(config_queue_obj.config.chat_id.userid, -1 * config_queue_obj.price)
             config_queue_obj.sent_to_user = 3
             cls.change_config_info(config_queue_obj.config.config_uuid, config_queue_obj.price, True)
+            if config_queue_obj.usage_limit == 0:
+                cls.set_unlimit_limit(config_uuid, config_queue_obj.user_limit, int(config_queue_obj.expire_time / 30))
             CommandRunner.send_msg_to_user(config_queue_obj.config.chat_id.userid,
                                            f"✅ سرویس {config_queue_obj.config.config_name} تمدید شد. از بخش (سرویس های من) در منوی اصلی میتوانید وضعیت سرویس خود را مشاهده کنید.")
             Log.create_config_log(config_queue_obj.config,
@@ -572,17 +597,17 @@ class Configs:
         renew_config = ServerApi.renew_config(config_obj.server.server_id, config_uuid, config_obj.config_name,
                                               expire_limit * 30, usage_limit, user_limit)
         if renew_config:
-            CommandRunner.send_msg_to_user(config_obj.chat_id.userid,
-                                           f"✅ سرویس {config_obj.config_name} تمدید شد. از بخش (سرویس های من) در منوی اصلی میتوانید وضعیت سرویس خود را مشاهده کنید.")
-
-            Log.create_config_log(config_obj,
-                                  f"🔃 Renew by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
-            Log.create_admin_log("Bot",
-                                 f"🔃 Renew \"{config_obj.config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
-            Log.create_customer_log(config_obj.chat_id,
-                                    f"🔃 Renew \"{config_obj.config_name}\" by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             cls.change_config_info(config_uuid, price, True)
             change_wallet_amount(config_obj.chat_id.userid, -1 * price)
+
+            CommandRunner.send_msg_to_user(config_obj.chat_id.userid,f"✅ سرویس {config_obj.config_name} تمدید شد. از بخش (سرویس های من) در منوی اصلی میتوانید وضعیت سرویس خود را مشاهده کنید.")
+            if usage_limit == 0:
+                cls.set_unlimit_limit(config_uuid, user_limit, expire_limit)
+
+            Log.create_config_log(config_obj,f"🔃 Renew by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
+            Log.create_admin_log("Bot",f"🔃 Renew \"{config_obj.config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
+            Log.create_customer_log(config_obj.chat_id,f"🔃 Renew \"{config_obj.config_name}\" by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
+
             config_obj.renew_count += 1
             config_obj.price = True
             config_obj.save()
@@ -597,13 +622,13 @@ class Configs:
 
         if create_config:
             cls.change_config_info(config_uuid, price, paid)
-            Log.create_config_log(conf,
-                                  f"🔃 Renew \"{conf.config_name}\" by \"{by_admin}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
-            Log.create_admin_log(by_admin,
-                                 f"🔃 Renew \"{conf.config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
+            if usage_limit == 0:
+                cls.set_unlimit_limit(config_uuid, user_limit, int(expire_limit / 30))
+
+            Log.create_config_log(conf,f"🔃 Renew \"{conf.config_name}\" by \"{by_admin}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
+            Log.create_admin_log(by_admin,f"🔃 Renew \"{conf.config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             if conf.chat_id:
-                Log.create_customer_log(conf.chat_id,
-                                        f"🔃 Renew \"{conf.config_name}\" by \"{by_admin}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
+                Log.create_customer_log(conf.chat_id,f"🔃 Renew \"{conf.config_name}\" by \"{by_admin}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
 
             return {'config_name': conf.config_name, 'config_uuid': config_uuid}
         return None
@@ -1007,3 +1032,33 @@ class ChangeConfigLocationPage(LoginRequiredMixin, View):
 
             return redirect("servers:conf_page", cd["server"], config_uuid, config.config_name)
         return render(request, "change_conf_location.html", {"form": form, 'server_id': server_id, "config": config})
+
+
+class ChangeUnlimitConfLimit(LoginRequiredMixin, View):
+    def get(self, request, config_uuid):
+        config = ConfigsInfo.objects.get(config_uuid=config_uuid)
+        if InfinitCongisLimit.objects.filter(config=config).exists():
+            limit = InfinitCongisLimit.objects.get(config=config).limit
+        else:
+            limit = False
+        form = ChangeUnlimitConfLimitForm(limit=limit)
+        return render(request, "change_unlimit_limit.html", {"form": form, 'config': config})
+
+    def post(self, request, config_uuid):
+        config = ConfigsInfo.objects.get(config_uuid=config_uuid)
+        if InfinitCongisLimit.objects.filter(config=config).exists():
+            limit = InfinitCongisLimit.objects.get(config=config).limit
+        else:
+            limit = False
+        form = ChangeUnlimitConfLimitForm(request.POST, limit=limit)
+        if form.is_valid():
+            limit = form.cleaned_data["limit"]
+            if InfinitCongisLimit.objects.filter(config=config).exists():
+                limit_obj = InfinitCongisLimit.objects.get(config=config)
+                limit_obj.limit = limit
+                limit_obj.save()
+            else:
+                InfinitCongisLimit.objects.create(config=config, limit=limit).save()
+            return redirect("servers:conf_page",config.server.server_id ,config_uuid, config.config_name)
+
+        return render(request, "change_unlimit_limit.html", {"form": form, 'config': config})

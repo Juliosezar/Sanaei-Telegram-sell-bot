@@ -1,0 +1,52 @@
+{% load compress %}
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'finance/confirm_payment.css' %}">
+    <script>
+        $(document).ready(function() {
+            $("#loading").hide()
+            $(".item").click(function () {
+                $("#main").hide();
+                $("#loading").show();
+            });
+        });
+    </script>
+</head>
+<body>
+    {% include "navbar.html" %}
+    {% include 'messages.html' %}
+    <div id="main">
+        <div id="box1">
+                <div class="paybox" >
+                    <div class="pay_info">
+                        <div class="infobox">
+                            <a class="info" href="">userid: </a>
+                        </div>
+                        <form novalidate method="post" action="" class="conf_btns">
+                            {% csrf_token %}
+                            {% for field_errors in form.errors.values %}
+                              {% for error in field_errors %}
+                                  <p dir="rtl" class="errors">{{ error }}</p>
+                              {% endfor %}
+                            {% endfor %}
+                            <div class="confirm_price_btn">
+                                <div>{{ form.limit }} GB</div>
+                                <input type="submit" value="تغییر محدودیت" class="confirm_price">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+{% include "loading.html" %}
+{% include "list_servers.html" %}
+
+</body>
+</html>
