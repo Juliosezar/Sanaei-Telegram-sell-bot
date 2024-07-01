@@ -108,7 +108,10 @@ def end_of_test_config():
         api = ServerApi.get_config(server_id, conf.config_name)
         if api:
             if not api["ended"]:
-                CommandRunner.send_msg_to_user(conf.customer.userid, "🔔 کاربر گرامی، کانفیگ تست شما به اتمام رسید.")
+                if not conf.sent_notif:
+                    CommandRunner.send_msg_to_user(conf.customer.userid, "🔔 کاربر گرامی، کانفیگ تست شما به اتمام رسید." "\n\n" "برای خرید سرویس از طریق منوی اصلی بات یا با پیام به پشتیبانی @NapsV_supp اقدام کنید.")
+                    conf.sent_notif = True
+                    conf.save()
                 api_del = ServerApi.delete_config(server_id, conf.config_uuid, inbound_id)
                 if api_del:
                     conf.delete()
