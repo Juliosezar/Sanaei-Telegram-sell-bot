@@ -1,6 +1,6 @@
 from celery import shared_task
 from .models import SendMessage, EndOfConfigCounter
-from servers.models import CreateConfigQueue, ConfigsInfo, MsgEndOfConfig, Server, TamdidConfigQueue
+from servers.models import CreateConfigQueue, ConfigsInfo, MsgEndOfConfig, Server, TamdidConfigQueue, TestConfig
 from servers.views import Configs, ServerApi
 from persiantools import jdatetime
 from django.conf import settings
@@ -87,11 +87,28 @@ def send_notif_to_admins():
             data = json.load(f)
             admins = data["admins_id"]
             for admin in admins:
-                CommandRunner.send_msg_to_user(admin,
-                    msg=f"{count1 + count2} پرداخت تایید نشده")
+                CommandRunner.send_msg_to_user(admin, msg=f"{count1 + count2} پرداخت تایید نشده")
 
 
 
 @shared_task
 def disable_infinit_configs():
     pass
+
+
+@shared_task
+def end_of_test_config():
+    from connection.command_runer import CommandRunner
+    with open(settings.BASE_DIR / "test_server.json", "r") as f:
+        data = json.load(f)
+        server_id = data["server_id"]
+        inbound_id = data["inbound_id"]
+        inbound_port = data["inbound_port"]
+    for conf in TestConfig.objects.all():
+        api = ServerApi.get_config(server_id, conf.config_name)
+        if api:
+            if not api["ended"]:
+                CommandRunner.send_msg_to_user(conf.customer.userid, "🔔 کاربر گرامی، کانفیگ تست شما به اتمام رسید.")
+                api_del = ServerApi.delete_config(server_id, conf.config_uuid, inbound_id)
+                if api_del:
+                    conf.delete()
