@@ -26,7 +26,7 @@
                 <div class="paybox" >
                     <div class="pay_info">
                         <div class="infobox">
-                            <a class="info" href="">userid: </a>
+                            <a class="info" href="">{{ config.config_name }}</a>
                         </div>
                         <form novalidate method="post" action="" class="conf_btns">
                             {% csrf_token %}
@@ -36,7 +36,7 @@
                               {% endfor %}
                             {% endfor %}
                             <div class="confirm_price_btn">
-                                <div>{{ form.limit }} GB</div>
+                                <div style="color: #0a0000; text-align: center">{{ form.limit }}GB</div>
                                 <input type="submit" value="تغییر محدودیت" class="confirm_price">
                             </div>
                         </form>
