@@ -13,7 +13,7 @@ urlpatterns = [
     path('deny_tamdid_payment_after_first_confirm/<int:obj_id>/', views.DenyTamdidPaymentAfterFirsConfirmPage.as_view(),
          name='deny_tamdid_payments_after_first_confirm'),
     path('deny_payment_after_first_confirm/<int:obj_id>/', views.DenyPaymentAfterFirsConfirmPage.as_view(), name='deny_payments_after_first_confirm'),
-    path('deny_payment/<int:obj_id>/', views.DenyPaymentPage.as_view(), name='deny_payments'),
+    path('deny_payment/<int:obj_id>/<str:typ>/', views.DenyPaymentPage.as_view(), name='deny_payments'),
     path('edit_price_payment/<int:obj_id>/', views.EditPricePayment.as_view(), name='edit_price'),
     path("paid_after_create/<int:obj_id>/", views.PayedAfterCreate.as_view(), name="paid_after_create"),
 

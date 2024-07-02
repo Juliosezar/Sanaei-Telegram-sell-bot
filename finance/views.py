@@ -209,17 +209,23 @@ class SecondTamdidConfirmPayment(LoginRequiredMixin, View):
 
 
 class DenyPaymentPage(LoginRequiredMixin, View):
-    def get(self, request, obj_id):
-        model_obj = TamdidPaymentQueueModel.objects.get(id=obj_id)
+    def get(self, request, obj_id, typ):
+        if typ == "buy":
+            model_obj = TamdidPaymentQueueModel.objects.get(id=obj_id)
+        else:
+            model_obj = PaymentQueueModel.objects.get(id=obj_id)
         if model_obj.status != 1:
             messages.error(request, "این پرداخت توسط ادمین دیگری تایید یا رد شده است.")
             return redirect('finance:confirm_payments', 1)
         form = DenyForm()
         return render(request, 'deny_payment.html', {'obj': model_obj, 'form': form})
 
-    def post(self, request, obj_id):
+    def post(self, request, obj_id, typ):
         from connection.command_runer import CommandRunner
-        model_obj = TamdidPaymentQueueModel.objects.get(id=obj_id)
+        if typ == "buy":
+            model_obj = TamdidPaymentQueueModel.objects.get(id=obj_id)
+        else:
+            model_obj = PaymentQueueModel.objects.get(id=obj_id)
         form = DenyForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data

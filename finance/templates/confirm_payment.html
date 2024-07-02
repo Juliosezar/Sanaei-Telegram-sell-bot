@@ -107,7 +107,7 @@
                                 <a href="{% url 'finance:edit_price' i.id %}" class="edit_price c_btnd">تغییر قیمت</a>
                             </div>
                             <div class="confirmbtn">
-                                <a href="{% url 'finance:deny_payments' i.id %}" class="deny c_btnd">عدم تایید</a>
+                                <a href="{% url 'finance:deny_payments' i.id "buy" %}" class="deny c_btnd">عدم تایید</a>
                             </div>
                         </div>
                     </div>
@@ -135,7 +135,7 @@
                                 <a href="{% url 'finance:edit_price' i.id %}" class="edit_price c_btnd">تغییر قیمت</a>
                             </div>
                             <div class="confirmbtn">
-                                <a href="{% url 'finance:deny_payments' i.id %}" class="deny c_btnd">عدم تایید</a>
+                                <a href="{% url 'finance:deny_payments' i.id "tamdid" %}" class="deny c_btnd">عدم تایید</a>
                             </div>
                         </div>
                     </div>
