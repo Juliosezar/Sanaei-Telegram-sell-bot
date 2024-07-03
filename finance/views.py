@@ -224,8 +224,10 @@ class DenyPaymentPage(LoginRequiredMixin, View):
         from connection.command_runer import CommandRunner
         if typ == "buy":
             model_obj = PaymentQueueModel.objects.get(id=obj_id)
+            userid = model_obj.custumer.userid
         else:
             model_obj = TamdidPaymentQueueModel.objects.get(id=obj_id)
+            userid = model_obj.config.chat_id.userid
         form = DenyForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
@@ -242,7 +244,7 @@ class DenyPaymentPage(LoginRequiredMixin, View):
                 if cd['ban_user']:
                     msg = msg + '\n' "🚫 به دلیل تخلف شما بن شده و از استفاده از بات محروم میشوید."
                 # TODO
-                CommandRunner.send_msg_to_user(model_obj.config.chat_id.userid, msg)
+                CommandRunner.send_msg_to_user(userid, msg)
                 model_obj.status = 10
                 model_obj.timestamp = int(JalaliDateTime.now().timestamp())
                 model_obj.save()
