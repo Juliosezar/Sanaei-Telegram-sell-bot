@@ -101,13 +101,8 @@ def disable_infinit_configs():
                 if ConfigsInfo.objects.filter(config_name=name).exists():
                     print(name)
                     config_mdl = ConfigsInfo.objects.get(config_name=name)
-                    if MsgEndOfConfig.objects.filter(config=config_mdl).exists():
-                        if not api[name]["ended"]:
-                            if not EndOfConfigCounter.objects.filter(uuid=api[name]["uuid"], type=0).exists():
-                                CommandRunner.send_end_of_config_notif(config_mdl.chat_id.userid, api[name])
-                                EndOfConfigCounter.objects.create(uuid=api[name]["uuid"], type=0).save()
-
-
+                    if EndOfConfigCounter.objects.filter(config=config_mdl, type=0).exists():
+                        pass
         else:
             pass
 
