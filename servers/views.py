@@ -243,12 +243,16 @@ class ServerApi:
                     joined_data["total_usage"] = ii["total"]
                     joined_data["usage"] = ii["up"] + ii["down"]
                     joined_data["time_expire"] = ii["expiryTime"]
+                    joined_data["ended"] = ii["enable"]
                     break
             for ii in json.loads(i["settings"])["clients"]:
                 if ii["email"] == config_obj.config_name:
                     joined_data["enable"] = ii["enable"]
                     joined_data["ip_limit"] = ii["limitIp"]
                     break
+        print(joined_data)
+        if not joined_data["ended"] or not joined_data["enable"]:
+            return "ended"
         url = to_server_obj.server_url + "panel/api/inbounds/addClient"
         setting = {
             'clients': [{
@@ -462,7 +466,7 @@ class Configs:
         print(iplimit, month)
         with open(settings.BASE_DIR / "settings.json", "r") as f:
             data = json.load(f)["unlimit_limit"]
-        if (month in [1,2,3]) and (iplimit in [1, 2]):
+        if (month in [1, 2, 3]) and (iplimit in [1, 2]):
             limit = data[f"{iplimit}u"][f"{month}m"]
         else:
             iplimit = max(1, min(iplimit, 2))
@@ -496,10 +500,12 @@ class Configs:
             cls.save_config_info(config_queue_obj.config_name, config_queue_obj.config_uuid,
                                  config_queue_obj.server.server_id, config_queue_obj.custumer.userid,
                                  config_queue_obj.price)
+
+            cls.send_config_to_user(config_queue_obj.custumer.userid, config_uuid,config_queue_obj.server.server_id, config_queue_obj.config_name)
             if config_queue_obj.usage_limit == 0:
                 cls.set_unlimit_limit(config_uuid, config_queue_obj.user_limit, int(config_queue_obj.expire_time / 30))
-            cls.send_config_to_user(config_queue_obj.custumer.userid, config_uuid,
-                                    config_queue_obj.server.server_id, config_queue_obj.config_name)
+                CommandRunner.send_infinit_notification(config_queue_obj.custumer.userid, config_queue_obj.user_limit, int(config_queue_obj.expire_time / 30))
+
             Log.create_config_log(ConfigsInfo.objects.get(config_uuid=config_uuid),
                                   f"➕ Create by \"Bot\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price / 1000)}T)")
             Log.create_admin_log("Bot",
@@ -515,6 +521,7 @@ class Configs:
 
     @classmethod
     def create_config_from_wallet(cls, chat_id, server_id, expire_limit, usage_limit, user_limit, price):
+        from connection.command_runer import CommandRunner
         server_obj = ServerModel.objects.get(server_id=server_id)
         conf_uuid = str(uuid.uuid4())
         config_name = Configs.generate_unique_name()
@@ -523,9 +530,11 @@ class Configs:
         if create_config:
             cls.save_config_info(config_name, conf_uuid, server_id, chat_id, price)
             change_wallet_amount(chat_id, -1 * price)
+            cls.send_config_to_user(chat_id, conf_uuid, server_id, config_name)
             if usage_limit == 0:
                 cls.set_unlimit_limit(conf_uuid, user_limit, expire_limit)
-            cls.send_config_to_user(chat_id, conf_uuid, server_id, config_name)
+                CommandRunner.send_infinit_notification(chat_id, user_limit, expire_limit)
+
             Log.create_config_log(ConfigsInfo.objects.get(config_uuid=conf_uuid),
                                   f"➕ Create by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             Log.create_admin_log("Bot",
@@ -575,8 +584,10 @@ class Configs:
             cls.change_config_info(config_queue_obj.config.config_uuid, config_queue_obj.price, True)
             if config_queue_obj.usage_limit == 0:
                 cls.set_unlimit_limit(config_uuid, config_queue_obj.user_limit, int(config_queue_obj.expire_time / 30))
+                CommandRunner.send_infinit_notification(config_queue_obj.config.chat_id.userid, config_queue_obj.user_limit, int(config_queue_obj.expire_time / 30))
             CommandRunner.send_msg_to_user(config_queue_obj.config.chat_id.userid,
                                            f"✅ سرویس {config_queue_obj.config.config_name} تمدید شد. از بخش (سرویس های من) در منوی اصلی میتوانید وضعیت سرویس خود را مشاهده کنید.")
+
             Log.create_config_log(config_queue_obj.config,
                                   f"🔃 Renew by \"Bot\" ({config_queue_obj.usage_limit}GB - {config_queue_obj.expire_time}day - {config_queue_obj.user_limit}Ip - {int(config_queue_obj.price / 1000)}T)")
             Log.create_admin_log("Bot",
@@ -600,10 +611,11 @@ class Configs:
             cls.change_config_info(config_uuid, price, True)
             change_wallet_amount(config_obj.chat_id.userid, -1 * price)
 
-            CommandRunner.send_msg_to_user(config_obj.chat_id.userid,f"✅ سرویس {config_obj.config_name} تمدید شد. از بخش (سرویس های من) در منوی اصلی میتوانید وضعیت سرویس خود را مشاهده کنید.")
             if usage_limit == 0:
                 cls.set_unlimit_limit(config_uuid, user_limit, expire_limit)
+                CommandRunner.send_infinit_notification(config_obj.chat_id.userid, user_limit, expire_limit)
 
+            CommandRunner.send_msg_to_user(config_obj.chat_id.userid,f"✅ سرویس {config_obj.config_name} تمدید شد. از بخش (سرویس های من) در منوی اصلی میتوانید وضعیت سرویس خود را مشاهده کنید.")
             Log.create_config_log(config_obj,f"🔃 Renew by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             Log.create_admin_log("Bot",f"🔃 Renew \"{config_obj.config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             Log.create_customer_log(config_obj.chat_id,f"🔃 Renew \"{config_obj.config_name}\" by \"Bot\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
@@ -616,6 +628,8 @@ class Configs:
 
     @classmethod
     def tamdid_config_by_admins(cls, config_uuid, expire_limit, usage_limit, user_limit, price, paid, by_admin):
+        from connection.command_runer import CommandRunner
+
         conf = ConfigsInfo.objects.get(config_uuid=config_uuid)
         create_config = ServerApi.renew_config(conf.server.server_id, config_uuid, conf.config_name, expire_limit,
                                                usage_limit, user_limit)
@@ -628,7 +642,11 @@ class Configs:
             Log.create_config_log(conf,f"🔃 Renew \"{conf.config_name}\" by \"{by_admin}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             Log.create_admin_log(by_admin,f"🔃 Renew \"{conf.config_name}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
             if conf.chat_id:
+                CommandRunner.send_msg_to_user(conf.chat_id.userid,
+                                               f" ✅ سرویس {conf.config_name} توسط ادمین تمدید شد. از بخش (سرویس های من) در منوی اصلی میتوانید وضعیت سرویس خود را مشاهده کنید. ")
                 Log.create_customer_log(conf.chat_id,f"🔃 Renew \"{conf.config_name}\" by \"{by_admin}\" ({usage_limit}GB - {expire_limit}day - {user_limit}Ip - {int(price / 1000)}T)")
+                if usage_limit == 0:
+                    CommandRunner.send_infinit_notification(conf.chat_id.userid, user_limit, int(expire_limit / 30))
 
             return {'config_name': conf.config_name, 'config_uuid': config_uuid}
         return None

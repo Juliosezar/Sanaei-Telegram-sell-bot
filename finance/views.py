@@ -340,14 +340,20 @@ class DenyTamdidPaymentAfterFirsConfirmPage(LoginRequiredMixin, View):
 
 
 class EditPricePayment(LoginRequiredMixin, View):
-    def get(self, request, obj_id):
+    def get(self, request, obj_id, typ):
         form = EditPriceForm
-        model_obj = PaymentQueueModel.objects.get(id=obj_id)
+        if typ == "buy":
+            model_obj = PaymentQueueModel.objects.get(id=obj_id)
+        else:
+            model_obj = TamdidPaymentQueueModel.objects.get(id=obj_id)
         return render(request, 'edit_price_payment.html', {'obj': model_obj, 'form': form})
 
-    def post(self, request, obj_id):
+    def post(self, request, obj_id, typ):
         form = EditPriceForm(request.POST)
-        model_obj = PaymentQueueModel.objects.get(id=obj_id)
+        if typ == "buy":
+            model_obj = PaymentQueueModel.objects.get(id=obj_id)
+        else:
+            model_obj = TamdidPaymentQueueModel.objects.get(id=obj_id)
         if form.is_valid():
             price = form.cleaned_data['price']
             model_obj.pay_price = price

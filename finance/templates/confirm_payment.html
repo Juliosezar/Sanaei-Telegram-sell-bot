@@ -104,7 +104,7 @@
                                 <a href="{% url 'finance:second_confirm' i.id %}" class="sec_confirm c_btnd">تایید نهایی</a>
                             </div>
                             <div class="confirmbtn">
-                                <a href="{% url 'finance:edit_price' i.id %}" class="edit_price c_btnd">تغییر قیمت</a>
+                                <a href="{% url 'finance:edit_price' i.id "buy" %}" class="edit_price c_btnd">تغییر قیمت</a>
                             </div>
                             <div class="confirmbtn">
                                 <a href="{% url 'finance:deny_payments' i.id "buy" %}" class="deny c_btnd">عدم تایید</a>
@@ -132,7 +132,7 @@
                                 <a href="{% url 'finance:second_tamdid_confirm' i.id %}" class="sec_confirm c_btnd">تایید نهایی</a>
                             </div>
                             <div class="confirmbtn">
-                                <a href="{% url 'finance:edit_price' i.id %}" class="edit_price c_btnd">تغییر قیمت</a>
+                                <a href="{% url 'finance:edit_price' i.id "tamdid" %}" class="edit_price c_btnd">تغییر قیمت</a>
                             </div>
                             <div class="confirmbtn">
                                 <a href="{% url 'finance:deny_payments' i.id "tamdid" %}" class="deny c_btnd">عدم تایید</a>

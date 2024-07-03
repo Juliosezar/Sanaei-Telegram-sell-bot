@@ -713,7 +713,9 @@ class CommandRunner:
             cls.send_api("editMessageText", data)
             if (int(JalaliDateTime.now().timestamp()) - service.change_location_time) > 604800:
                 api = ServerApi.change_location(service.server.server_id, server_to, conf_uuid)
-                if api:
+                if api == "ended":
+                    cls.send_msg_to_user(chat_id, "کانفیگ شما به اتمام رسیده یا توسط ادمین غیرفعال گردیده است و نمیتوانید سرور آنرا تغییر دهید.")
+                elif api:
                     cls.send_msg_to_user(chat_id, f" ✅ سرویس {service.config_name} با موفقیت انتقال پیدا کرد و برای شما ارسال میشود.")
                     Configs.send_config_to_user(chat_id, conf_uuid, server_to, service.config_name)
                     service.change_location_time = int(JalaliDateTime.now().timestamp())
@@ -1104,3 +1106,18 @@ class CommandRunner:
     @classmethod
     def invite_link(cls, chat_id, *args):
         cls.send_msg_to_user(chat_id, "این بخش موقتا غیرفعال است.")
+
+
+    @classmethod
+    def send_infinit_notification(cls, chat_id, iplimit, month):
+        with open(settings.BASE_DIR / "settings.json", "r") as f:
+            UNLIMIT_LIMIT = json.load(f)["unlimit_limit"]
+            if (month in [1, 2, 3]) and (iplimit in [1, 2]):
+                limit = UNLIMIT_LIMIT[f"{iplimit}u"][f"{month}m"]
+            else:
+                iplimit = max(1, min(iplimit, 2))
+                month = max(1, min(month, 3))
+                limit = UNLIMIT_LIMIT[f"{iplimit}u"][f"{month}m"]
+            msg = "کاربر عزیز سرور نامحدود تقدیم شما ✔️" "\n\n" f"‼️ دقت کنید در صورت اتصال دستگاه بیش‌تر از تعداد کاربر تعیین شده برای کانفیگ ({iplimit} کاربره)، حتی برای یک اتصال، کانفیگ شما از حالت نامحدود به حالت حجمی  ({limit} گیگابایت) تبدیل می‌شود." "\n\n" "📌 لازم به ذکر است در صورت تبدیل حالت نامحدود به حجمی نه امکان عودت وجه و نه امکان بازگشت حالت کانفیگ فراهم نخواهد بود." "\n\n" "با تشکر از خرید شما ♥️"
+            cls.send_msg_to_user(chat_id, msg)
+
