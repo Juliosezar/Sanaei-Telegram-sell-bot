@@ -3,7 +3,7 @@ from django.db import models
 
 
 class Customer(models.Model):
-    userid = models.BigIntegerField(primary_key=True, unique=True)
+    userid = models.BigAutoField(primary_key=True, unique=True)
     first_name = models.CharField(max_length=25)
     username = models.CharField(max_length=32, null=True)
     wallet = models.IntegerField(default=0)
