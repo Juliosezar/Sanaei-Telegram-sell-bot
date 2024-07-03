@@ -41,19 +41,19 @@ def send_end_conf_notif():
                         if not api[name]["ended"]:
                             if not EndOfConfigCounter.objects.filter(uuid=api[name]["uuid"], type=0).exists():
                                 CommandRunner.send_end_of_config_notif(config_mdl.chat_id.userid, api[name])
-                                EndOfConfigCounter.objects.create(uuid=api[name]["uuid"], type=0).save()
+                                EndOfConfigCounter.objects.create(uuid=api[name]["uuid"], type=0, timestamp=int(jdatetime.JalaliDateTime.now().timestamp())).save()
                         else:
                             if api[name]["usage_limit"] != 0:
                                 if (api[name]["usage_limit"] - api[name]["usage"]) < 0.5:
                                     if not EndOfConfigCounter.objects.filter(uuid=api[name]["uuid"], type=1).exists():
                                         CommandRunner.send_almost_end_of_config_notif(config_mdl.chat_id.userid, api[name], 0)
-                                        EndOfConfigCounter.objects.create(uuid=api[name]["uuid"], type=1).save()
+                                        EndOfConfigCounter.objects.create(uuid=api[name]["uuid"], type=1, timestamp=int(jdatetime.JalaliDateTime.now().timestamp())).save()
 
                             if api[name]["expire_time"] != 0:
                                 if (api[name]["expire_time"] * 24) < 13:
                                     if not EndOfConfigCounter.objects.filter(uuid=api[name]["uuid"], type=2).exists():
                                         CommandRunner.send_almost_end_of_config_notif(config_mdl.chat_id.userid, api[name], 1)
-                                        EndOfConfigCounter.objects.create(uuid=api[name]["uuid"], type=2).save()
+                                        EndOfConfigCounter.objects.create(uuid=api[name]["uuid"], type=2, timestamp=int(jdatetime.JalaliDateTime.now().timestamp())).save()
 
                     else:
                         MsgEndOfConfig.objects.create(config=config_mdl)
@@ -74,7 +74,7 @@ def tamdid_config():
 def clear_ended_record():
     for obj in EndOfConfigCounter.objects.all():
         delta = int(jdatetime.JalaliDateTime.now().timestamp()) - obj.timestamp
-        if delta > 86400:
+        if delta > 259000:
             obj.delete()
 
 @shared_task
@@ -93,7 +93,23 @@ def send_notif_to_admins():
 
 @shared_task
 def disable_infinit_configs():
-    pass
+    from connection.command_runer import CommandRunner
+    for server in Server.objects.all():
+        api = ServerApi.get_list_configs(server.server_id)
+        if api:
+            for name in api:
+                if ConfigsInfo.objects.filter(config_name=name).exists():
+                    print(name)
+                    config_mdl = ConfigsInfo.objects.get(config_name=name)
+                    if MsgEndOfConfig.objects.filter(config=config_mdl).exists():
+                        if not api[name]["ended"]:
+                            if not EndOfConfigCounter.objects.filter(uuid=api[name]["uuid"], type=0).exists():
+                                CommandRunner.send_end_of_config_notif(config_mdl.chat_id.userid, api[name])
+                                EndOfConfigCounter.objects.create(uuid=api[name]["uuid"], type=0).save()
+
+
+        else:
+            pass
 
 
 @shared_task
