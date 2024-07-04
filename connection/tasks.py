@@ -1,11 +1,14 @@
 from celery import shared_task
 from .models import SendMessage, EndOfConfigCounter
 from servers.models import CreateConfigQueue, ConfigsInfo, MsgEndOfConfig, Server, TamdidConfigQueue, TestConfig
-from servers.views import Configs, ServerApi
+from servers.views import Configs, ServerApi, InfinitCongisLimit
 from persiantools import jdatetime
 from django.conf import settings
 from finance.models import ConfirmPaymentQueue, ConfirmTamdidPaymentQueue
 import json
+from reports.views import Log
+
+
 
 @shared_task
 def send_msg_to_bot():
@@ -98,14 +101,19 @@ def disable_infinit_configs():
         api = ServerApi.get_list_configs(server.server_id)
         if api:
             for name in api:
-                if ConfigsInfo.objects.filter(config_name=name).exists():
-                    print(name)
-                    config_mdl = ConfigsInfo.objects.get(config_name=name)
-                    if EndOfConfigCounter.objects.filter(config=config_mdl, type=0).exists():
-                        pass
-        else:
-            pass
-
+                if InfinitCongisLimit.objects.filter(config__config_uuid=api[name]["uuid"]).exists() and api[name]["usage_limit"] == 0 and api[name]["enable"] and api[name]["ended"]:
+                    inf_obj = InfinitCongisLimit.objects.get(config__config_uuid=api[name]["uuid"])
+                    if inf_obj.limit < int(api[name]["usage"]):
+                        if int(api[name]["expire_time"]) > 4:
+                            session = ServerApi.create_session(server_id=server.server_id)
+                            if session:
+                                time_expire = int((abs(api[name]["expire_time"] * 86400000)) * -1)
+                                ServerApi.disable_config(session, server.server_id, api[name]["uuid"], api[name]["inbound_id"], name, True, api[name]["ip_limit"], time_expire, 0)
+                                CommandRunner.send_msg_to_user(inf_obj.config.chat_id.userid, f" 🔴 سرویس {name} توسط سیستم غیرفعال شد.")
+                                Log.create_config_log(inf_obj.config, f"⛔ Disable \"{name}\" by \"Celery\"")
+                                Log.create_admin_log("Celery", f"⛔ Disable \"{name}\"")
+                                if inf_obj.config.chat_id:
+                                    Log.create_customer_log(inf_obj.config.chat_id, f"⛔ Disable \"{name}\" by \"Celery\"")
 
 @shared_task
 def end_of_test_config():

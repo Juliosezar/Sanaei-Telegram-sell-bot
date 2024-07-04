@@ -844,9 +844,10 @@ class DeleteConfig(LoginRequiredMixin, View):
             messages.success(request, f"کانفیگ {config_name} با موفقیت حذف شد.")
             if ConfigsInfo.objects.filter(config_uuid=config_uuid).exists():
                 obj = ConfigsInfo.objects.get(config_uuid=config_uuid)
-                obj.delete()
+
                 if obj.chat_id:
                     Log.create_customer_log(obj.chat_id, f"❌ Delete \"{config_name}\" by \"{request.user.username}\"")
+                obj.delete()
             Log.create_admin_log(f"{request.user.username}", f"❌ Delete \"{config_name}\"")
 
 
