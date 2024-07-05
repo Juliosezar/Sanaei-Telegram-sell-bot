@@ -20,6 +20,5 @@ urlpatterns = [
     path("api_get_config_ip_limit_chices/", views.ApiGetConfigIPLimitChoices.as_view(), name="api_get_iplimit_choices"),
     path("api_get_axact_price/", views.ApiGetConfigPriceChoices.as_view(), name="api_get_axact_price"),
     path("change_location/<str:config_uuid>/<int:server_id>/", views.ChangeConfigLocationPage.as_view(), name="change_location"),
-    # path("test/", views.test.as_view(), name="test"),
     path("change_unlimit_limit/<str:config_uuid>/", views.ChangeUnlimitConfLimit.as_view(), name="change_unlimit_limit"),
 ]
