@@ -55,7 +55,6 @@ def webhook(request):
     if request.method == 'POST':
         # try:
             update = json.loads(request.body)
-            print(update)
             if 'message' in update:
                 chat_id = update['message']['chat']['id']
                 if not CustumerModel.objects.filter(userid=chat_id).exists():

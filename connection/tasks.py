@@ -1,13 +1,13 @@
 from celery import shared_task
 from .models import SendMessage, EndOfConfigCounter
-from servers.models import CreateConfigQueue, ConfigsInfo, MsgEndOfConfig, Server, TamdidConfigQueue, TestConfig
+from servers.models import CreateConfigQueue, ConfigsInfo, Server, TamdidConfigQueue, TestConfig
 from servers.views import Configs, ServerApi, InfinitCongisLimit
 from persiantools import jdatetime
 from django.conf import settings
 from finance.models import ConfirmPaymentQueue, ConfirmTamdidPaymentQueue
 import json
 from reports.views import Log
-
+from custumers.models import Customer
 
 
 @shared_task
@@ -31,35 +31,45 @@ def create_config():
             Configs.create_config_from_queue(config_uuid=conf.config_uuid, by_celery=True)
 
 @shared_task
-def send_end_conf_notif():
+def send_end_conf_notif(): # and delete ended confs after 3 days
     from connection.command_runer import CommandRunner
     for server in Server.objects.all():
         api = ServerApi.get_list_configs(server.server_id)
         if api:
             for name in api:
                 if ConfigsInfo.objects.filter(config_name=name).exists():
-                    print(name)
                     config_mdl = ConfigsInfo.objects.get(config_name=name)
-                    if MsgEndOfConfig.objects.filter(config=config_mdl).exists():
-                        if not api[name]["ended"]:
-                            if not EndOfConfigCounter.objects.filter(config=config_mdl, type=0).exists():
+                    if not api[name]["ended"]:
+                        if not EndOfConfigCounter.objects.filter(config=config_mdl, type=0).exists():
+                            if config_mdl.chat_id:
                                 CommandRunner.send_end_of_config_notif(config_mdl.chat_id.userid, api[name])
-                                EndOfConfigCounter.objects.create(config=config_mdl, type=0, timestamp=int(jdatetime.JalaliDateTime.now().timestamp())).save()
+                            EndOfConfigCounter.objects.create(config=config_mdl, type=0, timestamp=int(jdatetime.JalaliDateTime.now().timestamp())).save()
                         else:
-                            if api[name]["usage_limit"] != 0:
-                                if (api[name]["usage_limit"] - api[name]["usage"]) < 0.5:
-                                    if not EndOfConfigCounter.objects.filter(config=config_mdl, type=1).exists():
-                                        CommandRunner.send_almost_end_of_config_notif(config_mdl.chat_id.userid, api[name], 0)
-                                        EndOfConfigCounter.objects.create(config=config_mdl, type=1, timestamp=int(jdatetime.JalaliDateTime.now().timestamp())).save()
 
-                            if api[name]["expire_time"] != 0:
-                                if (api[name]["expire_time"] * 24) < 13:
-                                    if not EndOfConfigCounter.objects.filter(config=config_mdl, type=2).exists():
-                                        CommandRunner.send_almost_end_of_config_notif(config_mdl.chat_id.userid, api[name], 1)
-                                        EndOfConfigCounter.objects.create(config=config_mdl, type=2, timestamp=int(jdatetime.JalaliDateTime.now().timestamp())).save()
+                            counter_obj = EndOfConfigCounter.objects.get(config=config_mdl, type=0)
+                            if (int(jdatetime.JalaliDateTime.now().timestamp()) - counter_obj.timestamp) > 259200:
+                                delete = ServerApi.delete_config(config_mdl.server.server_id, config_mdl.config_uuid, api[name]["inbound_id"])
+                                if delete:
+                                    if config_mdl.chat_id:
+                                        CommandRunner.send_msg_to_user(config_mdl.chat_id.userid, f"🔴 سرویس {name} حذف شد و امکان تمدید آن وجود ندارد. میتوانید از بخش خرید سرویس در منوی اصلی یا با ارتباط با ادمین اقدام به خرید سرویس جدید کنید.")
+                                        Log.create_customer_log(Customer.objects.get(userid=config_mdl.chat_id.userid), "❌ Delete \"{name}\" by \"Celery\"")
+                                    config_mdl.delete()
+                                    Log.create_admin_log("Celery", f"❌ Delete \"{name}\"")
 
                     else:
-                        MsgEndOfConfig.objects.create(config=config_mdl)
+                        if api[name]["usage_limit"] != 0:
+                            if (api[name]["usage_limit"] - api[name]["usage"]) < 0.5:
+                                if not EndOfConfigCounter.objects.filter(config=config_mdl, type=1).exists():
+                                    if config_mdl.chat_id:
+                                        CommandRunner.send_almost_end_of_config_notif(config_mdl.chat_id.userid, api[name], 0)
+                                    EndOfConfigCounter.objects.create(config=config_mdl, type=1, timestamp=int(jdatetime.JalaliDateTime.now().timestamp())).save()
+                        if api[name]["expire_time"] != 0:
+                            if (api[name]["expire_time"] * 24) < 13:
+                                if not EndOfConfigCounter.objects.filter(config=config_mdl, type=2).exists():
+                                    if config_mdl.chat_id:
+                                        CommandRunner.send_almost_end_of_config_notif(config_mdl.chat_id.userid, api[name], 1)
+                                    EndOfConfigCounter.objects.create(config=config_mdl, type=2, timestamp=int(jdatetime.JalaliDateTime.now().timestamp())).save()
+
         else:
             pass
         #TODO : log errors
@@ -77,7 +87,7 @@ def tamdid_config():
 def clear_ended_record():
     for obj in EndOfConfigCounter.objects.all():
         delta = int(jdatetime.JalaliDateTime.now().timestamp()) - obj.timestamp
-        if delta > 259000:
+        if delta > 345600:
             obj.delete()
 
 @shared_task
