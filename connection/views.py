@@ -59,6 +59,9 @@ def webhook(request):
                 chat_id = update['message']['chat']['id']
                 if not CustumerModel.objects.filter(userid=chat_id).exists():
                     CommandRunner.main_menu(chat_id)
+                if not CustumerModel.objects.get(userid=chat_id).active:
+                    CommandRunner.send_msg_to_user(chat_id, "🚫 دسترسی شما به بات توسط ادمین لغو شده است.")
+                    return JsonResponse({'status': 'ok'})
                 if "text" in update["message"]:
                     text = update['message']['text']
                     if text.split("<~>")[0] in COMMANDS.keys():
@@ -113,6 +116,9 @@ def webhook(request):
                 msg_id = update["callback_query"]["message"]["message_id"]
                 query_data = update['callback_query']['data']
                 chat_id = update['callback_query']['message']['chat']['id']
+                if not CustumerModel.objects.get(userid=chat_id).active:
+                    CommandRunner.send_msg_to_user(chat_id, "🚫 دسترسی شما به بات توسط ادمین لغو شده است.")
+                    return JsonResponse({'status': 'ok'})
                 if query_data.split("<~>")[0] in COMMANDS.keys():
                     command = query_data.split("<~>")[0]
                     if "<~>" in query_data:

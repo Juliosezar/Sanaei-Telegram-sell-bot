@@ -30,6 +30,9 @@
     {% endif %}
     <div id="main">
         <h3 id="title">User Info: {{ customer_obj.userid }}</h3>
+            {% if not customer_obj.active %}
+                <h3 dir="rtl" style="color: #0a0000" class="banned">⛔️ یوزر توسط ادمین بن شده است. ⛔️</h3>
+            {% endif %}
         <div class="infobox" dir="rtl">
             {% if customer_obj.username == none %}
                 <h3 class="info_item"> یوزرنیم : ----</h3>
@@ -43,11 +46,17 @@
             {% if customer_obj.active %}
                 <h3 class="info_item">وضعیت : فعال 🟢</h3>
             {% else %}
-                <h3 class="info_item">وضعیت : غیر فعال 🔴</h3>
+                <h3 class="info_item">وضعیت : غیرفعال 🔴</h3>
             {% endif %}
-            <a class="info_item" href="{% url "customers:update_customer" customer_obj.userid %}"><img style="width: 3rem" src="{% static 'img/icons8-restart-512.png' %}" alt=""></a>
-            <a class="info_item refresh" href="{% url 'customers:send_msg_to_user' customer_obj.userid %}"> ارسال پیام 📨</a>
-
+        <div id="btnaction">
+            <a class="imgc" href="{% url 'customers:send_msg_to_user' customer_obj.userid %}"><img src="{% static "img/sendmsg.png" %}"></a>
+            <a class="imgc" href="{% url "customers:update_customer" customer_obj.userid %}"><img src="{% static 'img/icons8-restart-512.png' %}" alt=""></a>
+            {% if customer_obj.active %}
+                <a class="ban imgc" href="{% url "customers:ban_user" customer_obj.userid 0 %}"><img src="{% static "img/ban.png" %}" alt=""></a>
+            {% else %}
+                <a class="ban imgc" href="{% url "customers:ban_user" customer_obj.userid 1 %}"><img src="{% static "img/unban.png" %}" alt=""></a>
+            {% endif %}
+        </div>
         </div>
         {% if not sum_configs %}
             <h3 id="title">🔻 کانفیگی ثبت نشده است 🔻</h3>

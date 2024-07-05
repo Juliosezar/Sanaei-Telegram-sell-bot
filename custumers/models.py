@@ -12,12 +12,12 @@ class Customer(models.Model):
     temp_status = models.CharField(max_length=30, default="normal")
     pay_temp_amount = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
-    restrict = models.BooleanField(default=False)
+
     def __str__(self):
         return self.first_name + " / " + str(self.userid)
+
 
 class CustumerHistory(models.Model):
     custumer = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
     by_user = models.CharField(max_length=50)
     record_date = models.DateTimeField()
-

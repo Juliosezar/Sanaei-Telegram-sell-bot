@@ -9,6 +9,11 @@
     text-align: center;
 }
 
+.banned {
+    text-align: center;
+    font-size: x-large;
+}
+
 .infobox {
     display: flex;
     flex-direction: row;
@@ -33,6 +38,33 @@
     color: #000d3f;
     padding: 0.25rem 1rem;
     border-radius: 10px;
+}
+
+/*.ban {*/
+/*    !*background-color: white;*!*/
+/*    padding: 0.25rem 1rem;*/
+/*    width: 0.5rem;*/
+/*    border-radius: 10px;*/
+/*}*/
+.imgc {
+    background-color: white;
+    border-radius: 15px;
+    padding: 0.1rem 1.2rem;
+
+}
+img {
+    /*width: 2.5rem;*/
+    height: 2.5rem;
+}
+
+#btnaction {
+    width: 100%;
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-content: space-between;
+    justify-content: space-evenly;
 }
 
 .configs_list {
@@ -66,6 +98,8 @@
     font-size: x-large;
 }
 
+
+
 /* HTML: <div class="loader"></div> */
 .loader {
   width: 60px;
@@ -90,6 +124,10 @@
         margin: 0.5rem 1rem;
         font-size: medium;
     }
+    .banned {
+    text-align: center;
+    font-size: larger;
+}
 
 }
 

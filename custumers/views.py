@@ -198,3 +198,14 @@ class RegisterConfigToCustumer(LoginRequiredMixin, View):
             config.save()
             return redirect("servers:conf_page",config.server.server_id, conf_uuid, config.config_name)
         return render(request, 'register_conf_for_customer.html', {"form": form, "config":config})
+
+
+class BanUser(LoginRequiredMixin, View):
+    def get(self, request, userid, status):
+        customer_model = CustomerModel.objects.get(userid=userid)
+        if status == 1:
+            customer_model.active = True
+        else:
+            customer_model.active = False
+        customer_model.save()
+        return redirect("customers:custumer_detail", userid)

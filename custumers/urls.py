@@ -12,4 +12,5 @@ urlpatterns = [
    path("change_wallet/<int:userid>/", views.ChangeWalletAmount.as_view(), name="change_wallet"),
    path("update_customer/<int:userid>/", views.UpdateCustumer.as_view(), name="update_customer"),
    path("register_conf_for_customer/<str:conf_uuid>/", views.RegisterConfigToCustumer.as_view(), name="register_conf_for_customer"),
+   path("ban_user/<int:userid>/<int:status>/", views.BanUser.as_view(), name="ban_user"),
 ]
