@@ -93,19 +93,19 @@ def webhook(request):
                         photo = (update["message"]["photo"][-1])
                         file_id = photo["file_id"]
                         CommandRunner.download_photo(file_id, chat_id, False)
-                        CommandRunner.send_msg_to_user(chat_id, "تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید مبلغ مورد نظر به کیف پولتان اضافه خواهد شد.")
+                        CommandRunner.send_msg_to_user(chat_id, "✅ تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید مبلغ مورد نظر به کیف پولتان اضافه خواهد شد." "\n\n" "⭕️ لطفا از ارسال دوباره ی پرداخت خود، اکیدا خودداری کنید.")
 
                     elif CustumerModel.objects.get(userid=chat_id).temp_status == "get_paid_picture_for_config":
                         photo = (update["message"]["photo"][-1])
                         file_id = photo["file_id"]
                         CommandRunner.download_photo(file_id, chat_id, True)
-                        CommandRunner.send_msg_to_user(chat_id, "تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید کانفیگ شما به صورت خودکار برایتان ارسال میگردد.")
+                        CommandRunner.send_msg_to_user(chat_id, "✅ تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید کانفیگ شما به صورت خودکار برایتان ارسال میگردد." "\n\n" "⭕️ لطفا از ارسال دوباره ی پرداخت خود، اکیدا خودداری کنید.")
 
                     elif CustumerModel.objects.get(userid=chat_id).temp_status == "get_paid_picture_for_tamdid":
                         photo = (update["message"]["photo"][-1])
                         file_id = photo["file_id"]
                         CommandRunner.download_photo(file_id, chat_id, True, True)
-                        CommandRunner.send_msg_to_user(chat_id, "تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید کانفیگ شما به صورت خودکار تمدید میگردد و به شما اطلاع رسانی میشود.")
+                        CommandRunner.send_msg_to_user(chat_id, "✅ تصویر شما دریافت شد.\n منتظر تایید پرداخت توسط همکاران ما باشید.\nپس از تایید کانفیگ شما به صورت خودکار تمدید میگردد و به شما اطلاع رسانی میشود." "\n\n" "⭕️ لطفا از ارسال دوباره ی پرداخت خود، اکیدا خودداری کنید.")
 
 
                     else:

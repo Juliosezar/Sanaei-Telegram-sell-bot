@@ -56,8 +56,11 @@
             <button class="links link2" id="list_config">📋 لیست کانفیگ ها 🔗</button>
             <a href="{% url 'servers:show_servers' %}" class="links" id="servers">🌐 سرور ها 📶</a>
             <a href="{% url 'customers:custumers_list' %}" class="links" id="customers">👥 مشتری ها 🤖</a>
-            <a href="{% url "reports:admin_logs" %}" class="links" id="setting">🗃️ Admins Log 👨🏻‍🔧</a>
+            <a href="{% url "reports:admin_logs" %}" class="links" id="setting">🗃️ Admin Log 👨🏻‍🔧</a>
             <a href="{% url "reports:pay_logs" %}" class="links" id="setting">🗃️ Pays Log 💰</a>
+            <a href="{% url "reports:celery_delete_conf_logs" %}" class="links" id="setting">🗃️ Celery Logs 🗑</a>
+            <a href="{% url "reports:send_msgs_log" %}" class="links" id="setting">🗃️ MSG Logs 📨</a>
+
             <a href="{% url 'customers:send_msg_to_all' %}" class="links" id="message">️📝 پیام همگانی 📨</a>
             <a href="{% url 'finance:show_prices' %}" class="links" id="tarefeh">💰 تعرفه ها 🛒</a>
             <a href="" class="links" id="report">📊 گزارشات 📈</a>

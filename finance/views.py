@@ -243,7 +243,9 @@ class DenyPaymentPage(LoginRequiredMixin, View):
 
                 if cd['ban_user']:
                     msg = msg + '\n' "🚫 به دلیل تخلف شما بن شده و از استفاده از بات محروم میشوید."
-                # TODO
+                    customer_obj = Customer.objects.get(userid=userid)
+                    customer_obj.active = False
+                    customer_obj.save()
                 CommandRunner.send_msg_to_user(userid, msg)
                 model_obj.status = 10
                 model_obj.timestamp = int(JalaliDateTime.now().timestamp())
@@ -280,12 +282,11 @@ class DenyPaymentAfterFirsConfirmPage(LoginRequiredMixin, View):
                 else:
                     if cd['disable_all_configs']:
                         msg = msg + '\n' "🚫 به دلیل تخلف کانفیگ های شما غیرفعال شده است."
-                    # TODO
-                # TODO
-
                 if cd['ban_user']:
                     msg = msg + '\n' "🚫 به دلیل تخلف شما بن شده و از استفاده از بات محروم میشوید."
-                # TODO
+                    customer_obj = Customer.objects.get(userid=model_obj.custumer.userid)
+                    customer_obj.active = False
+                    customer_obj.save()
                 CommandRunner.send_msg_to_user(model_obj.custumer.userid, msg)
                 model_obj.status = 10
                 model_obj.timestamp = int(JalaliDateTime.now().timestamp())
@@ -322,12 +323,11 @@ class DenyTamdidPaymentAfterFirsConfirmPage(LoginRequiredMixin, View):
                 else:
                     if cd['disable_all_configs']:
                         msg = msg + '\n' "🚫 به دلیل تخلف کانفیگ های شما غیرفعال شده است."
-                    # TODO
-                # TODO
-
                 if cd['ban_user']:
                     msg = msg + '\n' "🚫 به دلیل تخلف شما بن شده و از استفاده از بات محروم میشوید."
-                # TODO
+                    customer_obj = Customer.objects.get(userid=model_obj.config.chat_id.userid)
+                    customer_obj.active = False
+                    customer_obj.save()
                 CommandRunner.send_msg_to_user(model_obj.config.chat_id.userid, msg)
                 model_obj.status = 10
                 model_obj.timestamp = int(JalaliDateTime.now().timestamp())

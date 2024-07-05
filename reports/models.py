@@ -24,3 +24,9 @@ class AdminLog(models.Model):
 class ErrorLog(models.Model):
     error = models.TextField()
     timestamp = models.IntegerField()
+
+
+class CeleryDeleteConfigLog(models.Model):
+    action = models.TextField()
+    userid = models.PositiveBigIntegerField(null=True)
+    timestamp = models.IntegerField(default=1719482579)

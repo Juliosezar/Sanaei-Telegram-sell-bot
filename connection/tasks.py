@@ -50,10 +50,13 @@ def send_end_conf_notif(): # and delete ended confs after 3 days
                             if (int(jdatetime.JalaliDateTime.now().timestamp()) - counter_obj.timestamp) > 259200:
                                 delete = ServerApi.delete_config(config_mdl.server.server_id, config_mdl.config_uuid, api[name]["inbound_id"])
                                 if delete:
+                                    userid = 0
                                     if config_mdl.chat_id:
                                         CommandRunner.send_msg_to_user(config_mdl.chat_id.userid, f"🔴 سرویس {name} حذف شد و امکان تمدید آن وجود ندارد. میتوانید از بخش خرید سرویس در منوی اصلی یا با ارتباط با ادمین اقدام به خرید سرویس جدید کنید.")
                                         Log.create_customer_log(Customer.objects.get(userid=config_mdl.chat_id.userid), "❌ Delete \"{name}\" by \"Celery\"")
+                                        userid = config_mdl.chat_id.userid
                                     config_mdl.delete()
+                                    Log.celery_delete_conf_log(f"❌ Delete \"{name}\"", userid)
                                     Log.create_admin_log("Celery", f"❌ Delete \"{name}\"")
 
                     else:

@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
-from .models import ConfigLog, CustomerLog, AdminLog
+from .models import ConfigLog, CustomerLog, AdminLog, CeleryDeleteConfigLog
 from persiantools import jdatetime
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from finance.models import ConfirmPaymentQueue, ConfirmTamdidPaymentQueue
 from django.db.models import F, Value
+from connection.models import SendMessage
+
 
 class Log:
     @classmethod
@@ -31,6 +33,13 @@ class Log:
             timestamp=int(jdatetime.JalaliDateTime.now().timestamp())
         ).save()
 
+    @classmethod
+    def celery_delete_conf_log(cls, action, userid):
+        CeleryDeleteConfigLog.objects.create(
+            action=action,
+            userid=userid,
+            timestamp=int(jdatetime.JalaliDateTime.now().timestamp())
+        )
 
 class AdminLogView(LoginRequiredMixin, View):
     def get(self, request):
@@ -48,3 +57,16 @@ class PaysLogView(LoginRequiredMixin, View):
         )
         results = sorted(results, key=lambda x: x['time'], reverse=True)
         return render(request, "pay_logs.html", {"logs": results})
+
+
+class CeleryDeleteConfLogView(LoginRequiredMixin, View):
+    def get(self, request):
+        model_obj = reversed(CeleryDeleteConfigLog.objects.all())
+        return render(request, "celery_delete_conf_log.html", {"logs":model_obj})
+
+
+
+class SendMsgsLogsView(LoginRequiredMixin, View):
+    def get(self, request):
+        logs = reversed(SendMessage.objects.all().order_by("updated_at"))
+        return render(request, "messages_logs.html", {"logs":logs})

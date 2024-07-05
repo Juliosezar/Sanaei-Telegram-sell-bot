@@ -202,10 +202,13 @@ class RegisterConfigToCustumer(LoginRequiredMixin, View):
 
 class BanUser(LoginRequiredMixin, View):
     def get(self, request, userid, status):
+        from connection.command_runer import CommandRunner
         customer_model = CustomerModel.objects.get(userid=userid)
         if status == 1:
             customer_model.active = True
+            CommandRunner.send_msg_to_user(userid, "✅ دسترسی شما به بات توسط ادمین مجاز شد.")
         else:
             customer_model.active = False
+            CommandRunner.send_msg_to_user(userid, "⛔️ دسترسی شما به بات توسط ادمین لغو شد.")
         customer_model.save()
         return redirect("customers:custumer_detail", userid)
