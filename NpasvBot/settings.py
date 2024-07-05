@@ -31,7 +31,7 @@ SECRET_KEY = environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost:8000', "*"]
+ALLOWED_HOSTS = ['127.0.0.1', "194.146.123.65", "admin-napsv.ir"]
 
 LOGIN_URL = "/accounts/login/"
 

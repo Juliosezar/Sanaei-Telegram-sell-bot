@@ -76,3 +76,5 @@ class TestConfig(models.Model):
     config_uuid = models.UUIDField(unique=True)
     customer = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
     sent_notif = models.BooleanField(default=False)
+
+

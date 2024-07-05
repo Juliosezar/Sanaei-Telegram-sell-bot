@@ -20,7 +20,8 @@
         {% if config_info %}
             <h3 class="c_info">سرور: {{ config_info.server.server_name }}</h3>
             {% if config_info.chat_id == none %}
-                <h3 class="c_info">یوزر: ----</h3>
+                <h3 class="c_info"> یوزر: ---- <a id="u_reg" href="{% url "customers:register_conf_for_customer" config_info.config_uuid %}"> Register 🆔</a></h3>
+{#                <h3 class="c_info"></h3>#}
              {% else %}
                 <h3 class="c_info">یوزر: <a style="color: white" href="{% url 'customers:custumer_detail' config_info.chat_id.userid %}">{{ config_info.chat_id.userid }}</a></h3>
             {% endif %}

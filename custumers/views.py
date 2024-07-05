@@ -11,9 +11,10 @@ from servers.views import ServerApi
 from rest_framework.views import APIView
 from accounts.forms import SearchUserForm
 from django.contrib import messages
-from .forms import SendMessageToAllForm, SendMessageToCustomerForm, ChangeWalletForm
+from .forms import SendMessageToAllForm, SendMessageToCustomerForm, ChangeWalletForm, RegisterConfigToCustumerForm
 from connection.models import SendMessage
 from reports.models import CustomerLog
+
 class Customer:
     @classmethod
     def create_custumer(cls, user_id, first_name, username):
@@ -180,3 +181,20 @@ class UpdateCustumer(LoginRequiredMixin, View):
         get = CommandRunner.get_user_info(userid)
         Customer.check_custumer_info(userid, get["first_name"], get["username"])
         return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+class RegisterConfigToCustumer(LoginRequiredMixin, View):
+    def get(self, request, conf_uuid):
+        form = RegisterConfigToCustumerForm
+        config = ConfigsInfo.objects.get(config_uuid=conf_uuid)
+        return render(request, "register_conf_for_customer.html", {"form": form, "config": config})
+
+    def post(self, request, conf_uuid):
+        form = RegisterConfigToCustumerForm(request.POST)
+        config = ConfigsInfo.objects.get(config_uuid=conf_uuid)
+        if form.is_valid():
+            userid = form.cleaned_data['user_id']
+            config.chat_id = CustomerModel.objects.get(userid=userid)
+            config.save()
+            return redirect("servers:conf_page",config.server.server_id, conf_uuid, config.config_name)
+        return render(request, 'register_conf_for_customer.html', {"form": form, "config":config})

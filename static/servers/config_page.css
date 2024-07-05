@@ -104,7 +104,13 @@ body {
     width: 100%;
 }
 
-
+#u_reg {
+    background-color: white;
+    color: #000d3f;
+    padding: 0.2rem 0.8rem;
+    border-radius: 10px;
+    margin-right: 0.5rem;
+}
 .sys_limit {
     background-color: #0048d5;
     color: white;
