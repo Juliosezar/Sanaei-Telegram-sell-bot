@@ -21,7 +21,7 @@
             <h3 id="title">تغییر کیف پول</h3>
             {% csrf_token %}
             <div class="textinput item"><h3 class="item_text">مبلغ : </h3>{{ form.wallet }}هزار تومان</div>
-            <input id="create" type="submit" value="Edit">
+            <input id="create" type="submit" value="Edit" class="submit_btn">
         </form>
     </div>
 {% include "loading.html" %}

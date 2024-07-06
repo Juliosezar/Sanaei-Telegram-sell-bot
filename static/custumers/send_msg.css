@@ -9,12 +9,13 @@ form {
     background-color: #000d3f;
 
 }
-.servers {
+.serverschecks {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #d6d8e1;
+
     text-align: center;
     align-content: center;
     justify-items: center;

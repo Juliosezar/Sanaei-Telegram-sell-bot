@@ -17,15 +17,15 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
-        $(".servers").hide()
+        $(".serverschecks").hide()
     })
     function valueChanged()
     {
         if($('#id_all_user').is(":checked"))
 
-            $(".servers").hide();
+            $(".serverschecks").hide();
         else {
-            $(".servers").show();
+            $(".serverschecks").show();
         }
 
     }
@@ -44,9 +44,9 @@
             {% csrf_token %}
             <div onchange="valueChanged()" id="Allusers">{{ form.all_user }} All Users</div>
             <hr>
-            <div class="servers">{{ form.server }}</div>
+            <div class="serverschecks">{{ form.server }}</div>
             <div>{{ form.message }}</div>
-            <input type="submit" value="Send" id="send">
+            <input type="submit" value="Send" id="send" class="submit_btn">
         </form>
     </div>
 {% include "loading.html" %}

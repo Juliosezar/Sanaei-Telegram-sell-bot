@@ -23,7 +23,7 @@
             <h3 class="item_text" style="margin-top: 2rem"> سرویس : <a href="{% url "servers:conf_page" config.server.server_id config.config_uuid config.config_name %}">{{ config.config_name }}</a></h3>
             <div id="time_limit" class="textinput item"><h3 class="item_text"> سرور فعلی : {{ config.server.server_name }}</h3></div>
             <div id="time_limit" class="textinput item"><h3 class="item_text">انتقال به : </h3>{{ form.server }}</div>
-            <input id="create" type="submit" value="Change">
+            <input id="create" class="submit_btn" type="submit" value="Change">
         </form>
     </div>
 {% include "loading.html" %}

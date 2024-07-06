@@ -96,7 +96,7 @@ class ChangeConfigSettingForm(forms.Form):
         super().__init__(*args, **kwargs)
         if self.config_data:
             self.fields["usage_limit"].initial = self.config_data["usage"]
-            self.fields["days_limit"].initial = self.config_data["expire_time"]
+            self.fields["days_limit"].initial = int(self.config_data["expire_time"]) + 1
             self.fields["ip_limit"].initial = self.config_data["ip_limit"]
 
     usage_limit = forms.IntegerField(required=False)

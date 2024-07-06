@@ -74,7 +74,7 @@
             {% csrf_token %}
              <div id="searchbox">
                 <h3 id="textin" dir="rtl">{{ searchform.search }}</h3>
-                <input id="subbut" value="Search" type="submit">
+                <input id="subbut" value="Search" class="submit_btn" type="submit">
                  {% if searched == True %}
                     <a id="comeback" href="{% url 'servers:list_configs' server_id %}">بازگشت</a>
                  {% endif %}

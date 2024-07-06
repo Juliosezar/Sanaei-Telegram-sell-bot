@@ -30,6 +30,10 @@
             $('#create_config_box').hide()
             $('#list_config_box').hide()
             $("#loading").hide()
+            $(".submit_btn").click(function () {
+                $("#main").hide();
+                $("#loading").show();
+            })
             $("a").click(function () {
                 $("#main").hide();
                 $("#loading").show();

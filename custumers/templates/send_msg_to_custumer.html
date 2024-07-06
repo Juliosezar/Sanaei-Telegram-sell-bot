@@ -28,7 +28,7 @@
                 {% endfor %}
             {% csrf_token %}
             <div>{{ form.message }}</div>
-            <input type="submit" value="Send">
+            <input type="submit" value="Send" class="submit_btn">
         </form>
     </div>
 {% include "loading.html" %}
