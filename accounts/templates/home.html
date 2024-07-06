@@ -63,7 +63,7 @@
             <a href="{% url 'customers:send_msg_to_all' %}" class="links" id="message">️📝 پیام همگانی 📨</a>
             <a href="{% url 'finance:show_prices' %}" class="links" id="tarefeh">💰 تعرفه ها 🛒</a>
 
-            <a href="" class="links" id="report">📊 گزارشات 📈</a>
+            <a href="{% url "reports:reports" %}" class="links" id="report">📊 گزارشات 📈</a>
             <a href="{% url "accounts:settings" %}" class="links" id="setting">⚙️ تنظیمات 🛠️</a>
             <a href="" class="links" id="setting">❗️ Errors ❗️</a>
         </div>

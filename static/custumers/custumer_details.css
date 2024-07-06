@@ -50,11 +50,11 @@
     background-color: white;
     border-radius: 15px;
     padding: 0.1rem 1.2rem;
-
+    height: 2.5rem;
 }
 img {
     /*width: 2.5rem;*/
-    height: 2.5rem;
+    height: inherit;
 }
 
 #btnaction {

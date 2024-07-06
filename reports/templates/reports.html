@@ -1,0 +1,161 @@
+{% load compress %}
+{% load static %}
+{% load custom_filters  %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'messages.css' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'reports/reports.css' %}">
+
+</head>
+
+<body dir="rtl">
+    {% include "navbar.html" %}
+    {% include 'messages.html' %}
+    <div id="main" dir="rtl">
+        <h3 class="topicc">وضعیت</h3>
+        <div id="cusomersbox">
+            <div class="cus_box boxxx">
+                <h3 class="top_w">مشتری ها</h3>
+                <h3 class="rep_item">تعداد کل یوزر ها ⟵ {{ custumers_count }}</h3>
+                <h3 class="rep_item">تعداد یوزرهای بن شده ⟵ {{ baned_user }}</h3>
+            </div>
+            <div class="boxxx">
+                <h3 class="top_w">کانفیگ ها</h3>
+                <h3 class="rep_item">تعداد کانفیگ ها ⟵ {{ configs_count }}</h3>
+                <h3 class="rep_item">تعداد کانفیگ های نامحدود ⟵ {{ infinitconfs_count }}</h3>
+                <h3 class="rep_item">تعداد کانفیگ تست ⟵ {{ testconfs_count }}</h3>
+            </div>
+            <div class="ser_box boxxx">
+                <h3 class="top_w">تعداد کانفیگ هر سرور </h3>
+                {% for server , count in server_confs_count.items %}
+                    <h3 dir="ltr" class="rep_item">{{ count }} ⟵ {{ server.server_name }}</h3>
+                {% endfor %}
+            </div>
+        </div>
+        <h3 class="topicc">تاریخچه</h3>
+        <div id="financebox">
+            <div class="boxxx">
+                <h3 class="top_w">از ابتدا</h3>
+                <h3 class="rep_item">تعداد خریدها و تمدیدها ⟵ {{ buys_count_all_time|add:tamdids_count_all_time }}</h3>
+                <h3 class="rep_item">تعداد خرید ها ⟵ {{ buys_count_all_time  }}</h3>
+                <h3 class="rep_item">تعداد تمدید ها ⟵ {{ tamdids_count_all_time }}</h3>
+                <h3 class="rep_item">مجموع کل ⟵ {{ buys_price_all_time|add:tamdids_price_all_time|price }} تومان</h3>
+                <h3 class="rep_item"> خرید ها ⟵ {{ buys_price_all_time|price }} تومان</h3>
+                <h3 class="rep_item"> تمدید ها ⟵ {{ tamdids_price_all_time|price }} تومان</h3>
+                <h3 class="rep_item"> تعداد عدم تایید پرداخت ⟵ {{ deny_pays_count_all_time }}</h3>
+            </div>
+            <div class="boxxx">
+                <h3 class="top_w">30 روز گذشته</h3>
+                <h3 class="rep_item">تعداد خریدها و تمدیدها ⟵ {{ buys_count_last_month|add:tamdids_count_last_month }}</h3>
+                <h3 class="rep_item">تعداد خرید ها ⟵ {{ buys_count_last_month  }}</h3>
+                <h3 class="rep_item">تعداد تمدید ها ⟵ {{ tamdids_count_last_month }}</h3>
+                <h3 class="rep_item">مجموع کل ⟵ {{ buys_price_last_month|add:tamdids_price_last_month|price }} تومان</h3>
+                <h3 class="rep_item"> خرید ها ⟵ {{ buys_price_last_month|price }} تومان</h3>
+                <h3 class="rep_item"> تمدید ها ⟵ {{ tamdids_price_last_month|price }} تومان</h3>
+                <h3 class="rep_item"> تعداد عدم تایید پرداخت ⟵ {{ deny_pays_count_last_month }}</h3>
+            </div>
+            <div class="boxxx">
+                <h3 class="top_w">7 روز گذشته</h3>
+                <h3 class="rep_item">تعداد خریدها و تمدیدها ⟵ {{ buys_count_last_week|add:tamdids_count_last_week }}</h3>
+                <h3 class="rep_item">تعداد خرید ها ⟵ {{ buys_count_last_week  }}</h3>
+                <h3 class="rep_item">تعداد تمدید ها ⟵ {{ tamdids_count_last_week }}</h3>
+                <h3 class="rep_item">مجموع کل ⟵ {{ buys_price_last_week|add:tamdids_price_last_week|price }} تومان</h3>
+                <h3 class="rep_item"> خرید ها ⟵ {{ buys_price_last_week|price }} تومان</h3>
+                <h3 class="rep_item"> تمدید ها ⟵ {{ tamdids_price_last_week|price }} تومان</h3>
+            </div>
+            <div class="boxxx">
+                <h3 class="top_w">24 ساعت گذشته</h3>
+                <h3 class="rep_item">تعداد خریدها و تمدیدها ⟵ {{ buys_count_last_day|add:tamdids_count_last_day }}</h3>
+                <h3 class="rep_item">تعداد خرید ها ⟵ {{ buys_count_last_day  }}</h3>
+                <h3 class="rep_item">تعداد تمدید ها ⟵ {{ tamdids_count_last_day }}</h3>
+                <h3 class="rep_item">مجموع کل ⟵ {{ buys_price_last_day|add:tamdids_price_last_day|price }} تومان</h3>
+                <h3 class="rep_item"> خرید ها ⟵ {{ buys_price_last_day|price }} تومان</h3>
+                <h3 class="rep_item"> تمدید ها ⟵ {{ tamdids_price_last_day|price }} تومان</h3>
+            </div>
+        </div>
+    </div>
+
+
+
+<div class="container-fluid">
+<center class="row">
+	<h1>نمودار فروش</h1>
+</center>
+<hr />
+<div class="row">
+	<div class="col-md-6">
+	<canvas id="myChartline"></canvas>
+	</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+<script>
+	var endpoint = '/reports/api';
+
+	$.ajax({
+	method: "GET",
+	url: endpoint,
+	success: function(data) {
+		drawLineGraph(data, 'myChartline');
+		console.log("drawing");
+	},
+	error: function(error_data) {
+		console.log(error_data);
+	}
+	})
+
+
+	function drawLineGraph(data, id) {
+	var labels = data.labels;
+	var chartLabel = data.chartLabel;
+	var chartdata = data.chartdata;
+	var ctx = document.getElementById(id).getContext('2d');
+	var chart = new Chart(ctx, {
+		// The type of chart we want to create
+		type: 'line',
+
+		// The data for our dataset
+		data: {
+		labels: labels,
+		datasets: [{
+			label: chartLabel,
+			backgroundColor: 'rgb(100,144,255)',
+			borderColor: 'rgb(55, 99, 132)',
+			data: chartdata,
+		}]
+		},
+
+		// Configuration options go here
+		options: {
+		scales: {
+			xAxes: [{
+			display: true
+			}],
+			yAxes: [{
+			ticks: {
+				beginAtZero: true
+			}
+			}]
+		}
+		}
+
+	});
+	}
+
+</script>
+</div>
+
+
+{% include "loading.html" %}
+{% include "list_servers.html" %}
+
+</body>
+</html>
