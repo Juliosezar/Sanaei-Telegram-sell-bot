@@ -19,7 +19,7 @@ from uuid import UUID
 from servers.views import ServerApi
 from persiantools.jdatetime import JalaliDateTime
 import qrcode
-
+from reports.models import ErrorLog
 
 def is_valid_uuid(uuid_to_test):
     try:
@@ -43,10 +43,12 @@ class CommandRunner:
         url = TELEGRAM_SERVER_URL + api_method
         try:
             response = requests.post(url, json=data, timeout=3)
-            print(response.json())
             return response
         except requests.exceptions.RequestException as e:
-            print(e)
+            ErrorLog.objects.create(
+                error=e,
+                timestamp=int(JalaliDateTime.now().timestamp())
+            )
             return False
         # TODO : log error
 
@@ -126,7 +128,6 @@ class CommandRunner:
         data = {'chat_id': chat_id}
         info = CommandRunner.send_api("getChat", data)
         info = info.json()
-        print(info)
         if "username" in info["result"]:
             username = info["result"]["username"]
         else:
@@ -503,7 +504,6 @@ class CommandRunner:
     @classmethod
     def Qrcode(cls, chat_id, *args):
         conf_uuid = args[1]
-        print(args)
         if ConfigsInfo.objects.filter(config_uuid=conf_uuid).exists():
             obj = ConfigsInfo.objects.get(config_uuid=conf_uuid)
             vless = (f"vless://{obj.config_uuid}@{obj.server.server_fake_domain}:{obj.server.inbound_port}?"

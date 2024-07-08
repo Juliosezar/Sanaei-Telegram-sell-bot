@@ -124,9 +124,7 @@ class SendMsgToAll(LoginRequiredMixin, View):
         if form.is_valid():
             cd = form.cleaned_data
             if cd['all_user']:
-                print(cd["all_user"])
                 for i in customer_model:
-                    print(i.userid)
                     SendMessage.objects.create(customer=i, message=cd['message'])
                 return redirect('accounts:home')
             else:

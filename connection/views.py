@@ -127,7 +127,6 @@ def webhook(request):
                     else:
                         COMMANDS[command](chat_id, msg_id)
                 else:
-                    print(query_data.split("<~>")[0])
                     CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                     COMMANDS["/start"](chat_id)
             return JsonResponse({'status': 'ok'})

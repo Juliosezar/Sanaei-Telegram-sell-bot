@@ -254,7 +254,6 @@ class ServerApi:
                     joined_data["enable"] = ii["enable"]
                     joined_data["ip_limit"] = ii["limitIp"]
                     break
-        print(joined_data)
         if not joined_data["ended"] or not joined_data["enable"]:
             return "ended"
         url = to_server_obj.server_url + "panel/api/inbounds/addClient"
@@ -467,7 +466,6 @@ class Configs:
 
     @classmethod
     def set_unlimit_limit(cls, config_uuid, iplimit, month):
-        print(iplimit, month)
         with open(settings.BASE_DIR / "settings.json", "r") as f:
             data = json.load(f)["unlimit_limit"]
         if (month in [1, 2, 3]) and (iplimit in [1, 2]):
