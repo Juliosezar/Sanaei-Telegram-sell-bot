@@ -6,7 +6,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/sezar/', admin.site.urls),
     path('webhook/', views.webhook, name='webhook'),
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path(r'', RedirectView.as_view(url='accounts/home/')),

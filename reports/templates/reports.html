@@ -4,15 +4,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-{% include "base_head.html" %}
     <meta charset="UTF-8">
     <title>Title</title>
+    {% include "base_head.html" %}
+
     <link rel="stylesheet" type="text/css" href="{% static 'messages.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'reports/reports.css' %}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'reports/reports.css' %}">
-
 </head>
 
 <body dir="rtl">
@@ -80,80 +80,80 @@
                 <h3 class="rep_item"> تمدید ها ⟵ {{ tamdids_price_last_day|price }} تومان</h3>
             </div>
         </div>
+
+
+
+
+    <div class="container-fluid" >
+    <center class="row">
+        <h1>نمودار فروش</h1>
+    </center>
+    <hr />
+    <div class="row">
+        <div class="col-md-6">
+        <canvas id="myChartline"></canvas>
+        </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+    <script>
+        var endpoint = '/reports/api';
+
+        $.ajax({
+        method: "GET",
+        url: endpoint,
+        success: function(data) {
+            drawLineGraph(data, 'myChartline');
+            console.log("drawing");
+        },
+        error: function(error_data) {
+            console.log(error_data);
+        }
+        })
 
 
-<div class="container-fluid">
-<center class="row">
-	<h1>نمودار فروش</h1>
-</center>
-<hr />
-<div class="row">
-	<div class="col-md-6">
-	<canvas id="myChartline"></canvas>
-	</div>
-</div>
+        function drawLineGraph(data, id) {
+        var labels = data.labels;
+        var chartLabel = data.chartLabel;
+        var chartdata = data.chartdata;
+        var ctx = document.getElementById(id).getContext('2d');
+        var chart = new Chart(ctx, {
+            // The type of chart we want to create
+            type: 'line',
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+            // The data for our dataset
+            data: {
+            labels: labels,
+            datasets: [{
+                label: chartLabel,
+                backgroundColor: 'rgb(100,144,255)',
+                borderColor: 'rgb(55, 99, 132)',
+                data: chartdata,
+            }]
+            },
 
-<script>
-	var endpoint = '/reports/api';
+            // Configuration options go here
+            options: {
+            scales: {
+                xAxes: [{
+                display: true
+                }],
+                yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+                }]
+            }
+            }
 
-	$.ajax({
-	method: "GET",
-	url: endpoint,
-	success: function(data) {
-		drawLineGraph(data, 'myChartline');
-		console.log("drawing");
-	},
-	error: function(error_data) {
-		console.log(error_data);
-	}
-	})
+        });
+        }
 
+    </script>
+    </div>
 
-	function drawLineGraph(data, id) {
-	var labels = data.labels;
-	var chartLabel = data.chartLabel;
-	var chartdata = data.chartdata;
-	var ctx = document.getElementById(id).getContext('2d');
-	var chart = new Chart(ctx, {
-		// The type of chart we want to create
-		type: 'line',
-
-		// The data for our dataset
-		data: {
-		labels: labels,
-		datasets: [{
-			label: chartLabel,
-			backgroundColor: 'rgb(100,144,255)',
-			borderColor: 'rgb(55, 99, 132)',
-			data: chartdata,
-		}]
-		},
-
-		// Configuration options go here
-		options: {
-		scales: {
-			xAxes: [{
-			display: true
-			}],
-			yAxes: [{
-			ticks: {
-				beginAtZero: true
-			}
-			}]
-		}
-		}
-
-	});
-	}
-
-</script>
-</div>
-
-
+    </div>
 {% include "loading.html" %}
 {% include "list_servers.html" %}
 

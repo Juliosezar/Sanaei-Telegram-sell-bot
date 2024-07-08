@@ -73,10 +73,6 @@ def send_end_conf_notif(): # and delete ended confs after 3 days
                                         CommandRunner.send_almost_end_of_config_notif(config_mdl.chat_id.userid, api[name], 1)
                                     EndOfConfigCounter.objects.create(config=config_mdl, type=2, timestamp=int(jdatetime.JalaliDateTime.now().timestamp())).save()
 
-        else:
-            pass
-        #TODO : log errors
-
 
 @shared_task
 def tamdid_config():
@@ -92,6 +88,7 @@ def clear_ended_record():
         delta = int(jdatetime.JalaliDateTime.now().timestamp()) - obj.timestamp
         if delta > 345600:
             obj.delete()
+
 
 @shared_task
 def send_notif_to_admins():

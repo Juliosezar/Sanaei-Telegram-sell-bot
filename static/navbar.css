@@ -150,7 +150,7 @@ li {
 }
 
 #usericon {
-    width: 1rem;
+	width: 1rem;
 	padding: 0;
 	margin: 0;
     min-width: 2rem;
@@ -376,6 +376,16 @@ a:hover {
     font-size: medium;
 
 }
+	#home , #finance{
+		padding: 0.5rem 1rem;
+		margin-top: 0;
+		width: 35vw;
+
+	}
+	.dropbtn {
+		margin: 0;
+		width: 35vw;
+	}
 
 }
 

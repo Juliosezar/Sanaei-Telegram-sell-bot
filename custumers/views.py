@@ -180,6 +180,7 @@ class UpdateCustumer(LoginRequiredMixin, View):
         from connection.command_runer import CommandRunner
         get = CommandRunner.get_user_info(userid)
         Customer.check_custumer_info(userid, get["first_name"], get["username"])
+        messages.success(request, "اطلاعات یوزر آپدیت شد.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
 

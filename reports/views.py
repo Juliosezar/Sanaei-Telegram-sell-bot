@@ -79,6 +79,16 @@ class SendMsgsLogsView(LoginRequiredMixin, View):
         return render(request, "messages_logs.html", {"logs": logs})
 
 
+class DeleteMsgView(LoginRequiredMixin, View):
+    def get(self, request, typ):
+        if typ == "Succes":
+            SendMessage.objects.filter(status="Succes").delete()
+        elif typ == "Failure":
+            SendMessage.objects.filter(status__in=["Error", "Faild", "Timeout", "Banned"]).delete()
+        return redirect("reports:send_msgs_log")
+
+
+
 class ReportsView(LoginRequiredMixin, View):
     def get(self, request):
 
@@ -159,21 +169,15 @@ class ReportsView(LoginRequiredMixin, View):
 
 
 class ChartData(APIView):
-    authentication_classes = []
-    permission_classes = []
-
     def get(self, request, format=None):
         now = int(jdatetime.JalaliDateTime.now().timestamp())
         chartdata = []
         for week in range(0, 27):
             start = now - (week * 604800)
             end = now - ((week + 1) * 604800)
-            print(start, end)
             buy = ConfirmPaymentQueue.objects.filter(status__in=[2, 3], timestamp__range=(end, start)).count()
             tamdid = ConfirmTamdidPaymentQueue.objects.filter(status__in=[2, 3], timestamp__range=(end, start)).count()
-            print(buy,tamdid)
             chartdata.insert(0, buy+tamdid)
-        print(chartdata)
         labels = [
             "Now"
         ]

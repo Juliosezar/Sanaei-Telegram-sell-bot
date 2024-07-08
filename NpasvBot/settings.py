@@ -31,13 +31,20 @@ SECRET_KEY = environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', "194.146.123.65", "admin-napsv.ir", "*"]
 
 LOGIN_URL = "/accounts/login/"
 
 AUTH_USER_MODEL = "accounts.Users"
 
-# Application definition
+if not DEBUG:
+    CSRF_COOKIE_SECURE = True #to avoid transmitting the CSRF cookie over HTTP accidentally.
+    SESSION_COOKIE_SECURE = True #to avoid transmitting the session cookie over HTTP accidentally.
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_SSL_REDIRECT = True
+    ALLOWED_HOSTS = ["194.146.123.65", "admin-napsv.ir"]
+else:
+    ALLOWED_HOSTS = ['127.0.0.1', "*"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',

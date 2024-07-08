@@ -12,6 +12,10 @@
         {% include "navbar.html" %}
         {% include 'messages.html' %}
         <div id="main">
+            <div class="del_box">
+                <a class="del_msg" href="{% url "reports:delete_msgs" "Succes" %}">حذف ارسال شده ها</a>
+                <a class="del_msg" href="{% url "reports:delete_msgs" "Failure" %}">حذف ارور ها</a>
+            </div>
             <h3 id="counter">Messages Status
             </h3>
 		    <div class="xcontainer">

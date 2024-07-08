@@ -86,7 +86,9 @@ class ServerApi:
                             started = False
 
                         usage = round(convert_units(i["up"] + i["down"], BinaryUnits.BYTE, BinaryUnits.GB)[0], 2)
+                        started = True if usage > 0 else False
                         total_usage = int(convert_units(i['total'], BinaryUnits.BYTE, BinaryUnits.GB)[0])
+                        total_usage = 0 if total_usage < 0 else total_usage
                         joined_data[i["email"]] = {
                             'ended': i["enable"],
                             'usage': usage,
@@ -206,7 +208,9 @@ class ServerApi:
                         time_expire = abs(int(time_expire / 86400000))
                         started = False
                     usage = round(convert_units(obj["up"] + obj["down"], BinaryUnits.BYTE, BinaryUnits.GB)[0], 2)
+                    started = True if usage > 0 else False
                     total_usage = int(convert_units(obj['total'], BinaryUnits.BYTE, BinaryUnits.GB)[0])
+                    total_usage = 0 if total_usage < 0 else total_usage
                     session.close()
                     return {
                         'ended': obj["enable"],

@@ -2,9 +2,28 @@
     text-align: center;
     margin-top: 2rem;
 }
+.del_box {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-content: center;
+    justify-items: center;
+    justify-content: space-evenly;
+}
+.del_msg, .del_msg {
+    background-color: #ff9494;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 1rem;
+    border-radius: 15px;
+
+}
 
 @media (max-width: 650px) {
     #counter {
     font-size: larger;
+}
+    .del_msg, .del_msg {
+    font-size: small;
 }
 }
