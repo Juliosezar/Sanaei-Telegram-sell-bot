@@ -53,10 +53,11 @@ def send_end_conf_notif(): # and delete ended confs after 3 days
                                     userid = 0
                                     if config_mdl.chat_id:
                                         CommandRunner.send_msg_to_user(config_mdl.chat_id.userid, f"🔴 سرویس {name} حذف شد و امکان تمدید آن وجود ندارد. میتوانید از بخش خرید سرویس در منوی اصلی یا با ارتباط با ادمین اقدام به خرید سرویس جدید کنید.")
-                                        Log.create_customer_log(Customer.objects.get(userid=config_mdl.chat_id.userid), "❌ Delete \"{name}\" by \"Celery\"")
+                                        Log.create_customer_log(Customer.objects.get(userid=config_mdl.chat_id.userid), f"❌ Delete \"{name}\" by \"Celery\"")
                                         userid = config_mdl.chat_id.userid
                                     config_mdl.delete()
-                                    Log.celery_delete_conf_log(f"❌ Delete \"{name}\"", userid)
+                                    cel = "(End Time)" if api[name]["expired"] else "(End Usage)"
+                                    Log.celery_delete_conf_log(f"❌ Delete \"{name}\" - {cel}", userid)
                                     Log.create_admin_log("Celery", f"❌ Delete \"{name}\"")
 
                     else:
@@ -122,6 +123,7 @@ def disable_infinit_configs():
                                 CommandRunner.send_msg_to_user(inf_obj.config.chat_id.userid, f" 🔴 سرویس {name} توسط سیستم غیرفعال شد.")
                                 Log.create_config_log(inf_obj.config, f"⛔ Disable \"{name}\" by \"Celery\"")
                                 Log.create_admin_log("Celery", f"⛔ Disable \"{name}\"")
+                                Log.celery_delete_conf_log(f"⛔ Disable \"{name}\"", inf_obj.config.chat_id.userid)
                                 if inf_obj.config.chat_id:
                                     Log.create_customer_log(inf_obj.config.chat_id, f"⛔ Disable \"{name}\" by \"Celery\"")
 
