@@ -22,6 +22,8 @@ from os import environ
 from reports.views import Log
 from reports.models import ConfigLog
 from django.conf import settings
+from finance.models import UserActiveOffCodes
+
 
 BOT_USERNAME = environ.get('BOT_USERNAME')
 
@@ -497,6 +499,10 @@ class Configs:
             enable=True,
         )
         if respons:
+            if UserActiveOffCodes.objects.filter(custumer=config_queue_obj.custumer, used=False).exists():
+                off_obj = UserActiveOffCodes.objects.get(custumer=config_queue_obj.custumer, used=False)
+                off_obj.used = True
+                off_obj.save()
             change_wallet_amount(config_queue_obj.custumer.userid, -1 * config_queue_obj.price)
             config_queue_obj.sent_to_user = 3
             cls.save_config_info(config_queue_obj.config_name, config_queue_obj.config_uuid,
@@ -530,6 +536,10 @@ class Configs:
         create_config = ServerApi.create_config(server_id, config_name, conf_uuid, usage_limit, expire_limit * 30,
                                                 user_limit, True)
         if create_config:
+            if UserActiveOffCodes.objects.filter(custumer__userid=chat_id, used=False).exists():
+                off_obj = UserActiveOffCodes.objects.get(custumer__userid=chat_id, used=False)
+                off_obj.used = True
+                off_obj.save()
             cls.save_config_info(config_name, conf_uuid, server_id, chat_id, price)
             change_wallet_amount(chat_id, -1 * price)
             cls.send_config_to_user(chat_id, conf_uuid, server_id, config_name)
@@ -581,6 +591,10 @@ class Configs:
             ip_limit=config_queue_obj.user_limit,
         )
         if respons:
+            if UserActiveOffCodes.objects.filter(custumer__userid=config_queue_obj.config.chat_id.userid, used=False).exists():
+                off_obj = UserActiveOffCodes.objects.get(custumer__userid=config_queue_obj.config.chat_id.userid, used=False)
+                off_obj.used = True
+                off_obj.save()
             change_wallet_amount(config_queue_obj.config.chat_id.userid, -1 * config_queue_obj.price)
             config_queue_obj.sent_to_user = 3
             cls.change_config_info(config_queue_obj.config.config_uuid, config_queue_obj.price, True)
@@ -610,6 +624,10 @@ class Configs:
         renew_config = ServerApi.renew_config(config_obj.server.server_id, config_uuid, config_obj.config_name,
                                               expire_limit * 30, usage_limit, user_limit)
         if renew_config:
+            if UserActiveOffCodes.objects.filter(custumer__userid=config_obj.chat_id.userid, used=False).exists():
+                off_obj = UserActiveOffCodes.objects.get(custumer__userid=config_obj.chat_id.userid, used=False)
+                off_obj.used = True
+                off_obj.save()
             cls.change_config_info(config_uuid, price, True)
             change_wallet_amount(config_obj.chat_id.userid, -1 * price)
 

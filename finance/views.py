@@ -1,15 +1,16 @@
+import os
+
 from django.shortcuts import render, redirect
-from .models import Prices as PriceModel
-# from .models import Payment
+from .models import Prices as PriceModel, OffCodes, UserActiveOffCodes
 from custumers.models import Customer
 from finance.models import ConfirmPaymentQueue as PaymentQueueModel
 from finance.models import ConfirmTamdidPaymentQueue as TamdidPaymentQueueModel
-from servers.models import CreateConfigQueue, ConfigsInfo
+from servers.models import ConfigsInfo
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from servers.views import ServerApi, Configs
+from servers.views import Configs
 from django.contrib import messages
-from .forms import DenyForm, AddPriceForm, EditPriceForm
+from .forms import DenyForm, AddPriceForm, EditPriceForm, AddOffForm
 from persiantools.jdatetime import JalaliDateTime
 
 class Wallet:
@@ -389,11 +390,7 @@ class DeleteOrEditPrice(LoginRequiredMixin, View):
             model_obj.delete()
             messages.success(request, "تعرفه با موفقیت حذف شد.")
             return redirect('finance:show_prices')
-        elif action == "edit":
-            return redirect('finance:show_prices')
 
-
-# TODO
 
 class AddPrice(LoginRequiredMixin, View):
     def get(self, request):
@@ -426,3 +423,34 @@ class AddPrice(LoginRequiredMixin, View):
             ).save()
             return redirect('finance:show_prices')
         return render(request, 'AddPrice.html', {'form': form})
+
+
+class AddOffCode(LoginRequiredMixin, View):
+    def get(self, request):
+        form = AddOffForm
+        return render(request, "add_off_code.html", {"form": form})
+
+    def post(self, request):
+        form = AddOffForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            OffCodes.objects.create(
+                type_off=bool(int(cd["type_off"])),
+                amount=cd["amount"],
+                customer_count=cd["curumer_count"],
+                use_count=cd["use_count"],
+                create_timestamp=int(JalaliDateTime.now().timestamp()),
+                end_timestamp=int(JalaliDateTime.now().timestamp()) + (int(cd["end_time"]) * 86400),
+                for_infinit_usages=cd["for_infinit_usages"],
+                for_infinit_times=cd["for_infinit_times"],
+                for_not_infinity=cd["for_not_infinity"],
+            )
+            return redirect("finance:show_off_codes")
+        return render(request, "add_off_code.html", {"form": form})
+
+
+class ShowOffCodes(LoginRequiredMixin, View):
+    def get(self, request):
+        model_obj = OffCodes.objects.all().order_by('-id')
+        BOT_USERNAME = os.environ.get('BOT_USERNAME')
+        return render(request, "show_off_codes.html", {"model_obj":model_obj, "bot_username":BOT_USERNAME})

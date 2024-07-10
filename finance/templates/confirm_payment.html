@@ -118,7 +118,7 @@
                 <div class="paybox" >
                     <div class="pay_info">
                         <div class="infobox">
-                            <h4 class="info">Renew: <a style="color: #98e2ff" href="">{{ i.config.config_name }}</a></h4>
+                            <h4 class="info">Renew: <a style="color: #98e2ff" href="{% url "servers:conf_page" i.config.server.server_id i.config.config_uuid i.config.config_name %}">{{ i.config.config_name }}</a></h4>
                             <h3 class="info">userid: <a href="{% url "customers:custumer_detail" i.config.chat_id.userid %}" style="color: #98e2ff">{{ i.config.chat_id.userid }}</a></h3>
                             <h3 class="info">price : <span class="nspan">{{ i.pay_price|price }} T</span></h3>
 

@@ -1,0 +1,92 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="fa" class="no-js">
+	<head>
+		<title>List Configs</title>
+        {% include "base_head.html" %}
+        <link rel="stylesheet" type="text/css" href="{% static 'custumers/component.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'finance/surathesab_page.css' %}"/>
+    </head>
+	<body dir="ltr">
+        {% include "navbar.html" %}
+        {% include 'messages.html' %}
+        <div id="main">
+            <div class="addbox">
+                <a href="{% url 'finance:add_off_codes' %}" class="addprice">➕ جدید</a>
+            </div>
+            <h3 id="counter">لیست کدهای تخفیف</h3>
+		    <div class="xcontainer">
+		    		<table class="overflow-y">
+		    			<thead>
+		    				<tr>
+                                <th>UUID</th>
+                                <th>مقدار</th>
+                                <th>تعداد کابر</th>
+                                <th>استفاده هرکابر</th>
+                                <th>تاریخ ساخت</th>
+                                <th>تاریخ اتمام</th>
+                                <th>نوع کانفیگ ها</th>
+                                <th>Action</th>
+                            </tr>
+		    			</thead>
+		    			<tbody>
+                        {% for row in model_obj %}
+		    				<tr>
+                            <td>{{ row.uid }}</td>
+                            {% if row.type_off  %}
+                                <th>{{ row.amount }} %</th>
+                            {% else %}
+                                <th>{{ row.amount }},000 T</th>
+                            {% endif %}
+                            <td>{% if row.customer_count == 0%}همه{% else %}{{ row.customer_count }}{% endif %}</td>
+                            <td dir="rtl">{% if row.use_count == 0%}نامحدود{% else %}{{ row.use_count }} بار {% endif %}</td>
+                            <td>{{ row.create_timestamp|timestamp }}</td>
+                            <td>{{ row.end_timestamp|timestamp }}</td>
+                            <td>{% if row.for_not_infinity %}(حجمی){% endif %}{% if row.for_infinit_usages %}{% endif %} (حجم_نامحدود) {% if row.for_infinit_times %}(زمان_نامحدود){% endif %}</td>
+
+                            <td>
+                                <div class="action">
+                                    <button class="btn copy delete" onclick="copyToClipboard('#vless_{{ row.id }}')">کپی لینک</button>
+                                    <a href="{% url 'finance:delete_or_edit_price' row.id 'delete' %}" class="delete">Delete</a>
+                                </div>
+                                    <p hidden id="vless_{{ row.id }}">tg://resolve?domain={{ bot_username }}&start=off_code_{{ row.uid }}</p>
+                            </td>
+
+                            </tr>
+
+                        {% endfor %}
+		    			</tbody>
+		    		</table>
+            </div>
+
+
+        </div>
+
+<script>
+    function copyToClipboard(element) {
+          var $temp = $("<textarea>");
+          $("body").append($temp);
+          var text = $(element).text();
+          $temp.val(text).select();
+          document.execCommand("copy");
+          $temp.remove();
+          alert("با موفقیت کپی شد.");
+        }
+</script>
+        <style>
+            .copy {
+                background-color: #4ac1f7;
+            }
+            .delete {
+                border-radius: 5px;
+            }
+        </style>
+{#		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>#}
+{#		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>#}
+		<script src={% static "js/list.js" %}></script>
+	</body>
+{% include "loading.html" %}
+{% include "list_servers.html" %}
+
+</html>

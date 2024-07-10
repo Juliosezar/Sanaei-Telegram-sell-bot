@@ -11,7 +11,6 @@ COMMANDS = {
     'خرید سرویس 🛍': CommandRunner.select_server,
     'back_to_servers': CommandRunner.back_to_select_server,
     'کیف پول 💰': CommandRunner.show_wallet_status,
-    # 'ثبت لینک 🔗': None,
     'تست رایگان 🔥': CommandRunner.test_conf,
     'سرویس های من 🧑‍💻': CommandRunner.my_services,
     'تعرفه ها 💳': CommandRunner.send_prices,
@@ -29,14 +28,12 @@ COMMANDS = {
     'pay_for_config': CommandRunner.pay_for_config,
     'buy_config_from_wallet': CommandRunner.buy_config_from_wallet,
     'abort_buying': CommandRunner.abort_buying,
-    'service_status':CommandRunner.get_service,
-
+    'service_status': CommandRunner.get_service,
     'tamdid': CommandRunner.tamdid_select_config_expire_time,
     'tamdid_expire_time': CommandRunner.tamdid_select_config_usage,
     'tam_usage': CommandRunner.tamdid_confirm_config_buying,
-    'tam_wallet' : CommandRunner.tamdid_config_from_wallet,
+    'tam_wallet': CommandRunner.tamdid_config_from_wallet,
     "tam_pay": CommandRunner.tamdid_pay_for_config,
-    # "banned_user": CommandRunner.banned_user,
     "choose_location": CommandRunner.choose_location,
     "change_location": CommandRunner.change_location,
     "confirm_change": CommandRunner.confirm_change,
@@ -53,7 +50,7 @@ COMMANDS = {
 @csrf_exempt
 def webhook(request):
     if request.method == 'POST':
-        try:
+        # try:
             update = json.loads(request.body)
             if 'message' in update:
                 chat_id = update['message']['chat']['id']
@@ -81,9 +78,8 @@ def webhook(request):
                         CommandRunner.send_msg_to_user(chat_id, "لطفا عکس پرداختی خود را ارسال نمایید :")
                     elif "/start register_" in text:
                         CommandRunner.register_config(chat_id, text.replace("/start register_", ""))
-                    elif "/start register_" in text:
-                        CommandRunner.register_config(chat_id, text.replace("/start register_", ""))
-
+                    elif "/start off_code_" in text:
+                        CommandRunner.active_off_code(chat_id, text.replace("/start off_code_", ""))
                     else:
                         CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                         CommandRunner.main_menu(chat_id)
@@ -116,6 +112,8 @@ def webhook(request):
                 msg_id = update["callback_query"]["message"]["message_id"]
                 query_data = update['callback_query']['data']
                 chat_id = update['callback_query']['message']['chat']['id']
+                if not CustumerModel.objects.filter(userid=chat_id).exists():
+                    CommandRunner.main_menu(chat_id)
                 if not CustumerModel.objects.get(userid=chat_id).active:
                     CommandRunner.send_msg_to_user(chat_id, "🚫 دسترسی شما به بات توسط ادمین لغو شده است.")
                     return JsonResponse({'status': 'ok'})
@@ -130,7 +128,7 @@ def webhook(request):
                     CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                     COMMANDS["/start"](chat_id)
             return JsonResponse({'status': 'ok'})
-        except Exception as Argument:
-            ErrorLog.objects.create(error=str(Argument), timestamp=int(JalaliDateTime.now().timestamp())).save()
-            return JsonResponse({'status': 'Connection refused'})
+        # except Exception as Argument:
+        #     ErrorLog.objects.create(error=str(Argument), timestamp=int(JalaliDateTime.now().timestamp())).save()
+        #     return JsonResponse({'status': 'Connection refused'})
     return JsonResponse({'status': 'not a POST request'})

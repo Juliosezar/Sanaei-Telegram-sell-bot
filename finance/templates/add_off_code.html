@@ -1,0 +1,71 @@
+{% load compress %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'finance/add_price.css' %}">
+</head>
+<body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let type = document.querySelector('#id_type_off');
+        let usage = document.querySelector('#typ1');
+        let ip_limit = document.querySelector('#typ0');
+
+        function toggleexpireField() {
+            if (type.value === '0') {
+                usage.style.display = "block"
+                ip_limit.style.display = "none"
+            }
+            else if (type.value === '1'){
+                usage.style.display = "none"
+                ip_limit.style.display = "block"
+            }
+
+        }
+
+        type.addEventListener('change', toggleexpireField);
+        toggleexpireField();
+    });
+</script>
+    {% include "navbar.html" %}
+    <div id="main">
+        <form novalidate action="" method="post" dir="rtl">
+            {% for field_errors in form.errors.values %}
+              {% for error in field_errors %}
+                  <p dir="rtl" class="errors">{{ error }}</p>
+              {% endfor %}
+            {% endfor %}
+            <h3 id="title">کد تخفیف جدید</h3>
+            {% csrf_token %}
+            <div class="textinput item"><h3 class="item_text">نوع تخفیف : </h3>{{ form.type_off }}</div>
+            <div class="textinput item"><h3 class="item_text">مقدار : </h3>{{ form.amount }} <span id="typ0">درصد</span><span id="typ1">هزار تومان</span></div>
+            <div class="textinput item"><h3 class="item_text"> تعداد یوزر هایی که میتوانند استفاده کنند : </h3>{{ form.curumer_count }} <span style="display: block"> 0 = تعداد نامحدود </span></div>
+            <div class="textinput item"><h3 class="item_text"> تعداد دفعاتی که هر یوزر میتواند استفاده کند : </h3>{{ form.use_count }}</div>
+            <div class="textinput item"><h3 class="item_text">مدت زمان اجازه ثبت : </h3>{{ form.end_time }}</div>
+            <div class="textinput item"><h3 class="item_text">کانفیک های حجمی : </h3>{{ form.for_not_infinity }}</div>
+            <div class="textinput item"><h3 class="item_text">کانفیک های حجم نامحدود : </h3>{{ form.for_infinit_usages }}</div>
+            <div class="textinput item"><h3 class="item_text">کانفیک های زمان نامحدود : </h3>{{ form.for_infinit_times }}</div>
+
+            <input id="create" type="submit" value="Create" class="submit_btn">
+        </form>
+    </div>
+{% include "loading.html" %}
+{% include "list_servers.html" %}
+    <style>
+        #id_amount,#id_type_off, #id_curumer_count, #id_use_count, #id_end_time {
+            width: 50%;
+            text-align: center;
+        }
+        #id_for_not_infinity, #id_for_infinit_usages, #id_for_infinit_times {
+            width: 1rem;
+            height: 2rem;
+            margin-top: 0;
+        }
+    </style>
+
+</body>
+</html>

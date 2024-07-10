@@ -1,6 +1,9 @@
+import uuid
+
 from django.db import models
 from custumers.models import Customer
 from servers.models import ConfigsInfo
+
 
 class ConfirmPaymentQueue(models.Model):
     custumer = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
@@ -40,3 +43,21 @@ class Prices(models.Model):
     price = models.PositiveIntegerField()
     user_limit = models.PositiveIntegerField(default=0)
 
+
+class OffCodes(models.Model):
+    uid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    type_off = models.BooleanField()  # percent = True / amount = False
+    amount = models.PositiveIntegerField()
+    customer_count = models.PositiveIntegerField()
+    use_count = models.PositiveIntegerField()
+    create_timestamp = models.PositiveBigIntegerField()
+    end_timestamp = models.PositiveBigIntegerField()
+    for_infinit_usages = models.BooleanField()
+    for_infinit_times = models.BooleanField()
+    for_not_infinity = models.BooleanField()
+
+
+class UserActiveOffCodes(models.Model):
+    off_code = models.ForeignKey(OffCodes, on_delete=models.CASCADE)
+    custumer = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
+    used = models.BooleanField(default=False)

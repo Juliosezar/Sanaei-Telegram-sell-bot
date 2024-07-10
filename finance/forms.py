@@ -56,3 +56,20 @@ class EditPriceForm(forms.Form):
         else:
             raise ValidationError("قیمت را وارد کنید.")
         return price * 1000
+
+
+class AddOffForm(forms.Form):
+    type_off = forms.ChoiceField(choices=[(1, "درصدی (%)"), (0, "مقداری (تومان)")], required=False)
+    amount = forms.IntegerField(min_value=1, max_value=50, required=False)
+    curumer_count = forms.IntegerField(initial=0, min_value=0 , max_value=500, required=False)
+    use_count = forms.ChoiceField(choices=[(1, "1 بار"),(0,"چندین بار")])
+    end_time = forms.ChoiceField(choices=[(1,"1 روز"), (2,"2 روز"), (3,"3 روز"), (5,"5 روز"), (7,"7 روز"), (10,"10 روز"), (20,"20 روز"), (30,"30 روز"), (60,"60 روز")], required=False)
+    for_infinit_usages = forms.BooleanField(initial=True, required=False)
+    for_infinit_times = forms.BooleanField(initial=True, required=False)
+    for_not_infinity = forms.BooleanField(initial=True, required=False)
+
+    def clean(self):
+        amount = self.cleaned_data.get('amount')
+        print(amount)
+        if not amount:
+            raise ValidationError("مقداد تخفیف را وارد کنید.")
