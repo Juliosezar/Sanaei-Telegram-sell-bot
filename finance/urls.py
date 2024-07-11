@@ -23,4 +23,5 @@ urlpatterns = [
 
     path("show_off_codes/", views.ShowOffCodes.as_view(), name='show_off_codes'),
     path("add_off_codes/", views.AddOffCode.as_view(), name='add_off_codes'),
+    path("delete_off_code/<str:uuid>/", views.DeleteOffCode.as_view(), name='delete_off_code'),
 ]

@@ -454,3 +454,9 @@ class ShowOffCodes(LoginRequiredMixin, View):
         model_obj = OffCodes.objects.all().order_by('-id')
         BOT_USERNAME = os.environ.get('BOT_USERNAME')
         return render(request, "show_off_codes.html", {"model_obj":model_obj, "bot_username":BOT_USERNAME})
+
+
+class DeleteOffCode(LoginRequiredMixin, View):
+    def get(self, request, uuid):
+        OffCodes.objects.get(uid=uuid).delete()
+        return redirect("finance:show_off_codes")

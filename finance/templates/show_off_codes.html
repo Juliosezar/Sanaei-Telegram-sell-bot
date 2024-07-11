@@ -48,7 +48,7 @@
                             <td>
                                 <div class="action">
                                     <button class="btn copy delete" onclick="copyToClipboard('#vless_{{ row.id }}')">کپی لینک</button>
-                                    <a href="{% url 'finance:delete_or_edit_price' row.id 'delete' %}" class="delete">Delete</a>
+                                    <a href="{% url 'finance:delete_off_code' row.uid %}" class="delete">Delete</a>
                                 </div>
                                     <p hidden id="vless_{{ row.id }}">tg://resolve?domain={{ bot_username }}&start=off_code_{{ row.uid }}</p>
                             </td>
