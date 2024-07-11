@@ -5,7 +5,7 @@ from .command_runer import CommandRunner
 from custumers.models import Customer as CustumerModel
 from reports.models import ErrorLog
 from persiantools.jdatetime import JalaliDateTime
-
+import traceback
 COMMANDS = {
     '/start': CommandRunner.main_menu,
     'خرید سرویس 🛍': CommandRunner.select_server,
@@ -51,7 +51,7 @@ COMMANDS = {
 @csrf_exempt
 def webhook(request):
     if request.method == 'POST':
-        # try:
+        try:
             update = json.loads(request.body)
             if 'message' in update:
                 chat_id = update['message']['chat']['id']
@@ -129,7 +129,8 @@ def webhook(request):
                     CommandRunner.send_msg_to_user(chat_id, "ورودی نامعتبر")
                     COMMANDS["/start"](chat_id)
             return JsonResponse({'status': 'ok'})
-        # except Exception as Argument:
-        #     ErrorLog.objects.create(error=str(Argument), timestamp=int(JalaliDateTime.now().timestamp())).save()
-        #     return JsonResponse({'status': 'Connection refused'})
+        except Exception:
+            error_str = traceback.format_exc()
+            ErrorLog.objects.create(error=str(error_str), timestamp=int(JalaliDateTime.now().timestamp())).save()
+            return JsonResponse({'status': 'Connection refused'})
     return JsonResponse({'status': 'not a POST request'})
