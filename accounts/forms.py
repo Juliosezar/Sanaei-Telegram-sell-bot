@@ -102,3 +102,9 @@ class ChangeSettingForm(forms.Form):
                 return config_name_counter
             else:
                 return last + 1
+
+
+class VpnAppsForm(forms.Form):
+    app_name = forms.CharField(max_length=25,required=False)
+    download_url = forms.URLField(required=False)
+    guid = forms.IntegerField(required=False)

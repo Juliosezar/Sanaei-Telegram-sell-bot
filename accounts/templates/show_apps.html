@@ -1,0 +1,46 @@
+{% load compress %}
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'servers/show_servers.css' %}">
+</head>
+
+<body dir="ltr">
+    {% include "navbar.html" %}
+    {% include 'messages.html' %}
+<div id="main">
+    <div id="main">
+        <h2 id="header">
+            Servers
+        </h2>
+        <div id="x">
+            <a href="{% url "accounts:add_vpn_app" %}" id="add_server_btn">Add Application</a>
+        </div>
+        <div class="servers_list">
+            {% for ind,app in apps.items %}
+                <div class="server_item">
+                    <h3 class="server_url">App name <span class="cspan">{{ app.app_name }}</span></h3>
+                    <h3 class="server_url">Download link: <span class="cspan">{{ app.download_url }}</span></h3>
+                    <h3 class="server_url">Guid id: <span class="cspan">{{ app.guid }}</span></h3>
+
+                    <div class="btnn" style="width: 100%">
+                        <a class="edit_btn" style="background-color: #ffa0a0" href="{% url "accounts:delete_app" ind %}">Delete</a>
+                    </div>
+                </div>
+
+            {% endfor %}
+        </div>
+    </div>
+
+
+</div>
+{% include "loading.html" %}
+{% include "list_servers.html" %}
+
+</body>
+</html>

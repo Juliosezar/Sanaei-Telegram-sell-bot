@@ -44,7 +44,9 @@ class CommandRunner:
     def send_api(cls, api_method, data):
         url = TELEGRAM_SERVER_URL + api_method
         try:
+            # print(data)
             response = requests.post(url, json=data, timeout=3)
+            # print(response.json())
             return response
         except requests.exceptions.RequestException as e:
             ErrorLog.objects.create(
@@ -160,10 +162,10 @@ class CommandRunner:
                 'keyboard': [
                     [{'text': 'خرید سرویس 🛍'}],
                     [{'text': 'سرویس های من 🧑‍💻'}],
+                    [{'text': 'ارتباط با ادمین 👤'}],
                     [{'text': 'تست رایگان 🔥'}, {'text': 'کیف پول 💰'}],
-                    [{'text': 'تعرفه ها 💳'}, {'text': 'ارتباط با ما 👤'}],
-                    [{'text': 'آیدی من 🆔'}, {'text': 'لینک دعوت 📥'}],
-                    [{'text': 'راهنمای اتصال 💡'}, {'text': 'دانلود اپلیکیشن 💻📱'}],
+                    [{'text': 'تعرفه ها 💳'}, {'text': 'آیدی من 🆔'}],
+                    [{'text': '💻📱 دانلود اپلیکیشن و راهنمای اتصال 💡'}],
                 ],
                 'resize_keyboard': True,
                 'one_time_keyboard': True,
@@ -584,7 +586,7 @@ class CommandRunner:
 
         data = {
             'chat_id': chat_id,
-            'from_chat_id': '@Napsv_info',
+            'from_chat_id': environ.get("SIDE_CHANNEL_USERNAME"),
             'message_id': msg_id
         }
         cls.send_api("copyMessage", data)
@@ -795,43 +797,56 @@ class CommandRunner:
 
     @classmethod
     def download_apps(cls, chat_id, *args):
+        with open(settings.BASE_DIR/ "settings.json") as f:
+            f_data = json.load(f)["applicatios"]
+            keybord = []
+            for ind,app in enumerate(f_data):
+                keybord.append([{"text":app["app_name"], "callback_data": f"down_guid_app<~>{ind}"}])
+
         data = {
             'chat_id': chat_id,
             'text': '🏻📥 لیست نرم افزار ها به شرح زیر است. متانسب با سیستم عامل خود انتخاب کنید. 👇',
             'parse_mode': 'Markdown',
             'reply_markup': {
+                'inline_keyboard': keybord
+            },
+        }
+        cls.send_api("sendMessage", data)
+
+    @classmethod
+    def down_guid_app(cls, chat_id, *args):
+        print(args)
+        msg_id = int(args[0])
+        ind = int(args[1])
+        print(ind)
+        with open(settings.BASE_DIR/ "settings.json") as f:
+            f_data = json.load(f)["applicatios"]
+
+        data = {
+            'chat_id': chat_id,
+            "message_id": msg_id,
+            'text': f'{f_data[ind]["app_name"]}' "\n\n" '📥 دانلود / 💡 آموزش استفاده از برنامه 👇' ,
+            'parse_mode': 'Markdown',
+            'reply_markup': {
                 'inline_keyboard': [
-                    [{'text': 'V2RayNG / Android 📱',
-                      'url': f'https://github.com/2dust/v2rayNG/releases/download/1.8.22/v2rayNG_1.8.22.apk'}],
-                    [{'text': 'HiddifyNG / Android 📱',
-                      'url': f'https://github.com/hiddify/hiddify-next/releases/latest/download/Hiddify-Android-universal.apk'}],
-                    [{'text': 'Streisand / ios 📱🍎',
-                      'url': f'https://apps.apple.com/us/app/streisand/id6450534064?platform=iphone'}],
-                    [{'text': 'HiddifyNG / Windows 💻',
-                      'url': f'https://github.com/hiddify/hiddify-next/releases/latest/download/Hiddify-Windows-Setup-x64.exe'}],
-                    [{'text': 'HiddifyNG / MacOS 💻🍎',
-                      'url': f'https://github.com/hiddify/hiddify-next/releases/latest/download/Hiddify-MacOS-Installer.pkg'}],
-                    [{'text': 'Fair VPN / MacOS 💻🍎', 'url': f'https://apps.apple.com/us/app/fair-vpn/id1533873488'}],
+                    [{'text': '📥 لینک دانلود برنامه 📥','url': f_data[ind]["download_url"]}],
+                    [{'text': '💡 آموزش برنامه 💡', 'callback_data': f"send_guid<~>{f_data[ind]["guid"]}"}],
                 ]
             },
         }
         cls.send_api("sendMessage", data)
 
     @classmethod
-    def help_connect(cls, chat_id, *args):
+    def send_guid(cls, chat_id, *args):
+        print(args)
+        ind = int(args[1])
         data = {
             'chat_id': chat_id,
-            'text': '💡 آموزش استفاده از کانفیگ ها 👇',
-            'parse_mode': 'Markdown',
-            'reply_markup': {
-                'inline_keyboard': [
-                    [{'text': 'V2RayNG / Android 📱',
-                      'url': f'https://github.com/2dust/v2rayNG/releases/download/1.8.22/v2rayNG_1.8.22.apk'}],
-
-                ]
-            },
+            'from_chat_id': environ.get("SIDE_CHANNEL_USERNAME"),
+            'message_id': ind
         }
-        cls.send_api("sendMessage", data)
+        cls.send_api("copyMessage", data)
+
 
     @classmethod
     def send_end_of_config_notif(cls, chat_id, api, *args):
@@ -1218,17 +1233,24 @@ class CommandRunner:
                             cls.send_msg_to_user(chat_id,
                                                  "🟠 این کدتخفیف قبلا برای شما فعال شده است. دربخش پرداخت هزینه (خرید یا تمدید سرویس) بصورت خودکار برایتان محاسبه میگردد.")
                         elif active_code_model.used and active_code_model.off_code.use_count == 0:
+                            if UserActiveOffCodes.objects.filter(custumer__userid=chat_id, used=False).exists():
+                                obj = UserActiveOffCodes.objects.get(custumer__userid=chat_id, used=False)
+                                obj.used = True
+                                obj.save()
                             active_code_model.used = False
                             active_code_model.save()
+
                             cls.send_msg_to_user(chat_id, "🟢 این کدتخفیف دوباره برای شما فعال گردید.")
                         elif not active_code_model.used and active_code_model.off_code.use_count == 0:
                             cls.send_msg_to_user(chat_id,
                                                  "🟠 این کد از قبل برای شما فعال است.  دربخش پرداخت هزینه (خرید یا تمدید سرویس) بصورت خودکار برایتان محاسبه میگردد.")
                     else:
+                        if UserActiveOffCodes.objects.filter(custumer__userid=chat_id, used=False).exists():
+                            UserActiveOffCodes.objects.get(custumer__userid=chat_id, used=False).delete()
                         UserActiveOffCodes.objects.create(off_code=off_model,
                                                           custumer=CustumerModel.objects.get(userid=chat_id)).save()
                         cls.send_msg_to_user(chat_id,
-                                             "🟢 کد تخفیف برای شما فعال گردید. هنگام خرید یا تمدید سرویس به صورت خودکار برای شما محاسبه میگردد.")
+                                             "🟢 کد تخفیف برای شما فعال گردید. هنگام خرید یا تمدید سرویس به صورت خودکار (در مرحله پرداخت) برای شما محاسبه میگردد.")
 
                 else:
                     cls.send_msg_to_user(chat_id, "🔴 مهلت فعال کردن این کد تخفیف گذشته است.")

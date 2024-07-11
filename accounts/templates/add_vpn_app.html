@@ -1,0 +1,39 @@
+{% load compress %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include "base_head.html" %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'servers/create_config.css' %}">
+</head>
+<body>
+{% include "navbar.html" %}
+{% include 'messages.html' %}
+<div id="main">
+        <form novalidate action="" method="post" dir="ltr">
+            {% for field_errors in form.errors.values %}
+              {% for error in field_errors %}
+                  <p dir="rtl" class="errors">{{ error }}</p>
+              {% endfor %}
+            {% endfor %}
+            <h3 id="title">Add Application</h3>
+            {% csrf_token %}
+            <div id="time_limit" class="textinput item"><h3 class="item_text">App Name: </h3>{{ form.app_name }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text">Download Url: </h3>{{ form.download_url }}</div>
+            <div id="time_limit" class="textinput item"><h3 class="item_text">Guid Id: </h3>{{ form.guid }}</div>
+             <input id="create" type="submit" class="submit_btn" value="Add">
+        </form>
+    </div>
+{% include "loading.html" %}
+{% include "list_servers.html" %}
+<style>
+    #id_app_name,
+    #id_download_url,
+    #id_guid {
+        width: 100%;
+    }
+</style>
+</body>
+</html>

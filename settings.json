@@ -1,1 +1,34 @@
-{"config_name_counter": 2676, "pay_card_number": 5892101571964366, "pay_card_name": "\u0645\u062d\u0645\u062f \u0645\u0647\u062f\u06cc \u0627\u06cc\u062f\u06cc", "unlimit_limit": {"1u": {"1m": 70, "2m": 120, "3m": 150}, "2u": {"1m": 120, "2m": 200, "3m": 250}}, "prices_msg_id": 2, "admins_id": [971930741, 6142004479], "applicatios": [{"name": "V2rayNG", "url": "url", "guid": "link"}]}
+{
+    "config_name_counter": 2676,
+    "pay_card_number": 5892101571964366,
+    "pay_card_name": "\u0645\u062d\u0645\u062f \u0645\u0647\u062f\u06cc \u0627\u06cc\u062f\u06cc",
+    "unlimit_limit": {
+        "1u": {
+            "1m": 70,
+            "2m": 120,
+            "3m": 150
+        },
+        "2u": {
+            "1m": 120,
+            "2m": 200,
+            "3m": 250
+        }
+    },
+    "prices_msg_id": 2,
+    "admins_id": [
+        971930741,
+        6142004479
+    ],
+    "applicatios": [
+        {
+            "app_name": "V2rayNg",
+            "download_url": "https://admin-napsv.ir/finance/add_off_codes/",
+            "guid": 3
+        },
+        {
+            "app_name": "Hiddify",
+            "download_url": "https://www.mongard.ir/one_part/7/python-generators/",
+            "guid": 4
+        }
+    ]
+}
