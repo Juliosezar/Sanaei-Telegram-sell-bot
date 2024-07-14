@@ -133,7 +133,7 @@ class AddServerForm(forms.Form):
 
     def clean_server_url(self):
         url = self.cleaned_data['server_url']
-        if not url.startswith('http') or not url.endswith("/") or "panel" in url:
+        if not url.startswith('http') or not url.endswith("/") or "panel/" in url:
             raise ValidationError("url اشتباه است.")
         return url
 
@@ -164,7 +164,7 @@ class EditServerForm(forms.Form):
     iphone = forms.BooleanField(required=False)
     def clean_server_url(self):
         url = self.cleaned_data['server_url']
-        if not url.startswith('http://') or not url.endswith("/") or "panel" in url:
+        if not url.startswith('http://') or not url.endswith("/") or "panel/" in url:
             raise ValidationError("url اشتباه است.")
         return url
 

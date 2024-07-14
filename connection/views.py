@@ -14,7 +14,7 @@ COMMANDS = {
     'تست رایگان 🔥': CommandRunner.test_conf,
     'سرویس های من 🧑‍💻': CommandRunner.my_services,
     'تعرفه ها 💳': CommandRunner.send_prices,
-    'ارتباط با ما 👤': CommandRunner.contact_us,
+    'ارتباط با ادمین 👤': CommandRunner.contact_us,
     'آیدی من 🆔': CommandRunner.myid,
     # 'لینک دعوت 📥': CommandRunner.invite_link,
     'down_guid_app': CommandRunner.down_guid_app,

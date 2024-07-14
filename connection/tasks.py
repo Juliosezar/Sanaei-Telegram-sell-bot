@@ -104,6 +104,25 @@ def send_notif_to_admins():
                 CommandRunner.send_msg_to_user(admin, msg=f"{count1 + count2} پرداخت تایید نشده")
 
 
+@shared_task
+def backup_panels():
+    from connection.command_runer import CommandRunner
+    with open(settings.BASE_DIR / 'settings.json', 'r') as f:
+        data = json.load(f)
+        admins = data["admins_id"]
+        servers = Server.objects.all()
+        msg = "Backup Status \n\n"
+        for server in servers:
+            rsponse = ServerApi.backup(server)
+            if rsponse:
+                msg.join(f"\n {server.server_name} ➖ ✅")
+            else:
+
+                msg.join(f"\n {server.server_name} ➖ ❌")
+        for admin in admins:
+            CommandRunner.send_msg_to_user(admin, msg=msg)
+
+
 
 @shared_task
 def disable_infinit_configs():

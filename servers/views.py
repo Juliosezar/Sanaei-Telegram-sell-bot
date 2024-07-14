@@ -23,7 +23,7 @@ from reports.views import Log
 from reports.models import ConfigLog
 from django.conf import settings
 from finance.models import UserActiveOffCodes
-
+import re
 
 BOT_USERNAME = environ.get('BOT_USERNAME')
 
@@ -32,6 +32,11 @@ def change_wallet_amount(user_id, amount):
     model_obj = CustomerModel.objects.get(userid=user_id)
     model_obj.wallet = model_obj.wallet + amount
     model_obj.save()
+
+def extract_domain(url):
+    pattern = r'(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)'
+    match = re.search(pattern, url)
+    return match.group(1) if match else None
 
 
 class ServerApi:
@@ -290,12 +295,42 @@ class ServerApi:
             return False
 
     @classmethod
+    def backup(cls, server):
+        import paramiko
+        import socket
+
+        domain = extract_domain(server.server_url)
+        try:
+            SSH_Client = paramiko.SSHClient()
+            SSH_Client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            SSH_Client.connect(hostname=domain, username="root", password=server.password, look_for_keys=False, timeout=2)
+            sftp_client = SSH_Client.open_sftp()
+            localFilePath = "/home/sezar/tmp/sf2.db"
+            remoteFilePath = "/etc/x-ui/x-ui.db"
+
+            sftp_client.get(remoteFilePath, localFilePath)
+            sftp_client.close()
+            return True
+        except paramiko.SSHException as e:
+            print(f"SSH Exception: {e}")
+            return False
+        except socket.error as e:
+            print(f"Socket error: {e}")
+            if e.errno == 9:
+                print(
+                    "Bad file descriptor error. This might be due to a network issue or the connection being closed unexpectedly.")
+                return False
+        except Exception as e:
+            print(f"Other exception: {e}")
+            return False
+        finally:
+            SSH_Client.close()
+    @classmethod
     def delete_config(cls, server_id, config_uuid, inbound_id):
         server_obj = ServerModel.objects.get(server_id=server_id)
         url = server_obj.server_url + f"panel/api/inbounds/{inbound_id}/delClient/{config_uuid}"
         session = cls.create_session(server_id)
         if not session:
-            session.close()
             return False
         respons = session.post(url)
         if respons.status_code == 200:
@@ -524,8 +559,7 @@ class Configs:
             config_queue_obj.sent_to_user = 5
             config_queue_obj.save()
             if not by_celery:
-                CommandRunner.send_msg_to_user(config_queue_obj.custumer.userid,
-                                               '🟢 کابر گرامی کانفیگ شما تا دقایقی دیگر به صورت خودکار برای شما ارسال میشود.')
+                CommandRunner.send_msg_to_user(config_queue_obj.custumer.userid,'🟢 کابر گرامی کانفیگ شما تا دقایقی دیگر به صورت خودکار برای شما ارسال میشود.')
 
     @classmethod
     def create_config_from_wallet(cls, chat_id, server_id, expire_limit, usage_limit, user_limit, price):
@@ -574,7 +608,6 @@ class Configs:
             return {'config_name': config_name, 'config_uuid': conf_uuid}
         return None
 
-    # TODO: save config price
 
     @classmethod
     def tamdid_config_from_queue(cls, config_uuid, by_celery=False):

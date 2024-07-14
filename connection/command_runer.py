@@ -669,6 +669,7 @@ class CommandRunner:
         else:
             text = '❌ این سرویس دیگر فعال نیست.'
         text = text.replace('_', "\\_")
+        keybord.append([{'text': 'دریافت QRCode', 'callback_data': f"QRcode<~>{conf_uuid}"}])
         keybord.append([{'text': '🔙 بازگشت', 'callback_data': f"سرویس های من 🧑‍💻"}])
         data = {
             'chat_id': chat_id,
