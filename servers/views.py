@@ -444,7 +444,6 @@ class Configs:
                  f"```\nvless://{config_uuid}@{server_obj.server_fake_domain}:{server_obj.inbound_port}?"
                  f"security=none&encryption=none&host=speedtest.net&headerType=http&type=tcp#{config_name}\n```"
                  '\n' '💠 برای کپی کردن کانفیگ روی دکمه <<کپی کردن کد>> (Copy Code) کلیک کنید.'
-
                  )
         return vless
 

@@ -112,7 +112,6 @@ class FirstConfirmPayment(LoginRequiredMixin, View):
                     CommandRunner.send_msg_to_user(model_obj.custumer.userid,
                                                    f'کابر گرامی مبلغ {model_obj.pay_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای خرید کانفیک مورد نظر کافی نیست. ')
             else:
-                Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.pay_price)
                 msg = 'پرداخت شما تایید و به کیف پول شما اضافه شد.'
                 CommandRunner.send_msg_to_user(model_obj.custumer.userid, msg)
             model_obj.status = 2
@@ -137,7 +136,6 @@ class SecondConfirmPayment(LoginRequiredMixin, View):
                     CommandRunner.send_msg_to_user(model_obj.custumer.userid,
                                                    f'کابر گرامی مبلغ {model_obj.pay_price} تومان به کیف پول شما اضافه گردید. این مبلغ برای خرید کانفیک مورد نظر کافی نیست. ')
             else:
-                Wallet.add_to_wallet(model_obj.custumer.userid, model_obj.pay_price)
                 msg = 'پرداخت شما تایید و به کیف پول شما اضافه شد.'
                 CommandRunner.send_msg_to_user(model_obj.custumer.userid, msg)
             model_obj.status = 3
